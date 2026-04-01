@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Architettura Tecnica — Noesis</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="approfondimenti.css">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">📚 <span>Noesis</span></a>
+    <button class="lang-toggle-btn" id="lang-toggle" onclick="window.noesisI18n.toggleLang()" title="Switch to Italian">🇮🇹 IT</button>
+    <button class="nav-toggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links">
+      <a href="index.html" data-i18n="nav.home">Home</a><a href="guida.html" data-i18n="nav.guide">Quick Guide</a><a href="library.html" data-i18n="nav.library">Library</a><a href="navigation.html" data-i18n="nav.reading">Reading</a><a href="htmleditor.html" data-i18n="nav.editor">Editor</a><a href="snapshot.html" data-i18n="nav.snapshot">Snapshot</a><a href="collezioni.html" data-i18n="nav.collections">Collections</a><a href="helpers.html" data-i18n="nav.helpers">Helpers</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="note.html" data-i18n="nav.notes">Notes</a>
+      <div class="nav-dropdown">
+        <a href="approfondimenti.html" data-i18n="nav.deepdives">Deep Dives</a>
+        <div class="nav-dropdown-menu">
+          <span class="dm-label" data-i18n="nav.dm.docs">Documentation</span>
+          <a href="doc-readme.html" data-i18n="nav.dm.readme">📚 README — Overview</a>
+          <a href="doc-ui.html" data-i18n="nav.dm.ui">🖥️ UI — Button Reference</a>
+          <a href="doc-workflow.html" data-i18n="nav.dm.workflow">🔄 Workflow — Usage Flows</a>
+          <a href="doc-tech.html" data-i18n="nav.dm.tech">⚙️ Technical Architecture</a>
+          <a href="doc-library-tech.html" data-i18n="nav.dm.libtech">📚 Technical Doc — Library</a>
+          <a href="doc-reader-tech.html" data-i18n="nav.dm.readtech">📖 Technical Doc — Reader</a>
+          <a href="doc-editor-tech.html" data-i18n="nav.dm.edtech">✏️ Technical Doc — Editor</a>
+          <a href="doc-full-embedding.html" data-i18n="nav.dm.fullembedding">📦 Full Version — Embedding</a>
+          <span class="dm-label" data-i18n="nav.dm.project">Project</span>
+          <a href="doc-adv.html" data-i18n="nav.dm.adv">🌟 Positioning</a>
+          <a href="doc-legal.html" data-i18n="nav.dm.legal">⚖️ Legal Analysis</a>
+          <a href="promo.html" data-i18n="nav.dm.promo">🚀 Presentation</a>
+        </div>
+      </div>
+      <a href="index.html#download" class="nav-cta" data-i18n="nav.download">⬇ Download</a>
+    </div>
+  </div>
+</nav>
+<div class="callout callout-info deepdive-translation-callout" style="margin:0;border-radius:0;background:#1e3a5f;color:#e0eeff;border:none;border-bottom:2px solid #3b82f6;">
+  <span class="callout-icon">🌐</span>
+  <div data-i18n="deepdive.callout">🌐 This page is written in Italian. Use your browser's <strong>Translate</strong> feature to read it in your language.</div>
+</div>
+
+<section class="hero-doc">
+  <div class="doc-tag" style="color:#f59e0b;background:rgba(245,158,11,0.15);border:1px solid #f59e0b44;">⚙️ Tecnico</div>
+  <h1>Architettura Tecnica</h1>
+  <p class="doc-subtitle">Struttura interna, database IndexedDB, sistema Snapshot, rendering ePub.js, editor WYSIWYG e scelte architetturali.</p>
+</section>
+
+<div class="doc-layout">
+  <div class="doc-toc" id="doc-toc"><h4>In questa pagina</h4><ul>
+<li><a href="#architettura-generale" class="">Architettura generale</a></li>
+<li><a href="#stack-tecnico-analisi-dettagliata" class="">Stack tecnico — Analisi dettagliata</a></li>
+<li><a href="#vanilla-js-scelta-filosofica" class="toc-h3">Vanilla JS — Scelta filosofica</a></li>
+<li><a href="#dipendenze-esterne-cdn-only" class="toc-h3">Dipendenze esterne (CDN only)</a></li>
+<li><a href="#persistenza-dei-dati-architettura-storage" class="">Persistenza dei dati — Architettura storage</a></li>
+<li><a href="#indexeddb-epublibrarydb-libri" class="toc-h3">IndexedDB — EpubLibraryDB (libri)</a></li>
+<li><a href="#indexeddb-noesisdb-capitoli-estratti-snapshot" class="toc-h3">IndexedDB — noesisDB (capitoli estratti + snapshot)</a></li>
+<li><a href="#localstorage-preferenze" class="toc-h3">localStorage — Preferenze</a></li>
+<li><a href="#api-noesisdb-funzioni-principali" class="">API noesisDB — Funzioni principali</a></li>
+<li><a href="#nel-contesto-principale-main-app" class="toc-h3">Nel contesto principale (main app)</a></li>
+<li><a href="#nel-contesto-del-capitolo-estratto-blobnull" class="toc-h3">Nel contesto del capitolo estratto (blob:null)</a></li>
+<li><a href="#sistema-di-estrazione-capitoli" class="">Sistema di Estrazione Capitoli</a></li>
+<li><a href="#strategia-tecnica" class="toc-h3">Strategia tecnica</a></li>
+<li><a href="#hook-di-integrazione-con-noesisdb" class="toc-h3">Hook di integrazione con noesisDB</a></li>
+<li><a href="#gestione-immagini-base64-inline" class="toc-h3">Gestione immagini — base64 inline</a></li>
+<li><a href="#sistema-snapshot" class="">Sistema Snapshot</a></li>
+<li><a href="#architettura-logica" class="toc-h3">Architettura logica</a></li>
+<li><a href="#componenti-ui-del-sistema-snapshot" class="toc-h3">Componenti UI del sistema Snapshot</a></li>
+<li><a href="#libreria-gerarchica-implementazione" class="">Libreria Gerarchica — Implementazione</a></li>
+<li><a href="#loadlibrarybooks-nuova-logica" class="toc-h3">loadLibraryBooks() — Nuova logica</a></li>
+<li><a href="#_openextractedenv-apertura-da-libreria" class="toc-h3">_openExtractedEnv() — Apertura da libreria</a></li>
+<li><a href="#design-della-ui-library" class="toc-h3">Design della UI Library</a></li>
+<li><a href="#rendering-epub-integrazione-epubjs" class="">Rendering EPUB — Integrazione ePub.js</a></li>
+<li><a href="#come-funziona-epubjs-nel-contesto-noesis" class="toc-h3">Come funziona ePub.js nel contesto Noesis</a></li>
+<li><a href="#scroll-mode-vs-paginated-mode" class="toc-h3">Scroll mode vs Paginated mode</a></li>
+<li><a href="#sistema-highlight" class="">Sistema Highlight</a></li>
+<li><a href="#nel-reader-epubjs-annotations-api" class="toc-h3">Nel Reader (ePub.js Annotations API)</a></li>
+<li><a href="#nel-capitolo-estratto-selectionrange-api" class="toc-h3">Nel capitolo estratto (Selection/Range API)</a></li>
+<li><a href="#editor-wysiwyg-analisi-tecnica" class="">Editor WYSIWYG — Analisi tecnica (sn56.x)</a></li>
+<li><a href="#tre-percorsi-di-accesso-alleditor" class="toc-h3">Tre percorsi di accesso all'Editor</a></li>
+<li><a href="#idb-bridge-comunicazione-cross-window" class="toc-h3">IDB Bridge — Comunicazione Cross-Window</a></li>
+<li><a href="#sistema-chunk-collection" class="toc-h3">Sistema Chunk Collection</a></li>
+<li><a href="#summernote-sn56" class="toc-h3">Noesis Summernote Editor (fork Noesis)</a></li>
+<li><a href="#plugin-tabelle" class="toc-h3">Plugin Tabelle</a></li>
+<li><a href="#sistema-export" class="">Sistema Export</a></li>
+<li><a href="#export-multiplo" class="toc-h3">Export multiplo</a></li>
+<li><a href="#export-docx-browser-side" class="toc-h3">Export DOCX — Browser-side</a></li>
+<li><a href="#export-tramite-stampa-browser-pdf-nativo" class="toc-h3">Export tramite stampa browser (PDF nativo)</a></li>
+<li><a href="#sistema-temi-implementazione-css" class="">Sistema Temi — Implementazione CSS</a></li>
+<li><a href="#architettura-multi-view-spa-senza-router" class="">Architettura multi-view (SPA senza router)</a></li>
+<li><a href="#gestione-cors-e-file-epub" class="">Gestione CORS e file EPUB</a></li>
+<li><a href="#il-problema" class="toc-h3">Il problema</a></li>
+<li><a href="#la-soluzione-consigliata" class="toc-h3">La soluzione consigliata</a></li>
+<li><a href="#la-soluzione-interna" class="toc-h3">La soluzione interna</a></li>
+<li><a href="#sicurezza-e-privacy-scelte-tecniche" class="">Sicurezza e privacy — Scelte tecniche</a></li>
+<li><a href="#considerazioni-sui-limiti-tecnici" class="">Considerazioni sui limiti tecnici</a></li>
+<li><a href="#naming-e-versioning" class="">Naming e versioning</a></li>
+</ul></div>
+  <div class="doc-content">
+    <a href="approfondimenti.html" class="doc-back">← Tutti gli approfondimenti</a>
+    <h1 id="noesis-analisi-tecnica">⚙️ Noesis — Analisi Tecnica</h1>
+<blockquote>
+<p>Struttura interna, scelte progettuali, architettura e particolarità del codice.</p>
+</blockquote>
+<hr />
+<h2 id="architettura-generale">Architettura generale</h2>
+<p>Noesis è un'applicazione <strong>Single-File HTML</strong> (SFA): tutto il codice — HTML, CSS, JavaScript, configurazione — risiede in un singolo file <code>noesis810.html</code>. Questa scelta progettuale radicale definisce l'intera architettura dell'app.</p>
+<pre><code>noesis810.html
+├── &lt;head&gt;
+│     ├── CDN: ePub.js, JSZip, Bootstrap Icons
+│     ├── CDN: jQuery, Noesis Summernote Editor, Mozilla PDF.js
+│     └── CSS inline: layout, temi, componenti, library dark theme
+├── &lt;body&gt;
+│     ├── Libreria (Knowledge Library — vista gerarchica scura)
+│     ├── Reader view
+│     ├── Extracted Chapter view (con sistema Snapshot)
+│     └── Editor view
+└── &lt;script&gt;
+      ├── noesisDB API (capitoli estratti + snapshot)
+      ├── EpubLibraryDB API (libri)
+      ├── Motore ePub.js
+      ├── Sistema highlight
+      ├── Sistema chunk/collezioni
+      ├── Estrattore capitoli (con chapterId injection)
+      ├── Sistema Snapshot (Save / Load / Delete)
+      ├── Libreria gerarchica (loadLibraryBooks + _openExtractedEnv)
+      ├── Editor WYSIWYG
+      ├── Export PDF/DOCX
+      └── Gestione stato/preferenze
+</code></pre>
+<hr />
+<h2 id="stack-tecnico-analisi-dettagliata">Stack tecnico — Analisi dettagliata</h2>
+<h3 id="vanilla-js-scelta-filosofica">Vanilla JS — Scelta filosofica</h3>
+<p>Noesis non usa framework (React, Vue, Angular, Svelte). La scelta del <strong>Vanilla JS puro</strong> è deliberata:</p>
+<ul>
+<li><strong>Zero dipendenze runtime</strong>: nessun bundle, nessun build step, nessun <code>node_modules</code></li>
+<li><strong>Portabilità assoluta</strong>: il file funziona su qualsiasi browser moderno senza preprocessing</li>
+<li><strong>Dimensioni contenute</strong>: un singolo HTML senza overhead di framework</li>
+<li><strong>Longevità</strong>: il codice Vanilla JS è stabile nel tempo; nessun rischio di breaking changes da aggiornamenti di framework</li>
+</ul>
+<h3 id="dipendenze-esterne-cdn-only">Dipendenze esterne (CDN only)</h3>
+<table>
+<thead>
+<tr>
+<th>Libreria</th>
+<th>Versione</th>
+<th>Funzione tecnica</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ePub.js</strong></td>
+<td>latest</td>
+<td>Parser e renderer EPUB: gestisce la decompressione zip, il parsing del manifest, la navigazione NCX/TOC e il rendering in iframe</td>
+</tr>
+<tr>
+<td><strong>JSZip</strong></td>
+<td>latest</td>
+<td>Decompressione file EPUB (che sono archivi zip) direttamente nel browser, senza server</td>
+</tr>
+<tr>
+<td><strong>Bootstrap Icons</strong></td>
+<td>latest</td>
+<td>Font icon SVG inline via CSS — zero immagini esterne</td>
+</tr>
+<tr>
+<td><strong>jQuery</strong></td>
+<td>3.7.1</td>
+<td>DOM manipulation (richiesto da Summernote)</td>
+</tr>
+<tr>
+<td><strong>Summernote lite</strong></td>
+<td>0.9.1</td>
+<td>Editor WYSIWYG per sn56.x</td>
+</tr>
+<tr>
+<td><strong>Turndown</strong></td>
+<td>latest</td>
+<td>Conversione HTML → Markdown</td>
+</tr>
+<tr>
+<td><strong>html-docx-js</strong></td>
+<td>latest</td>
+<td>Generazione documenti DOCX</td>
+</tr>
+<tr>
+<td><strong>JSZip</strong></td>
+<td>latest</td>
+<td>Packaging ZIP per export MD+ZIP</td>
+</tr>
+</tbody>
+</table>
+<h3 id="strumenti-integrati-v810">Strumenti Integrati (v810)</h3>
+<table>
+<thead>
+<tr>
+<th>Strumento</th>
+<th>Tipo</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Excalidraw (fork Noesis)</strong></td>
+<td>Tool Editor</td>
+<td>Aperto in nuovo tab; diagrammi, flowchart, mind map; export SVG/PNG; salvataggio localStorage</td>
+</tr>
+<tr>
+<td><strong>Pandoc Online</strong></td>
+<td>Tool Library</td>
+<td><code>pandoc.wasm</code> nel browser; conversioni MD/DOCX/HTML/LaTeX/EPUB; nessun upload</td>
+</tr>
+<tr>
+<td><strong>Mozilla PDF Viewer</strong></td>
+<td>Tool Library</td>
+<td>Visualizzatore PDF basato su PDF.js</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="persistenza-dei-dati-architettura-storage">Persistenza dei dati — Architettura storage</h2>
+<p>Noesis usa <strong>due database IndexedDB separati</strong> con responsabilità distinte, più localStorage per le preferenze leggere.</p>
+<h3 id="indexeddb-epublibrarydb-libri">IndexedDB — EpubLibraryDB (libri)</h3>
+<pre><code class="language-javascript">// Schema logico IndexedDB
+Database: &quot;EpubLibraryDB&quot;
+ObjectStore: &quot;books&quot;
+  ├── key: bookId (hash o filename)
+  ├── data: ArrayBuffer (file .epub binario)
+  ├── metadata: { title, author, cover, addedAt }
+  └── position: { chapterHref, scrollY, pageIndex }
+</code></pre>
+<p>IndexedDB viene usato per i libri perché:<br />
+- Gestisce file binari di grandi dimensioni (ArrayBuffer)<br />
+- È asincrono e non blocca il thread principale<br />
+- Persiste tra sessioni del browser<br />
+- Non ha limiti di dimensione pratici per i file EPUB</p>
+<h3 id="indexeddb-noesisdb-capitoli-estratti-snapshot">IndexedDB — noesisDB (capitoli estratti + snapshot)</h3>
+<pre><code class="language-javascript">// Schema logico noesisDB
+Database: &quot;noesisDB&quot;
+Version: 1
+ObjectStore: &quot;extractedChapters&quot;
+  keyPath: &quot;chapterId&quot;
+  Indexes:
+    ├── &quot;bookName&quot;    (unique: false)
+    └── &quot;chapterName&quot; (unique: false)
+
+// Struttura di un chapterRecord
+{
+  chapterId:   &quot;ch_1709123456789_482910&quot;,  // ID univoco generato all'estrazione
+  bookName:    &quot;Nome del libro&quot;,
+  chapterName: &quot;Nome del capitolo&quot;,
+  createdAt:   &quot;2025-03-06T14:22:00.000Z&quot;,
+  snapshots: [
+    {
+      snapshotId:  &quot;snap_1709123500000_391020&quot;,
+      createdAt:   &quot;2025-03-06T14:25:00.000Z&quot;,
+      bookName:    &quot;Nome del libro&quot;,
+      chapterName: &quot;Nome del capitolo&quot;,
+      description: &quot;Versione con highlights&quot;,
+      content:     &quot;&lt;div&gt;...HTML completo del capitolo...&lt;/div&gt;&quot;
+    },
+    // ... altri snapshot
+  ]
+}
+</code></pre>
+<p><strong>Caratteristiche del sistema noesisDB:</strong><br />
+- <strong>Full snapshot</strong>: ogni snapshot conserva l'HTML completo del capitolo (nessun diff, nessuna compressione)<br />
+- <strong>Versioning manuale</strong>: l'utente controlla esplicitamente quando salvare una versione<br />
+- <strong>Array piatto</strong>: gli snapshot sono un array all'interno del <code>chapterRecord</code>, senza tabelle separate<br />
+- <strong>Nessun merge automatico</strong>: ogni snapshot è indipendente e ripristinabile isolatamente</p>
+<h3 id="localstorage-preferenze">localStorage — Preferenze</h3>
+<pre><code class="language-javascript">// Chiavi localStorage (schema logico)
+&quot;noesis_theme&quot;          → nome del tema corrente
+&quot;noesis_fontSize&quot;       → dimensione font reader
+&quot;noesis_lineHeight&quot;     → interlinea reader
+&quot;noesis_scrollMode&quot;     → &quot;scroll&quot; | &quot;paginated&quot;
+&quot;noesis_pageLayout&quot;     → &quot;single&quot; | &quot;double&quot;
+&quot;noesis_toolbarColor&quot;   → colore toolbar (hex)
+&quot;noesis_sidebarColor&quot;   → colore sidebar (hex)
+&quot;noesis_bookmarks_[id]&quot; → JSON array segnalibri per libro
+</code></pre>
+<blockquote>
+<p><strong>Nota v810</strong>: le collezioni chunk non sono più salvate in localStorage. La persistenza dei capitoli estratti e degli snapshot avviene interamente via noesisDB.</p>
+</blockquote>
+<hr />
+<h2 id="api-noesisdb-funzioni-principali">API noesisDB — Funzioni principali</h2>
+<h3 id="nel-contesto-principale-main-app">Nel contesto principale (main app)</h3>
+<pre><code class="language-javascript">// Apertura database
+function openNoesisDB() {
+  return new Promise((resolve, reject) =&gt; {
+    const request = indexedDB.open('noesisDB', 1);
+    request.onupgradeneeded = (event) =&gt; {
+      const db = event.target.result;
+      const store = db.createObjectStore('extractedChapters', { keyPath: 'chapterId' });
+      store.createIndex('bookName', 'bookName', { unique: false });
+      store.createIndex('chapterName', 'chapterName', { unique: false });
+    };
+    request.onsuccess = (event) =&gt; resolve(event.target.result);
+    request.onerror = (event) =&gt; reject(event.target.error);
+  });
+}
+
+// Salvataggio/aggiornamento di un chapterRecord (inclusi i suoi snapshot)
+async function saveExtractedChapterToDB(chapterRecord) { ... }
+
+// Lettura di un singolo chapterRecord per chapterId
+async function getExtractedChapterFromDB(chapterId) { ... }
+
+// Lettura di tutti i chapterRecord (usata dalla libreria gerarchica)
+async function getAllExtractedChapters() {
+  const db = await openNoesisDB();
+  return new Promise((resolve, reject) =&gt; {
+    const tx = db.transaction('extractedChapters', 'readonly');
+    const store = tx.objectStore('extractedChapters');
+    const request = store.getAll();
+    request.onsuccess = () =&gt; resolve(request.result || []);
+    request.onerror = (e) =&gt; reject(e);
+  });
+}
+</code></pre>
+<h3 id="nel-contesto-del-capitolo-estratto-blobnull">Nel contesto del capitolo estratto (blob:null)</h3>
+<p>Il capitolo estratto è un documento aperto come blob URL. Non ha accesso a <code>window.opener</code> per design (compatibilità cross-browser e sicurezza). Usa una propria copia locale delle API noesisDB:</p>
+<pre><code class="language-javascript">// Variante locale dell'API (prefisso _ per distinguerla)
+function _openNoesisDB() { ... }          // stessa logica, scope locale
+function _getChapterRecord(chapterId) { ... }  // get per ID
+function _putChapterRecord(record) { ... }     // put (insert/update)
+</code></pre>
+<p>Il <code>chapterId</code> viene iniettato nel template HTML al momento della generazione:</p>
+<pre><code class="language-javascript">// In generateExtractedHTML() — lato main app
+const _embeddedChapterId = (chapterId || '').replace(/`/g, &quot;'&quot;);
+
+// Nel template generato — lato capitolo estratto
+var CURRENT_CHAPTER_ID = `${_embeddedChapterId}`;
+</code></pre>
+<hr />
+<h2 id="sistema-di-estrazione-capitoli">Sistema di Estrazione Capitoli</h2>
+<h3 id="strategia-tecnica">Strategia tecnica</h3>
+<p>L'estrattore è uno dei componenti più sofisticati di Noesis. Non usa semplicemente il contenuto HTML del capitolo corrente: <strong>naviga la spine del libro e assembla HTML da più capitoli</strong> rispettando la gerarchia.</p>
+<pre><code>Algoritmo di estrazione (corrente + sottolivelli):
+
+1. Leggi il nodo TOC corrente → ottieni href capitolo
+2. Trova tutti i nodi figli ricorsivamente nel TOC tree
+3. Per ogni nodo (corrente + figli in ordine):
+   a. Carica il file HTML del capitolo dall'EPUB (via JSZip)
+   b. Estrai il &lt;body&gt; content
+   c. Riscrivi i path delle immagini → base64 inline
+   d. Riscrivi i link interni → ancore locali
+4. Assembla tutto in un singolo documento HTML standalone
+5. Genera un chapterId univoco: 'ch_' + Date.now() + '_' + random
+6. Salva il chapterRecord in noesisDB (snapshots array vuoto inizialmente)
+7. Inietta nel template: toolbar Noesis, CSS tema corrente,
+   CURRENT_CHAPTER_ID, script snapshot, script chunk
+8. Apri il documento in una nuova view via Blob URL
+</code></pre>
+<h3 id="hook-di-integrazione-con-noesisdb">Hook di integrazione con noesisDB</h3>
+<p>L'estrazione avviene in <code>extractCurrentChapter()</code> e <code>extractMultipleSections()</code>. Entrambe seguono lo stesso pattern:</p>
+<pre><code class="language-javascript">// Pattern comune alle due funzioni di estrazione
+const _chapterId = 'ch_' + Date.now() + '_' + Math.floor(Math.random() * 1e6);
+
+await saveExtractedChapterToDB({
+  chapterId:   _chapterId,
+  bookName:    currentBookTitle,
+  chapterName: chapterTitle,
+  createdAt:   new Date().toISOString(),
+  snapshots:   []
+});
+
+const standaloneHTML = generateExtractedHTML(
+  chapterTitle, allStyles, htmlContent,
+  currentBookTitle, chapterTitle, _chapterId  // ← 6° parametro nuovo
+);
+</code></pre>
+<h3 id="gestione-immagini-base64-inline">Gestione immagini — base64 inline</h3>
+<pre><code class="language-javascript">// Schema logico della conversione
+const imgSrc = imgElement.getAttribute(&quot;src&quot;);
+const imgData = await loadFromEpub(imgSrc); // ArrayBuffer
+const base64 = arrayBufferToBase64(imgData);
+const mimeType = detectMimeType(imgSrc);
+imgElement.src = `data:${mimeType};base64,${base64}`;
+</code></pre>
+<hr />
+<h2 id="sistema-snapshot">Sistema Snapshot</h2>
+<h3 id="architettura-logica">Architettura logica</h3>
+<pre><code>SAVE SNAPSHOT
+  │
+  ├── Trigger: click su saveSnapshotBtn (toolbar capitolo estratto)
+  ├── UI: modale con campo descrizione (saveSnapshotOverlay)
+  └── createSnapshot(description):
+        │
+        ├── Legge innerHTML di .chapter-content
+        ├── Genera snapshotId: 'snap_' + Date.now() + '_' + random
+        ├── Crea oggetto snapshot: { snapshotId, createdAt, bookName,
+        │                            chapterName, description, content }
+        ├── _getChapterRecord(CURRENT_CHAPTER_ID)
+        ├── Aggiunge snapshot a chapterRecord.snapshots[]
+        └── _putChapterRecord(chapterRecord) → IndexedDB
+
+LOAD SNAPSHOT
+  │
+  ├── Trigger: click su [Load] in Snapshot History
+  └── loadSnapshot(snapshotId):
+        │
+        ├── _getChapterRecord(CURRENT_CHAPTER_ID)
+        ├── Trova snapshot per snapshotId
+        ├── Chiede conferma all'utente
+        └── document.querySelector('.chapter-content').innerHTML = snapshot.content
+
+DELETE SNAPSHOT
+  │
+  ├── Trigger: click su [🗑️] in Snapshot History
+  └── deleteSnapshot(snapshotId):
+        │
+        ├── _getChapterRecord(CURRENT_CHAPTER_ID)
+        ├── Chiede conferma
+        ├── Filtra snapshot dall'array: record.snapshots.filter(s =&gt; s.snapshotId !== id)
+        └── _putChapterRecord(record aggiornato)
+</code></pre>
+<h3 id="componenti-ui-del-sistema-snapshot">Componenti UI del sistema Snapshot</h3>
+<pre><code>Nel template del capitolo estratto sono iniettati:
+
+PULSANTI TOOLBAR:
+  saveSnapshotBtn    — colore #7c3aed (viola), icona bi-camera
+  snapshotHistoryBtn — colore #5b21b6 (viola scuro), icona bi-clock-history
+
+DIALOGO SAVE (saveSnapshotOverlay):
+  ├── Input testo: descrizione (placeholder &quot;Optional description...&quot;)
+  ├── snapshotCancelBtn  — chiude senza salvare
+  └── snapshotSaveConfirm — esegue createSnapshot(), chiude, mostra toast
+
+DIALOGO HISTORY (snapshotHistoryOverlay):
+  ├── Header: &quot;Snapshot History&quot; + pulsante chiudi
+  ├── Lista dinamica (_renderSnapshotHistory()):
+  │     Per ogni snapshot (reversed = più recente prima):
+  │     ├── Descrizione (o &quot;no description&quot;)
+  │     ├── Data/ora formattata
+  │     ├── Pulsante [↩ Load]   → loadSnapshot(snapshotId)
+  │     └── Pulsante [🗑️]      → deleteSnapshot(snapshotId)
+  └── Stato vuoto: &quot;No snapshots yet.&quot;
+</code></pre>
+<hr />
+<h2 id="libreria-gerarchica-implementazione">Libreria Gerarchica — Implementazione</h2>
+<h3 id="loadlibrarybooks-nuova-logica">loadLibraryBooks() — Nuova logica</h3>
+<p>La funzione centrale della libreria è stata completamente riscritta per la versione 703. Carica in parallelo i libri da <code>EpubLibraryDB</code> e i capitoli estratti da <code>noesisDB</code>, poi costruisce la UI gerarchica:</p>
+<pre><code class="language-javascript">async function loadLibraryBooks() {
+  const [books, allChapters] = await Promise.all([
+    getAllBooks(),
+    getAllExtractedChapters().catch(() =&gt; [])
+  ]);
+
+  // Raggruppa i capitoli per nome libro (case-insensitive)
+  const chaptersByBook = {};
+  allChapters.forEach(ch =&gt; {
+    const key = (ch.bookName || '').toLowerCase().trim();
+    if (!chaptersByBook[key]) chaptersByBook[key] = [];
+    chaptersByBook[key].push(ch);
+  });
+
+  books.forEach(book =&gt; {
+    // Trova i capitoli estratti di questo libro
+    const bookChapters = (chaptersByBook[bookKey] || [])
+      .sort((a, b) =&gt; new Date(b.createdAt) - new Date(a.createdAt));
+
+    // Costruisce la struttura DOM: book-row → chapters-section → chapter-entry → snapshots-list
+    // ...
+  });
+}
+</code></pre>
+<h3 id="_openextractedenv-apertura-da-libreria">_openExtractedEnv() — Apertura da libreria</h3>
+<p>Questa funzione permette di aprire un capitolo estratto dalla libreria, caricando un snapshot specifico o quello più recente:</p>
+<pre><code class="language-javascript">function _openExtractedEnv(chapterRecord, snapshotId) {
+  const snaps = chapterRecord.snapshots || [];
+
+  // Trova lo snapshot target (specificato o più recente)
+  let targetSnap = snapshotId
+    ? snaps.find(s =&gt; s.snapshotId === snapshotId)
+    : snaps.reduce((a, b) =&gt; (a.createdAt &gt; b.createdAt ? a : b), null);
+
+  // Usa il contenuto dello snapshot come htmlContent per il template
+  const htmlContent = targetSnap
+    ? targetSnap.content
+    : '&lt;p&gt;&lt;em&gt;No snapshots yet.&lt;/em&gt;&lt;/p&gt;';
+
+  // Riusa generateExtractedHTML con il chapterId del record esistente
+  const html = generateExtractedHTML(
+    chapterRecord.chapterName, '',
+    htmlContent,
+    chapterRecord.bookName, chapterRecord.chapterName,
+    chapterRecord.chapterId
+  );
+
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const w = window.open(url, '_blank');
+  if (w) setTimeout(() =&gt; URL.revokeObjectURL(url), 15000);
+}
+</code></pre>
+<h3 id="design-della-ui-library">Design della UI Library</h3>
+<p>Il tema della libreria è stato completamente ridisegnato:</p>
+<pre><code class="language-css">/* Principi del nuovo tema Library */
+#library-view {
+  background: #0f0f13;           /* Sfondo quasi-nero */
+  font-family: 'Georgia', serif; /* Tipografia editoriale */
+}
+
+/* Struttura gerarchica via CSS */
+.book-row       { border-bottom: 1px solid rgba(255,255,255,0.06); }
+.book-header    { gap: 18px; padding: 20px 0 16px; }
+.book-cover-thumb { width: 64px; height: 88px; }   /* Copertina compatta */
+.chapters-section { padding-left: 82px; }           /* Rientro allineato */
+.chapter-entry  { border-left: 2px solid rgba(102,126,234,0.15); }
+.snapshot-item  { /* Punto colorato + descrizione + data */ }
+</code></pre>
+<hr />
+<h2 id="rendering-epub-integrazione-epubjs">Rendering EPUB — Integrazione ePub.js</h2>
+<h3 id="come-funziona-epubjs-nel-contesto-noesis">Come funziona ePub.js nel contesto Noesis</h3>
+<pre><code>File .epub (ArrayBuffer da IndexedDB)
+         │
+         ▼
+ePub.js Book instance
+  │
+  ├── Parsing OPF (Open Packaging Format)
+  │     → manifest dei file interni
+  │     → spine (ordine di lettura)
+  │     → metadata (titolo, autore, lingua)
+  │
+  ├── Parsing NCX / nav.xhtml
+  │     → struttura TOC gerarchica
+  │     → href dei capitoli
+  │
+  └── Rendition (renderer)
+        ├── Target: &lt;div id=&quot;reader&quot;&gt; nel DOM
+        ├── Modalità: iframe per ogni capitolo
+        └── Navigazione via rendition.display(href)
+</code></pre>
+<h3 id="scroll-mode-vs-paginated-mode">Scroll mode vs Paginated mode</h3>
+<ul>
+<li><code>flow: "scrolled-continuous"</code> → scorrimento verticale fluido</li>
+<li><code>flow: "paginated"</code> → navigazione paginata con gestione viewport</li>
+</ul>
+<hr />
+<h2 id="sistema-highlight">Sistema Highlight</h2>
+<h3 id="nel-reader-epubjs-annotations-api">Nel Reader (ePub.js Annotations API)</h3>
+<pre><code class="language-javascript">rendition.annotations.highlight(cfiRange, {}, handler, &quot;yellow&quot;);
+</code></pre>
+<p>I <strong>CFI (Canonical Fragment Identifiers)</strong> identificano posizioni univoche nell'EPUB e vengono usati per salvare, ripristinare e rimuovere gli highlight.</p>
+<h3 id="nel-capitolo-estratto-selectionrange-api">Nel capitolo estratto (Selection/Range API)</h3>
+<pre><code class="language-javascript">const selection = window.getSelection();
+const range = selection.getRangeAt(0);
+const span = document.createElement(&quot;span&quot;);
+span.className = `highlight-${color}`; // yellow | green | pink
+range.surroundContents(span);
+</code></pre>
+<p>Gli highlight nel capitolo estratto fanno parte dell'HTML del documento e vengono preservati automaticamente negli snapshot.</p>
+<hr />
+<h2 id="editor-wysiwyg-analisi-tecnica">Editor WYSIWYG — Analisi tecnica (sn56.x)</h2>
+<p>L'editor <strong>Noesis Editor</strong> (codice <strong>sn56.x</strong>, anche detto <strong>Summernote Editor</strong>) è l'ambiente di annotazione e studio di Noesis. È un editor WYSIWYG basato su <strong>Summernote-lite 0.9.1</strong> che opera in una finestra separata.</p>
+<h3 id="tre-percorsi-di-accesso-alleditor">Tre percorsi di accesso all'Editor</h3>
+<table>
+<thead>
+<tr>
+<th>Percorso</th>
+<th>Trigger</th>
+<th>Payload</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Library → Open Editor</td>
+<td>Click "Open Editor"</td>
+<td><code>null</code> → modalità standalone</td>
+</tr>
+<tr>
+<td>2. Library → capitolo/snapshot</td>
+<td>Click su nome capitolo o snapshot</td>
+<td><code>{mode:'chapter', htmlContent, bookName, chapterName, chapterId}</code></td>
+</tr>
+<tr>
+<td>3. Reader → Extract</td>
+<td>Click "Extract"</td>
+<td><code>{mode:'chapter', htmlContent, bookName, chapterName, chapterId}</code> (immediato)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="idb-bridge-comunicazione-cross-window">IDB Bridge — Comunicazione Cross-Window</h3>
+<p>sn56.x viene eseguito in un contesto <code>blob:null</code>, che <strong>non può accedere direttamente a IndexedDB</strong> della finestra principale. Il bridge risolve questo tramite <code>postMessage</code>.</p>
+<pre><code class="language-javascript">// Lato sn56.x (child)
+function _idbPost(op, payload) {
+  return new Promise((resolve, reject) => {
+    const target = window.opener || window.parent;
+    const id = ++_idbCallbackId;
+    _idbCallbacks[id] = { resolve, reject };
+    target.postMessage({ __noesisIDB: true, id, op, payload }, '*');
+    setTimeout(() => reject(new Error('IDB timeout')), 8000);
+  });
+}
+
+// Lato noesis810.html (parent)
+window.addEventListener('message', (e) => {
+  if (!e.data.__noesisIDB) return;
+  const { id, op, payload } = e.data;
+  // op='get': getExtractedChapterFromDB(chapterId)
+  // op='put': saveExtractedChapterToDB(record)
+  e.source.postMessage({ __noesisIDBResponse: true, id, result }, '*');
+});
+</code></pre>
+<h3 id="sistema-chunk-collection">Sistema Chunk Collection</h3>
+<p>Sistema di raccolta frammenti di testo, immagini e tabelle:</p>
+<pre><code class="language-javascript">var _collection = []; // Array in-memory di chunk
+
+// Struttura chunk:
+{
+  id: "1711530000000_123456789",  // univoco
+  content: "&lt;p&gt;HTML del chunk&lt;/p&gt;",
+  type: "text" | "image" | "table",
+  bookName: "Nome libro",
+  chapterName: "Nome capitolo",
+  timestamp: 1711530000000
+}
+</code></pre>
+<p><strong>Metodi di aggiunta:</strong></p>
+<ul>
+<li><strong>Pulsante [+]</strong>: aggiunge testo selezionato, immagine tracciata, o tabella</li>
+<li><strong>Doppio tap</strong> su immagine: aggiunge direttamente</li>
+<li><strong>Long press (600ms)</strong> su immagine: aggiunge direttamente (Android)</li>
+</ul>
+<p><strong>Inspect Panel</strong>: pannello flottante non modale, draggable/resizable, con azioni: Inject al cursore, Fullscreen, Delete, selezione multipla + inject di gruppo.</p>
+<hr />
+<h3 id="summernote-sn56">Noesis Summernote Editor (fork Noesis)</h3>
+<p>L'editor WYSIWYG è basato su <strong>Noesis Summernote Editor</strong> — fork Noesis dell'editor jQuery WYSIWYG. Summernote gestisce internamente formattazione, struttura blocchi, liste e inserimento media tramite le proprie API:</p>
+<pre><code class="language-javascript">$('#editor').summernote('bold');
+$('#editor').summernote('formatBlock', 'h1');
+$('#editor').summernote('insertUnorderedList');
+$('#editor').summernote('insertImage', dataUrl, 'image');
+</code></pre>
+<h3 id="plugin-tabelle">Plugin Tabelle</h3>
+<ol>
+<li>Summernote inserisce una tabella HTML base nell'editor</li>
+<li>Il plugin personalizzato monitora il focus/click sull'elemento tabella</li>
+<li>Mostra una <strong>toolbar contestuale flottante</strong> posizionata dinamicamente via <code>getBoundingClientRect()</code></li>
+<li>Gestisce: inserisci riga sopra/sotto, inserisci colonna sinistra/destra, elimina riga, elimina colonna</li>
+</ol>
+<hr />
+<h2 id="sistema-export">Sistema Export</h2>
+<h3 id="export-multiplo">Export multiplo</h3>
+<p>Il menu Export dell'editor espone 6 formati:</p>
+<pre><code>DOM Summernote (innerHTML)
+         │
+         ├── TXT    — testo estratto (.innerText)
+         ├── MD     — Turndown.js (HTML → Markdown)
+         ├── MD+ZIP — Markdown + immagini base64 estratte in ZIP
+         ├── JSON   — struttura documento come oggetto JSON
+         ├── DOCX   — html-docx-js (HTML → OOXML)
+         └── PDF    — window.print() + @media print A4
+</code></pre>
+<h3 id="export-docx-browser-side">Export DOCX — Browser-side</h3>
+<pre><code class="language-javascript">const docxContent = htmlToDocxXml(editorContent);
+const zip = new JSZip();
+zip.file(&quot;word/document.xml&quot;, docxContent);
+// ... altri file richiesti dal formato OOXML
+const blob = await zip.generateAsync({ type: &quot;blob&quot; });
+downloadBlob(blob, &quot;documento.docx&quot;);
+</code></pre>
+<h3 id="export-tramite-stampa-browser-pdf-nativo">Export tramite stampa browser (PDF nativo)</h3>
+<pre><code class="language-javascript">window.print();
+// CSS @media print gestisce:
+//   - nasconde toolbar
+//   - imposta margini pagina
+//   - gestisce page-break
+//   - ottimizza la resa tipografica
+</code></pre>
+<hr />
+<h2 id="sistema-temi-implementazione-css">Sistema Temi — Implementazione CSS</h2>
+<p>15 temi come <strong>variabili CSS</strong> applicate dinamicamente al <code>:root</code>:</p>
+<pre><code class="language-css">:root {
+  --bg-color:       #ffffff;
+  --text-color:     #1a1a1a;
+  --sidebar-bg:     #f5f5f5;
+  --toolbar-bg:     #ffffff;
+  --link-color:     #0066cc;
+  --border-color:   #e0e0e0;
+}
+</code></pre>
+<pre><code class="language-javascript">function applyTheme(themeName) {
+  const theme = themes[themeName];
+  Object.entries(theme).forEach(([key, value]) =&gt; {
+    document.documentElement.style.setProperty(key, value);
+  });
+  localStorage.setItem(&quot;noesis_theme&quot;, themeName);
+}
+</code></pre>
+<hr />
+<h2 id="architettura-multi-view-spa-senza-router">Architettura multi-view (SPA senza router)</h2>
+<p>Noesis gestisce le sue viste (Libreria, Reader, Capitolo Estratto, Editor) come <strong>sezioni DOM nascoste/mostrate</strong> via CSS (<code>display: none / block</code>):</p>
+<pre><code class="language-javascript">function showLibrary() {
+  readerView.classList.add('hidden');
+  libraryView.classList.remove('hidden');
+  loadLibraryBooks(); // ← ricarica sempre la vista gerarchica aggiornata
+}
+
+function showReader() {
+  libraryView.classList.add('hidden');
+  readerView.classList.remove('hidden');
+}
+</code></pre>
+<p>Il capitolo estratto si apre invece in una <strong>nuova tab</strong> tramite Blob URL, separato dal contesto principale.</p>
+<hr />
+<h2 id="gestione-cors-e-file-epub">Gestione CORS e file EPUB</h2>
+<h3 id="il-problema">Il problema</h3>
+<p>I browser bloccano le richieste cross-origin quando la pagina è caricata con <code>file://</code>.</p>
+<h3 id="la-soluzione-consigliata">La soluzione consigliata</h3>
+<p><code>python -m http.server</code> trasforma il protocollo da <code>file://</code> a <code>http://localhost</code>, eliminando le restrizioni CORS.</p>
+<h3 id="la-soluzione-interna">La soluzione interna</h3>
+<p>JSZip carica l'intero EPUB in memoria come ArrayBuffer, permettendo a Noesis di accedere ai file interni senza richieste HTTP.</p>
+<hr />
+<h2 id="sicurezza-e-privacy-scelte-tecniche">Sicurezza e privacy — Scelte tecniche</h2>
+<table>
+<thead>
+<tr>
+<th>Scelta</th>
+<th>Motivazione tecnica</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nessun server</td>
+<td>Impossibile data exfiltration lato server</td>
+</tr>
+<tr>
+<td>EpubLibraryDB locale</td>
+<td>File .epub mai trasmessi in rete</td>
+</tr>
+<tr>
+<td>noesisDB locale</td>
+<td>Capitoli estratti e snapshot mai trasmessi in rete</td>
+</tr>
+<tr>
+<td>localStorage</td>
+<td>Preferenze mai inviate a terzi</td>
+</tr>
+<tr>
+<td>Dipendenze CDN</td>
+<td>Unico punto di contatto con rete (primo avvio)</td>
+</tr>
+<tr>
+<td>Nessun analytics</td>
+<td>Nessuna libreria di tracking (GA, Mixpanel, ecc.)</td>
+</tr>
+<tr>
+<td>Nessun auth</td>
+<td>Nessuna credenziale da gestire o proteggere</td>
+</tr>
+<tr>
+<td>Blob URL per capitoli estratti</td>
+<td>Il documento estratto non ha origine HTTP — isolato per design</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="considerazioni-sui-limiti-tecnici">Considerazioni sui limiti tecnici</h2>
+<table>
+<thead>
+<tr>
+<th>Limite</th>
+<th>Causa tecnica</th>
+<th>Workaround</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Alcuni EPUB non si rendono</td>
+<td>CORS con <code>file://</code></td>
+<td>Usare server locale</td>
+</tr>
+<tr>
+<td><code>execCommand</code> deprecato</td>
+<td>Specifiche W3C</td>
+<td>Funziona su tutti i browser moderni</td>
+</tr>
+<tr>
+<td>Grandi EPUB rallentano</td>
+<td>IndexedDB e parsing in memoria</td>
+<td>Dipende dalla RAM del dispositivo</td>
+</tr>
+<tr>
+<td>Export PDF</td>
+<td>Stampa nativa browser (@media print)</td>
+<td>Qualità tipografica ottimale, nessuna dipendenza</td>
+</tr>
+<tr>
+<td>Nessuna sincronizzazione</td>
+<td>Design offline-first</td>
+<td>Export JSON collezioni; snapshot in noesisDB</td>
+</tr>
+<tr>
+<td>Snapshot crescono nel tempo</td>
+<td>Full HTML per snapshot (no diff)</td>
+<td>Eliminare snapshot obsoleti da Snapshot History</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="naming-e-versioning">Naming e versioning</h2>
+<p>Il nome del file (<code>noesis810.html</code>) segue un sistema di versioning incrementale. La versione 703 introduce le due feature principali rispetto alla baseline 683: il <strong>sistema Snapshot</strong> (noesisDB, Save/Load/Delete snapshot nel capitolo estratto) e la <strong>UI Library gerarchica</strong> (libro → capitoli estratti → snapshot con tema scuro editoriale).</p>
+    <div style="margin-top:56px; padding-top:32px; border-top:1px solid var(--border); display:flex; gap:16px; flex-wrap:wrap;">
+      <a href="approfondimenti.html" class="doc-back" style="margin-bottom:0;">← Tutti gli approfondimenti</a>
+      <a href="index.html" class="doc-back" style="margin-bottom:0;">🏠 Home</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>MIT License · Vanilla JS · No Server · <strong>Noesis</strong> · v810</p>
+  <p style="margin-top:8px;"><a href="index.html">Home</a> · <a href="guida.html">Guida</a> · <a href="approfondimenti.html">Approfondimenti</a> · <a href="faq.html">FAQ</a> · <a href="note.html">Note</a></p>
+</footer>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="site.js"></script>
+<script>
+// Highlight TOC item on scroll
+(function(){
+  const links = document.querySelectorAll('.doc-toc a');
+  if (!links.length) return;
+  const headings = Array.from(document.querySelectorAll('.doc-content h2, .doc-content h3'));
+  function onScroll() {
+    const scrollY = window.scrollY + 100;
+    let active = null;
+    headings.forEach(h => { if (h.offsetTop <= scrollY) active = h; });
+    links.forEach(l => l.style.color = '');
+    if (active) {
+      const id = active.getAttribute('id');
+      const link = document.querySelector('.doc-toc a[href="#' + id + '"]');
+      if (link) link.style.color = 'var(--violet)';
+    }
+  }
+  window.addEventListener('scroll', onScroll, {passive: true});
+})();
+</script>
+</body>
+</html>

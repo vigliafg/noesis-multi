@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Noesis Reading — Noesis</title>
+  <meta name="description" data-i18n-content="reading.meta.desc" content="Noesis Reading: read EPUBs, annotate with 3-colour highlighting, manage bookmarks, customise themes and typography, and extract chapters into Noesis Editor.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="approfondimenti.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    .themes-full { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 12px; }
+    .theme-card { border-radius: 8px; overflow: hidden; border: 2px solid var(--border); }
+    .theme-color { height: 48px; }
+    .theme-name { font-size: 11px; text-align: center; padding: 6px 4px; background: white; font-weight: 600; color: var(--text-muted); }
+    .theme-group-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--violet); margin: 24px 0 10px; display: block; }
+    .color-picker-demo { display: flex; align-items: center; gap: 16px; padding: 14px 18px; background: white; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; }
+    .color-swatch { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; }
+    .color-info h4 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+    .color-info p { font-size: 13px; color: var(--text-muted); }
+    .storage-table td:first-child { font-family: monospace; font-size: 13px; color: var(--violet-dark); }
+    @media (max-width: 600px) { .themes-full { grid-template-columns: repeat(3, 1fr); } }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">📚 <span>Noesis</span></a>
+    <button class="lang-toggle-btn" id="lang-toggle" onclick="window.noesisI18n.toggleLang()" title="Switch to Italian">🇮🇹 IT</button>
+    <button class="nav-toggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links">
+      <a href="index.html" data-i18n="nav.home">Home</a><a href="guida.html" data-i18n="nav.guide">Quick Guide</a><a href="library.html" data-i18n="nav.library">Library</a><a href="navigation.html" data-i18n="nav.reading">Reading</a><a href="htmleditor.html" data-i18n="nav.editor">Editor</a><a href="snapshot.html" data-i18n="nav.snapshot">Snapshot</a><a href="collezioni.html" data-i18n="nav.collections">Collections</a><a href="helpers.html" data-i18n="nav.helpers">Helpers</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="note.html" data-i18n="nav.notes">Notes</a>
+      <div class="nav-dropdown">
+        <a href="approfondimenti.html" data-i18n="nav.deepdives">Deep Dives</a>
+        <div class="nav-dropdown-menu">
+          <span class="dm-label" data-i18n="nav.dm.docs">Documentation</span>
+          <a href="doc-readme.html" data-i18n="nav.dm.readme">📚 README — Overview</a>
+          <a href="doc-ui.html" data-i18n="nav.dm.ui">🖥️ UI — Button Reference</a>
+          <a href="doc-workflow.html" data-i18n="nav.dm.workflow">🔄 Workflow — Usage Flows</a>
+          <a href="doc-tech.html" data-i18n="nav.dm.tech">⚙️ Technical Architecture</a>
+          <a href="doc-library-tech.html" data-i18n="nav.dm.libtech">📚 Technical Doc — Library</a>
+          <a href="doc-reader-tech.html" data-i18n="nav.dm.readtech">📖 Technical Doc — Reader</a>
+          <a href="doc-editor-tech.html" data-i18n="nav.dm.edtech">✏️ Technical Doc — Editor</a>
+          <a href="doc-full-embedding.html" data-i18n="nav.dm.fullembedding">📦 Full Version — Embedding</a>
+          <span class="dm-label" data-i18n="nav.dm.project">Project</span>
+          <a href="doc-adv.html" data-i18n="nav.dm.adv">🌟 Positioning</a>
+          <a href="doc-legal.html" data-i18n="nav.dm.legal">⚖️ Legal Analysis</a>
+          <a href="promo.html" data-i18n="nav.dm.promo">🚀 Presentation</a>
+        </div>
+      </div>
+      <a href="index.html#download" class="nav-cta" data-i18n="nav.download">⬇ Download</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge" data-i18n="reading.hero.badge">Environment · Noesis Reading</div>
+  <h1 data-i18n="reading.hero.h1">Noesis Reading — <em>read, annotate, extract</em></h1>
+  <p data-i18n="reading.hero.p">The EPUB reading environment with hierarchical TOC, 15 themes, 3-colour highlighting, bookmarks and direct chapter extraction into Noesis Editor.</p>
+</section>
+
+<div class="container">
+
+  <!-- TOOLBAR -->
+  <div class="section" style="border-top:none;padding-top:0;">
+    <div class="section-label" data-i18n="reading.toolbar.label">Toolbar</div>
+    <h2 class="section-title" data-i18n="reading.toolbar.h2">The <em>Reader</em> button bar</h2>
+    <p class="section-sub" data-i18n="reading.toolbar.p">The Noesis Reading toolbar collects all reading and annotation tools. It is always visible at the top of the screen.</p>
+
+    <div class="screenshot-block mt-24">
+      <img src="new-reading-buttons.png" data-i18n-alt="reading.img.buttons" alt="Noesis Reading button bar">
+      <div class="screenshot-caption" data-i18n="reading.img.buttons.caption">← Library · Sidebar · Bookmarks · Highlight (yellow) · Display · Scroll · % · Save State (orange) · Extract Chapter (green) · ?</div>
+    </div>
+
+    <div class="cards mt-24">
+      <div class="card">
+        <span class="card-icon">←</span>
+        <h3 data-i18n="reading.btn.library.h">← Library</h3>
+        <p data-i18n="reading.btn.library.p">Returns to Noesis Library without losing the current book state. Position is restored on next opening via Save State.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon"><i class="bi bi-layout-sidebar"></i></span>
+        <h3 data-i18n="reading.btn.sidebar.h">Sidebar</h3>
+        <p data-i18n="reading.btn.sidebar.p">Opens/closes the expandable hierarchical TOC. Supports up to 3 nesting levels. Click any entry to navigate directly to that section.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon"><i class="bi bi-bookmark-star"></i></span>
+        <h3 data-i18n="reading.btn.bookmarks.h">Bookmarks</h3>
+        <p data-i18n="reading.btn.bookmarks.p">Opens the bookmarks panel. Add a custom bookmark for the current position with title and date. Saved in <code>localStorage</code>.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon"><i class="bi bi-highlighter" style="color:#fbbf24"></i></span>
+        <h3 data-i18n="reading.btn.highlight.h">Highlight</h3>
+        <p data-i18n="reading.btn.highlight.p">Dropdown with 3 colours: <strong>Yellow</strong> (general concepts), <strong>Green</strong> (examples/key points), <strong>Pink</strong> (terms/names). Also: remove all highlights. Highlights are CFI-based and survive page reload.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon"><i class="bi bi-eye"></i></span>
+        <h3 data-i18n="reading.btn.display.h">Display Settings</h3>
+        <p data-i18n="reading.btn.display.p">Unified accordion panel with: 15 reading themes in 5 groups, font size, line height, page width, font family, background and text colour pickers.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon"><i class="bi bi-arrow-down-up"></i></span>
+        <h3 data-i18n="reading.btn.scroll.h">Scroll mode</h3>
+        <p data-i18n="reading.btn.scroll.p">Toggles between paginated and continuous scrolling mode. In paginated mode, use arrow keys or swipe to turn pages.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">%</span>
+        <h3 data-i18n="reading.btn.percent.h">% Progress</h3>
+        <p data-i18n="reading.btn.percent.p">Shows current reading progress as a percentage. Click to jump to a specific percentage in the book.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon"><i class="bi bi-floppy" style="color:#f97316"></i></span>
+        <h3 data-i18n="reading.btn.savestate.h">Save State</h3>
+        <p data-i18n="reading.btn.savestate.p">Saves the current state: chapter position, all display settings (theme, font, size, colours). State is automatically restored when you reopen the book from the library.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon"><i class="bi bi-file-earmark-arrow-down" style="color:#22c55e"></i></span>
+        <h3 data-i18n="reading.btn.extract.h">Extract Chapter</h3>
+        <p data-i18n="reading.btn.extract.p">Main extraction button. Dropdown with two options: current chapter only, or current + all sublevels. Opens Noesis Editor in a new tab with content already loaded.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- READING MODES -->
+  <div class="section">
+    <div class="section-label" data-i18n="reading.modes.label">Reading Modes</div>
+    <h2 class="section-title" data-i18n="reading.modes.h2">Three ways to <em>read</em></h2>
+    <p class="section-sub" data-i18n="reading.modes.p">Choose the mode that best suits your device and reading style. You can switch at any time with the Scroll button in the toolbar.</p>
+
+    <div class="cards">
+      <div class="card accent">
+        <span class="card-icon">📄</span>
+        <h3 data-i18n="reading.modes.single.h">Single Page</h3>
+        <p data-i18n="reading.modes.single.p">One page at a time with side arrow navigation. Ideal for small screens, tablets and focused reading.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">📖</span>
+        <h3 data-i18n="reading.modes.double.h">Double Page</h3>
+        <p data-i18n="reading.modes.double.p">Two side-by-side pages simulating an open book. Optimal for wide screens (>1024px). Activates automatically based on window width.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">📜</span>
+        <h3 data-i18n="reading.modes.scroll.h">Continuous Scroll</h3>
+        <p data-i18n="reading.modes.scroll.p">Uninterrupted vertical flow. Ideal for immersive reading and fast scrolling. Arrow buttons are automatically hidden.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR TOC -->
+  <div class="section">
+    <div class="section-label" data-i18n="reading.toc.label">Sidebar TOC</div>
+    <h2 class="section-title" data-i18n="reading.toc.h2">Hierarchical <em>index</em></h2>
+    <p class="section-sub" data-i18n="reading.toc.p">The sidebar shows the book's Table of Contents as an expandable tree up to 3 levels deep.</p>
+
+    <div class="cards cards-2">
+      <div class="card">
+        <h3 data-i18n="reading.toc.nav.h">Chapter navigation</h3>
+        <p data-i18n="reading.toc.nav.p">Click any entry in the index to navigate directly to that chapter. Position updates in real time.</p>
+      </div>
+      <div class="card">
+        <h3 data-i18n="reading.toc.expand.h">Expand / Collapse</h3>
+        <p data-i18n="reading.toc.expand.p"><strong>▸</strong> = expandable node, <strong>▾</strong> = expanded node, <strong>•</strong> = leaf (no sub-levels).</p>
+      </div>
+      <div class="card">
+        <h3 data-i18n="reading.toc.depth.h">Hierarchy depth</h3>
+        <p data-i18n="reading.toc.depth.p">Supports nested TOC structures up to 3 levels — chapters, sub-chapters and specific sections all navigable.</p>
+      </div>
+      <div class="card">
+        <h3 data-i18n="reading.toc.empty.h">EPUB without TOC</h3>
+        <p data-i18n="reading.toc.empty.p">If the sidebar is empty, the book has no defined index. You can still navigate with arrows or in continuous scroll.</p>
+      </div>
+    </div>
+
+    <div class="screenshot-block mt-24">
+      <img src="new-reading-toc.png" data-i18n-alt="reading.img.toc" alt="Noesis Reading TOC sidebar — hierarchical table of contents">
+      <div class="screenshot-caption" data-i18n="reading.img.toc.caption">☰ Hierarchical TOC sidebar — expandable up to 3 levels with direct navigation</div>
+    </div>
+  </div>
+
+  <!-- FLOATING NAV BUTTONS -->
+  <div class="section">
+    <div class="section-label" data-i18n="reading.nav.label">Navigation</div>
+    <h2 class="section-title" data-i18n="reading.nav.h2"><em>Floating</em> navigation buttons</h2>
+
+    <div class="cards">
+      <div class="card">
+        <span class="card-icon">⬅️</span>
+        <h3 data-i18n="reading.nav.left.h">Left Arrow</h3>
+        <p data-i18n="reading.nav.left.p">Previous page or chapter. Hidden in scroll mode and at the first chapter of the book.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">➡️</span>
+        <h3 data-i18n="reading.nav.right.h">Right Arrow</h3>
+        <p data-i18n="reading.nav.right.p">Next page or chapter. Appears as a circular button on the right side of the screen.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">🖱️</span>
+        <h3 data-i18n="reading.nav.click.h">Side click</h3>
+        <p data-i18n="reading.nav.click.p">In paginated mode: click on the left half to go back, click on the right half to go forward. Fast alternative to buttons.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- DISPLAY SETTINGS -->
+  <div class="section">
+    <div class="section-label" data-i18n="reading.display.label">Display Settings</div>
+    <h2 class="section-title" data-i18n="reading.display.h2">Typography, themes and interface <em>in one panel</em></h2>
+    <p class="section-sub" data-i18n="reading.display.p">The <strong>Display</strong> button opens a unified accordion panel with all display controls: typography, reading themes and interface colours.</p>
+
+    <div class="cards">
+      <div class="card accent">
+        <span class="card-icon">A</span>
+        <h3 data-i18n="reading.display.fontsize.h">Font Size</h3>
+        <p data-i18n="reading.display.fontsize.p"><strong>A−</strong> and <strong>A+</strong> buttons to reduce or increase text. Range: 50%–200% of the EPUB's base size.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">≡</span>
+        <h3 data-i18n="reading.display.lineheight.h">Line Height</h3>
+        <p data-i18n="reading.display.lineheight.p"><strong>≡−</strong> and <strong>≡+</strong> buttons for line spacing. Range: 1.0–1.8. Wider spacing improves readability on dense text.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">📄</span>
+        <h3 data-i18n="reading.display.single.h">Single Page</h3>
+        <p data-i18n="reading.display.single.p">Forces single-column display regardless of screen width.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">📖</span>
+        <h3 data-i18n="reading.display.double.h">Double Page</h3>
+        <p data-i18n="reading.display.double.p">Forces two-column side-by-side display simulating an open book.</p>
+      </div>
+    </div>
+
+    <div class="screenshot-block mt-24">
+      <img src="new-reading-dualpage-typosettings.png" data-i18n-alt="reading.display.img" alt="Noesis Reading — dual page mode with Display panel open">
+      <div class="screenshot-caption" data-i18n="reading.display.img.caption">👁 Display Settings — typography and page layout in the accordion panel</div>
+    </div>
+
+    <div class="callout callout-tip mt-16">
+      <span class="callout-icon">💡</span>
+      <div data-i18n="reading.display.tip"><strong>Per-book preferences</strong> — Typography settings are saved per book via the <strong>Save State</strong> button. Each EPUB remembers its own configuration.</div>
+    </div>
+  </div>
+
+  <!-- THEMES -->
+  <div class="section">
+    <div class="section-label" data-i18n="reading.themes.label">Reading Themes</div>
+    <h2 class="section-title" data-i18n="reading.themes.h2">15 themes in <em>5 groups</em></h2>
+    <p class="section-sub" data-i18n="reading.themes.p">The Display Settings panel offers 15 predefined themes organised into 5 groups by luminosity. You can also customise background and text colours directly with the pickers.</p>
+
+    <span class="theme-group-label" data-i18n="reading.themegroup.light">Light</span>
+    <div class="themes-full" style="grid-template-columns: repeat(3,1fr);">
+      <div class="theme-card"><div class="theme-color" style="background:#ffffff;"></div><div class="theme-name">White</div></div>
+      <div class="theme-card"><div class="theme-color" style="background:#f5f5f0;"></div><div class="theme-name">Soft White</div></div>
+      <div class="theme-card"><div class="theme-color" style="background:#fdf6e3;"></div><div class="theme-name">Cream</div></div>
+    </div>
+
+    <span class="theme-group-label" data-i18n="reading.themegroup.warm">Warm</span>
+    <div class="themes-full" style="grid-template-columns: repeat(2,1fr);">
+      <div class="theme-card"><div class="theme-color" style="background:#f4ecd8;"></div><div class="theme-name">Sepia</div></div>
+      <div class="theme-card"><div class="theme-color" style="background:#f2e8c9;"></div><div class="theme-name">Parchment</div></div>
+    </div>
+
+    <span class="theme-group-label" data-i18n="reading.themegroup.lightgray">Light Gray</span>
+    <div class="themes-full" style="grid-template-columns: repeat(3,1fr);">
+      <div class="theme-card"><div class="theme-color" style="background:#e8e8e8;"></div><div class="theme-name">Light Gray</div></div>
+      <div class="theme-card"><div class="theme-color" style="background:#d8dde6;"></div><div class="theme-name">Cool Gray</div></div>
+      <div class="theme-card"><div class="theme-color" style="background:#ddd8d0;"></div><div class="theme-name">Warm Gray</div></div>
+    </div>
+
+    <span class="theme-group-label" data-i18n="reading.themegroup.darkgray">Dark Gray</span>
+    <div class="themes-full" style="grid-template-columns: repeat(3,1fr);">
+      <div class="theme-card"><div class="theme-color" style="background:#6b7280;"></div><div class="theme-name">Mid Gray</div></div>
+      <div class="theme-card"><div class="theme-color" style="background:#475569;"></div><div class="theme-name">Slate</div></div>
+      <div class="theme-card"><div class="theme-color" style="background:#374151;"></div><div class="theme-name">Dark Gray</div></div>
+    </div>
+
+    <span class="theme-group-label" data-i18n="reading.themegroup.night">Night</span>
+    <div class="themes-full" style="grid-template-columns: repeat(4,1fr);">
+      <div class="theme-card"><div class="theme-color" style="background:#2d3748;"></div><div class="theme-name">Charcoal</div></div>
+      <div class="theme-card"><div class="theme-color" style="background:#1a202c;"></div><div class="theme-name">Dark</div></div>
+      <div class="theme-card"><div class="theme-color" style="background:#0f172a;"></div><div class="theme-name">Midnight</div></div>
+      <div class="theme-card"><div class="theme-color" style="background:#000000; border-color:#333;"></div><div class="theme-name">True Black</div></div>
+    </div>
+
+    <div class="screenshot-block mt-24">
+      <img src="new-reading-themes.png" data-i18n-alt="reading.img.themes" alt="Reading theme selection — 15 themes in 5 groups">
+      <div class="screenshot-caption" data-i18n="reading.img.themes.caption">🎨 Display panel — 15 themes in 5 groups, customisable typography</div>
+    </div>
+
+    <div class="callout callout-tip mt-16">
+      <span class="callout-icon">💡</span>
+      <div data-i18n="reading.themes.callout"><strong>True Black for OLED</strong> — The True Black theme uses absolute black background (#000000) — ideal for OLED/AMOLED screens because switched-off pixels consume no energy.</div>
+    </div>
+  </div>
+
+  <!-- INTERFACE SETTINGS -->
+  <div class="section">
+    <div class="section-label" data-i18n="reading.interface.label">Display Settings — Interface</div>
+    <h2 class="section-title" data-i18n="reading.interface.h2"><em>Interface</em> settings</h2>
+    <p class="section-sub" data-i18n="reading.interface.p">The Interface section in the <strong>Display Settings</strong> panel customises the colours of all interface elements and their opacity.</p>
+
+    <div class="color-picker-demo">
+      <div class="color-swatch" style="background:#1f2937;"></div>
+      <div class="color-info"><h4 data-i18n="reading.interface.toolbar.h">Toolbar Color</h4><p data-i18n="reading.interface.toolbar.p">Background colour of the main reader toolbar.</p></div>
+    </div>
+    <div class="color-picker-demo">
+      <div class="color-swatch" style="background:#374151;"></div>
+      <div class="color-info"><h4 data-i18n="reading.interface.sidebar.h">Sidebar Color</h4><p data-i18n="reading.interface.sidebar.p">Background colour of the TOC sidebar. Can differ from the toolbar to visually distinguish the two areas.</p></div>
+    </div>
+    <div class="color-picker-demo">
+      <div class="color-swatch" style="background:#4f46e5;"></div>
+      <div class="color-info"><h4 data-i18n="reading.interface.navbtn.h">Nav Buttons Color</h4><p data-i18n="reading.interface.navbtn.p">Colour of the floating navigation buttons (◀ ▶).</p></div>
+    </div>
+    <div class="color-picker-demo">
+      <div class="color-swatch" style="background: linear-gradient(to right, rgba(31,41,55,0.3), rgba(31,41,55,1));"></div>
+      <div class="color-info"><h4 data-i18n="reading.interface.opacity.h">Nav Opacity</h4><p data-i18n="reading.interface.opacity.p">Slider 0–100%: adjusts the opacity of the toolbar and controls. Reduce it for a more immersive experience.</p></div>
+    </div>
+  </div>
+
+  <!-- HIGHLIGHTING -->
+  <div class="section">
+    <div class="section-label" data-i18n="reading.highlight.label">Highlighting</div>
+    <h2 class="section-title" data-i18n="reading.highlight.h2">3-colour <em>annotation</em> system</h2>
+    <p class="section-sub" data-i18n="reading.highlight.p">Highlights are saved in <code>localStorage</code> using CFI (Canonical Fragment Identifiers) — a standardised system for referencing positions in EPUBs. They survive page reload and book reopening.</p>
+
+    <div class="cards">
+      <div class="card" style="border-left: 4px solid #fbbf24;">
+        <span class="card-icon">🟡</span>
+        <h3 data-i18n="reading.hl.yellow.h">Yellow — General concepts</h3>
+        <p data-i18n="reading.hl.yellow.p">Ideal for key passages, main arguments, definitions.</p>
+      </div>
+      <div class="card" style="border-left: 4px solid #34d399;">
+        <span class="card-icon">🟢</span>
+        <h3 data-i18n="reading.hl.green.h">Green — Examples and key points</h3>
+        <p data-i18n="reading.hl.green.p">For practical examples, important data, empirical evidence.</p>
+      </div>
+      <div class="card" style="border-left: 4px solid #f472b6;">
+        <span class="card-icon">🩷</span>
+        <h3 data-i18n="reading.hl.pink.h">Pink — Terms and names</h3>
+        <p data-i18n="reading.hl.pink.p">For technical terms, proper names, entities to remember.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">✕</span>
+        <h3 data-i18n="reading.hl.none.h">None / Remove</h3>
+        <p data-i18n="reading.hl.none.p">Deactivates the active highlight. Select "None" and click on highlighted text to remove the colour.</p>
+      </div>
+    </div>
+
+    <div class="screenshot-block mt-24">
+      <img src="new-reading- annotation.png" data-i18n-alt="reading.img.highlight" alt="Noesis Reader — active 3-colour highlighting on text">
+      <div class="screenshot-caption" data-i18n="reading.img.highlight.caption">🎨 3-colour highlight system — yellow, green and pink with selective removal</div>
+    </div>
+
+    <div class="callout callout-tip mt-16">
+      <span class="callout-icon">💡</span>
+      <div data-i18n="reading.highlight.callout"><strong>Reader highlights stay in the reader</strong> — Noesis Editor has its own inline highlighting system based on Summernote. The two systems are independent and operate on their respective interfaces.</div>
+    </div>
+  </div>
+
+  <!-- BOOKMARKS -->
+  <div class="section">
+    <div class="section-label" data-i18n="reading.bookmark.label">Bookmarks</div>
+    <h2 class="section-title" data-i18n="reading.bookmark.h2">Custom <em>bookmarks</em></h2>
+    <p class="section-sub" data-i18n="reading.bookmark.p">The bookmarks system lets you save precise positions in any book with a custom name. Bookmarks are saved in <code>localStorage</code> and persist between sessions.</p>
+
+    <div class="cards">
+      <div class="card accent">
+        <span class="card-icon">🔖</span>
+        <h3 data-i18n="reading.bookmark.create.h">Create a bookmark</h3>
+        <p data-i18n="reading.bookmark.create.p">Click the <strong>🔖 Bookmarks</strong> button in the toolbar → the My Bookmarks panel opens → click <strong>New Bookmark</strong>. The bookmark saves the exact CFI position of the cursor in the text.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">📋</span>
+        <h3 data-i18n="reading.bookmark.panel.h">My Bookmarks panel</h3>
+        <p data-i18n="reading.bookmark.panel.p">List of all bookmarks for the current book, ordered by creation date. Each entry shows title, surrounding text preview and date.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">↩️</span>
+        <h3 data-i18n="reading.bookmark.goto.h">Go to a bookmark</h3>
+        <p data-i18n="reading.bookmark.goto.p">Click any bookmark in the panel to navigate directly to that position in the text.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">✕</span>
+        <h3 data-i18n="reading.bookmark.del.h">Delete a bookmark</h3>
+        <p data-i18n="reading.bookmark.del.p">Click the X next to the bookmark to remove it. Removal is immediate and updates the button badge.</p>
+      </div>
+    </div>
+
+    <div class="screenshot-block mt-24">
+      <img src="new-reading-custom-bookmark.png" data-i18n-alt="reading.img.bookmark" alt="Noesis Reader — custom bookmark panel">
+      <div class="screenshot-caption" data-i18n="reading.img.bookmark.caption">🔖 Bookmark panel — add, navigate to and delete custom bookmarks</div>
+    </div>
+  </div>
+
+  <!-- SAVE STATE -->
+  <div class="section">
+    <div class="section-label" data-i18n="reading.savestate.label">Persistence</div>
+    <h2 class="section-title" data-i18n="reading.savestate.h2">Save State — <em>save everything</em></h2>
+    <p class="section-sub" data-i18n="reading.savestate.p">The <strong>💾 Save State</strong> button manually saves the current reading position and all preferences associated with the specific book.</p>
+
+    <div class="cards cards-2">
+      <div class="card">
+        <span class="card-icon">📍</span>
+        <h3 data-i18n="reading.savestate.what.h">What is saved</h3>
+        <p data-i18n="reading.savestate.what.p">Exact CFI position in the text, font size, line height, page mode (single/double), reading theme, interface colours and scroll mode.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">📚</span>
+        <h3 data-i18n="reading.savestate.perbook.h">Per book</h3>
+        <p data-i18n="reading.savestate.perbook.p">Preferences are saved per book individually in <code>noesisLibraryDB</code>. Each EPUB remembers its own configuration independently from others.</p>
+      </div>
+    </div>
+
+    <div class="callout callout-info mt-16">
+      <span class="callout-icon">ℹ️</span>
+      <div data-i18n="reading.savestate.callout"><strong>Automatic restore</strong> — When you reopen a book from Noesis Library, position and preferences are automatically restored to the last saved state.</div>
+    </div>
+
+    <div class="table-wrap mt-16">
+      <table class="storage-table">
+        <thead><tr><th data-i18n="reading.savestate.table.key">localStorage key</th><th data-i18n="reading.savestate.table.content">Content</th><th data-i18n="reading.savestate.table.scope">Scope</th></tr></thead>
+        <tbody>
+          <tr><td>noesis_theme</td><td>Current selected theme name</td><td data-i18n="reading.savestate.scope.global">Global</td></tr>
+          <tr><td>noesis_fontSize</td><td>Reader font size (%)</td><td data-i18n="reading.savestate.scope.global">Global</td></tr>
+          <tr><td>noesis_lineHeight</td><td>Line height (1.0–1.8)</td><td data-i18n="reading.savestate.scope.global">Global</td></tr>
+          <tr><td>noesis_scrollMode</td><td>"scroll" or "paginated"</td><td data-i18n="reading.savestate.scope.global">Global</td></tr>
+          <tr><td>noesis_pageLayout</td><td>"single" or "double"</td><td data-i18n="reading.savestate.scope.global">Global</td></tr>
+          <tr><td>noesis_toolbarColor</td><td>Toolbar colour (hex)</td><td data-i18n="reading.savestate.scope.global">Global</td></tr>
+          <tr><td>noesis_sidebarColor</td><td>Sidebar colour (hex)</td><td data-i18n="reading.savestate.scope.global">Global</td></tr>
+          <tr><td>noesis_bookmarks_[id]</td><td>Bookmarks array per book</td><td data-i18n="reading.savestate.scope.perbook">Per book</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- EXTRACT CHAPTER -->
+  <div class="section">
+    <div class="section-label" data-i18n="reading.extract.label">Chapter Extraction</div>
+    <h2 class="section-title" data-i18n="reading.extract.h2">Two extraction <em>modes</em></h2>
+    <p class="section-sub" data-i18n="reading.extract.p">The Extract Chapter button in the toolbar opens a dropdown with two options to match the chapter structure of your book.</p>
+
+    <div class="cards cards-2">
+      <div class="card accent">
+        <span class="card-icon">📄</span>
+        <h3 data-i18n="reading.extract.single.h">Current chapter only</h3>
+        <p data-i18n="reading.extract.single.p">Extracts only the chapter currently shown in the reader. Focused document, ideal for annotating a single section.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">🌿</span>
+        <h3 data-i18n="reading.extract.deep.h">Current + all sublevels</h3>
+        <p data-i18n="reading.extract.deep.p">Extracts the current chapter plus all nested sub-chapters, assembled in EPUB spine order. Ideal for broad sections.</p>
+      </div>
+    </div>
+
+    <div class="screenshot-block mt-24">
+      <img src="new-reading-exportchapter.png" data-i18n-alt="reading.img.extract" alt="Extract Chapter menu — current chapter and current + sublevels">
+      <div class="screenshot-caption" data-i18n="reading.img.extract.caption">📥 Extract Chapter — dropdown with the two extraction modes in the reader</div>
+    </div>
+
+    <div class="callout callout-info mt-16">
+      <span class="callout-icon">ℹ️</span>
+      <div data-i18n="reading.extract.callout"><strong>Direct extraction</strong> — The chapter opens directly in Noesis Editor in a new tab. All images are converted to inline base64 — the document is completely self-contained.</div>
+    </div>
+
+    <a href="htmleditor.html" class="btn-primary" style="display:inline-flex; margin-top:24px;" data-i18n="reading.extract.link">Noesis Editor documentation →</a>
+  </div>
+
+  <div class="page-nav">
+    <a href="library.html" data-i18n="reading.pagenav.prev">← Noesis Library</a>
+    <a href="htmleditor.html" class="next" data-i18n="reading.pagenav.next">Noesis Editor →</a>
+  </div>
+</div>
+
+<footer>
+  <p data-i18n="footer.license">MIT License · Vanilla JS · No Server · <strong>Noesis — Reading-to-Knowledge System</strong> · v810</p>
+  <p style="margin-top:8px;"><a href="index.html" data-i18n="footer.home">Home</a> · <a href="guida.html" data-i18n="footer.guide">Guide</a> · <a href="faq.html" data-i18n="footer.faq">FAQ</a> · <a href="note.html" data-i18n="footer.notes">Notes</a></p>
+</footer>
+<script src="translations.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workflow — Flussi d'uso — Noesis</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="approfondimenti.css">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">📚 <span>Noesis</span></a>
+    <button class="lang-toggle-btn" id="lang-toggle" onclick="window.noesisI18n.toggleLang()" title="Switch to Italian">🇮🇹 IT</button>
+    <button class="nav-toggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links">
+      <a href="index.html" data-i18n="nav.home">Home</a><a href="guida.html" data-i18n="nav.guide">Quick Guide</a><a href="library.html" data-i18n="nav.library">Library</a><a href="navigation.html" data-i18n="nav.reading">Reading</a><a href="htmleditor.html" data-i18n="nav.editor">Editor</a><a href="snapshot.html" data-i18n="nav.snapshot">Snapshot</a><a href="collezioni.html" data-i18n="nav.collections">Collections</a><a href="helpers.html" data-i18n="nav.helpers">Helpers</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="note.html" data-i18n="nav.notes">Notes</a>
+      <div class="nav-dropdown">
+        <a href="approfondimenti.html" data-i18n="nav.deepdives">Deep Dives</a>
+        <div class="nav-dropdown-menu">
+          <span class="dm-label" data-i18n="nav.dm.docs">Documentation</span>
+          <a href="doc-readme.html" data-i18n="nav.dm.readme">📚 README — Overview</a>
+          <a href="doc-ui.html" data-i18n="nav.dm.ui">🖥️ UI — Button Reference</a>
+          <a href="doc-workflow.html" data-i18n="nav.dm.workflow">🔄 Workflow — Usage Flows</a>
+          <a href="doc-tech.html" data-i18n="nav.dm.tech">⚙️ Technical Architecture</a>
+          <a href="doc-library-tech.html" data-i18n="nav.dm.libtech">📚 Technical Doc — Library</a>
+          <a href="doc-reader-tech.html" data-i18n="nav.dm.readtech">📖 Technical Doc — Reader</a>
+          <a href="doc-editor-tech.html" data-i18n="nav.dm.edtech">✏️ Technical Doc — Editor</a>
+          <a href="doc-full-embedding.html" data-i18n="nav.dm.fullembedding">📦 Full Version — Embedding</a>
+          <span class="dm-label" data-i18n="nav.dm.project">Project</span>
+          <a href="doc-adv.html" data-i18n="nav.dm.adv">🌟 Positioning</a>
+          <a href="doc-legal.html" data-i18n="nav.dm.legal">⚖️ Legal Analysis</a>
+          <a href="promo.html" data-i18n="nav.dm.promo">🚀 Presentation</a>
+        </div>
+      </div>
+      <a href="index.html#download" class="nav-cta" data-i18n="nav.download">⬇ Download</a>
+    </div>
+  </div>
+</nav>
+<div class="callout callout-info deepdive-translation-callout" style="margin:0;border-radius:0;background:#1e3a5f;color:#e0eeff;border:none;border-bottom:2px solid #3b82f6;">
+  <span class="callout-icon">🌐</span>
+  <div data-i18n="deepdive.callout">🌐 This page is written in Italian. Use your browser's <strong>Translate</strong> feature to read it in your language.</div>
+</div>
+
+<section class="hero-doc">
+  <div class="doc-tag" style="color:#10b981;background:rgba(16,185,129,0.15);border:1px solid #10b98144;">🔄 Workflow</div>
+  <h1>Workflow — Flussi d'uso</h1>
+  <p class="doc-subtitle">Workflow completi per ogni profilo utente — dallo studio universitario alla ricerca, dal blogging alla lettura multilingue.</p>
+</section>
+
+<div class="doc-layout">
+  <div class="doc-toc" id="doc-toc"><h4>In questa pagina</h4><ul>
+<li><a href="#mappa-del-workflow-generale" class="">Mappa del Workflow Generale</a></li>
+<li><a href="#fase-1-libreria-knowledge-library" class="">Fase 1 — LIBRERIA (Knowledge Library)</a></li>
+<li><a href="#fase-2-reader-lettura" class="">Fase 2 — READER (Lettura)</a></li>
+<li><a href="#fase-3-estrazione-capitoli" class="">Fase 3 — ESTRAZIONE CAPITOLI</a></li>
+<li><a href="#fase-3b-gestione-collezioni-dal-capitolo-estratto" class="toc-h3">Fase 3b — Raccolta Chunk (sn56.x)</a></li>
+<li><a href="#fase-3c-sistema-snapshot-nuovo" class="toc-h3">Fase 3c — Sistema Snapshot doppio</a></li>
+<li><a href="#fase-4-editor-wysiwyg" class="">Fase 4 — EDITOR WYSIWYG (sn56.x)</a></li>
+<li><a href="#modalita-operative-editor" class="toc-h3">Modalità operative</a></li>
+<li><a href="#tre-percorsi-di-accesso-editor" class="toc-h3">Tre percorsi di accesso</a></li>
+<li><a href="#sistema-snapshot-doppio" class="toc-h3">Sistema Snapshot doppio</a></li>
+<li><a href="#raccolta-chunk" class="toc-h3">Raccolta Chunk</a></li>
+<li><a href="#export-documento-e-collezione" class="toc-h3">Export Documento e Collezione</a></li>
+<li><a href="#export-schema-riassuntivo" class="">Export — Schema riassuntivo</a></li>
+<li><a href="#flusso-completo-visione-dinsieme" class="">Flusso Completo — Visione d'Insieme</a></li>
+<li><a href="#workflow-per-profilo-utente" class="">Workflow per profilo utente</a></li>
+<li><a href="#studente-workflow-rapido" class="toc-h3">🎓 Studente — Workflow rapido</a></li>
+<li><a href="#ricercatore-workflow-approfondito" class="toc-h3">🔬 Ricercatore — Workflow approfondito</a></li>
+<li><a href="#bloggercreator-workflow-veloce" class="toc-h3">📝 Blogger/Creator — Workflow veloce</a></li>
+<li><a href="#lettore-multilingue-workflow-studio-lingua" class="toc-h3">🌍 Lettore multilingue — Workflow studio lingua</a></li>
+<li><a href="#persistenza-dei-dati" class="">Persistenza dei dati</a></li>
+<li><a href="#note-operative" class="">Note operative</a></li>
+</ul></div>
+  <div class="doc-content">
+    <a href="approfondimenti.html" class="doc-back">← Tutti gli approfondimenti</a>
+    <h1 id="noesis-workflow-dellapplicazione">🔄 Noesis — Workflow dell'Applicazione</h1>
+<blockquote>
+<p>Guida schematica al flusso di utilizzo di Noesis: dalla libreria alla produzione di conoscenza.</p>
+</blockquote>
+<hr />
+<h2 id="mappa-del-workflow-generale">Mappa del Workflow Generale</h2>
+<pre><code>┌───────────────────────────────────────────────────────────────────┐
+│                           NOESIS APP                              │
+│                                                                   │
+│  [LIBRERIA] ──► [READER] ──► [ESTRAZIONE] ──► [SNAPSHOT] ──► [EDITOR] │
+│      │              │              │               │              │
+│   Import         Lettura       Selezione       Versioning     Produzione│
+│   Libri          Studio        Capitoli        Temporale      Report   │
+└───────────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="fase-1-libreria-knowledge-library">Fase 1 — LIBRERIA (Knowledge Library)</h2>
+<p><strong>Punto di ingresso dell'applicazione. Vista gerarchica con tema scuro.</strong></p>
+<pre><code>APERTURA APP
+     │
+     ▼
+┌──────────────────────────────────────────────────────┐
+│              KNOWLEDGE LIBRARY                       │
+│                                                      │
+│  [+ Add Book]   [Lista libri gerarchica]             │
+│       │                 │                            │
+│       ▼                 ▼                            │
+│  Seleziona .epub    ┌─────────────────────────┐      │
+│  dal filesystem     │ LIBRO                   │      │
+│       │             │  [📖 Copertina] → Reader │      │
+│       │             │  Titolo · Autore         │      │
+│       │             │  [2 chapters] [5 snaps]  │      │
+│       │             │                          │      │
+│       │             │  ▼ Capitolo estratto 1   │      │
+│       │             │    [● snap recente]      │      │
+│       │             │    [● snap precedente]   │      │
+│       │             │                          │      │
+│       │             │  ▼ Capitolo estratto 2   │      │
+│       │             │    [● snap unico]        │      │
+│       │             └─────────────────────────┘      │
+│       └────────────────────────┘                     │
+│                    │                                  │
+│             Salvataggio in IndexedDB                  │
+│             (EpubLibraryDB per libri,                 │
+│              noesisDB per capitoli/snapshot)          │
+└──────────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>Tre punti di accesso dalla libreria:</strong></p>
+<pre><code>CLICK SU COPERTINA        → Apre il libro nel Reader
+                             (ripristina ultima posizione)
+
+CLICK SU NOME CAPITOLO    → Apre il capitolo estratto
+                             con lo snapshot più recente
+
+CLICK SU NOME SNAPSHOT    → Apre il capitolo estratto
+                             con quello snapshot specifico
+</code></pre>
+<p><strong>Azioni disponibili:</strong><br />
+- Importare un nuovo file <code>.epub</code><br />
+- Aprire un libro già importato (salvato in IndexedDB)<br />
+- Accedere direttamente a un capitolo estratto con lo snapshot desiderato<br />
+- Eliminare un libro dalla libreria</p>
+<hr />
+<h2 id="fase-2-reader-lettura">Fase 2 — READER (Lettura)</h2>
+<p><strong>Ambiente principale di lettura e studio.</strong></p>
+<pre><code>READER
+  │
+  ├── NAVIGAZIONE
+  │     ├── Sidebar TOC: indice gerarchico espandibile
+  │     ├── Clicca capitolo → naviga direttamente
+  │     └── Toggle: scorrimento continuo ↔ paginato
+  │
+  ├── PERSONALIZZAZIONE VISIVA
+  │     ├── Scegli tema (15 disponibili in 5 gruppi)
+  │     ├── Regola font size e interlinea
+  │     ├── Pagina singola o doppia
+  │     └── Personalizza colori toolbar/sidebar/opacità
+  │
+  ├── TRADUZIONE
+  │     └── Attiva traduzione nativa del browser
+  │           → Leggi il libro in qualsiasi lingua
+  │
+  ├── ANNOTAZIONE
+  │     ├── Seleziona testo
+  │     ├── Scegli colore highlight (giallo / verde / rosa)
+  │     └── Rimuovi highlight se necessario
+  │
+  ├── SEGNALIBRI
+  │     ├── Apri cassetto segnalibri
+  │     ├── Aggiungi segnalibro alla posizione corrente
+  │     └── Salva stato: posizione + preferenze per il libro
+  │
+  └── ESTRAZIONE → (vai a Fase 3)
+</code></pre>
+<p><strong>Decisione chiave nel Reader:</strong></p>
+<pre><code>Hai trovato un contenuto rilevante?
+           │
+     ┌─────┴─────┐
+     │           │
+     ▼           ▼
+ Evidenzia   Aggiungi alla
+ (highlight)  Collezione (chunk)
+     │           │
+     └─────┬─────┘
+           ▼
+   Continua lettura
+   oppure
+   Estrai il capitolo → Fase 3
+</code></pre>
+<hr />
+<h2 id="fase-3-estrazione-capitoli">Fase 3 — ESTRAZIONE CAPITOLI</h2>
+<p><strong>Trasforma la lettura in documento di studio. Crea automaticamente il record in noesisDB.</strong></p>
+<pre><code>EXTRACT CHAPTER (dropdown nella toolbar)
+           │
+     ┌─────┴──────────────────┐
+     │                        │
+     ▼                        ▼
+Solo capitolo corrente    Corrente + tutti i sottolivelli
+     │                        │
+     │                        │ (assembla automaticamente
+     │                        │  l'intera gerarchia)
+     └─────────┬──────────────┘
+               ▼
+   ┌──────────────────────────────────────────┐
+   │         DOCUMENTO ESTRATTO               │
+   │                                          │
+   │   - HTML standalone                      │
+   │   - Toolbar completa                     │
+   │   - Highlights preservati                │
+   │   - Chunk / Collezione                   │
+   │   - Pulsanti 📷 Snapshot (NUOVO)         │
+   │   - Export pronti all'uso                │
+   │   - chapterId salvato in noesisDB        │
+   └──────────────────────────────────────────┘
+               │
+    ┌──────────┼──────────┬──────────┐
+    ▼          ▼          ▼          ▼
+ Highlight  Raccolta   Snapshot   Launch
+ e studio   chunk      (NUOVO)    Editor
+               │          │          │
+               ▼          ▼          ▼
+         Fase 3b:    Fase 3c:    Fase 4:
+         Collezioni  Snapshot    Editor
+</code></pre>
+<h3 id="fase-3b-gestione-collezioni-dal-capitolo-estratto">Fase 3b — Raccolta Chunk (sn56.x)</h3>
+<p>Durante la lettura del documento estratto in sn56.x, è possibile <strong>raccogliere frammenti</strong> di testo, immagini e tabelle in una collezione:</p>
+<pre><code>COLLEZIONE
+  │
+  ├── ADD SELECTION
+  │     ├── Seleziona testo → click [+]
+  │     ├── Doppio tap su immagine
+  │     ├── Long press (600ms) su immagine (Android)
+  │     └── Click [+ su tabella]
+  │
+  ├── IMPORT COLLECTION
+  │     └── Carica file .json con collezione precedente
+  │
+  └── EXPORT COLLECTION
+        └── Salva collezione corrente come file .json
+              (portabile, archiviabile, condivisibile)
+</code></pre>
+<p><strong>Metodi di raccolta:</strong></p>
+<ul>
+<li><strong>Pulsante [+]</strong>: aggiunge testo selezionato, immagine tracciata, o tabella</li>
+<li><strong>Doppio tap</strong> su immagine: aggiunge direttamente</li>
+<li><strong>Long press (600ms)</strong> su immagine: aggiunge direttamente (Android)</li>
+</ul>
+<p><strong>Gestione avanzata</strong>: Inspect Panel per riordinare, iniettare al cursore, o assemblare tutti i chunk nel documento.</p>
+<h3 id="fase-3c-sistema-snapshot-nuovo">Fase 3c — Sistema Snapshot doppio (IDB + Filesystem)</h3>
+<p>Il sistema snapshot salva lo stato del documento sia in <strong>IndexedDB</strong> (per accesso rapido dalla Library) che su <strong>filesystem</strong> (backup persistente).</p>
+<p><strong>Salvataggio snapshot:</strong></p>
+<ol>
+<li>Click su Save nell'Editor</li>
+<li>Opzionale: inserire etichetta personalizzata</li>
+<li>Generazione automatica di <strong>due file</strong> scaricati su disco:
+<ul>
+<li><code>noesis-clean-...html</code> — documento senza background-color (evidenziazioni rimosse)</li>
+<li><code>noesis-annot-...html</code> — documento con highlight inline preservati</li>
+</ul>
+</li>
+<li><strong>Contemporaneamente</strong>: salvataggio di due snapshot in IndexedDB (noesisDB)</li>
+</ol>
+<pre><code>SNAPSHOT WORKFLOW
+  │
+  ├── SAVE SNAPSHOT (pulsante 📷 viola nella toolbar)
+  │     │
+  │     ├── Click → dialogo &quot;Save Snapshot&quot;
+  │     ├── Inserisci descrizione (opzionale)
+  │     │     Es.: &quot;Versione base&quot;, &quot;Dopo highlight&quot;, &quot;Revisione 2&quot;
+  │     ├── Conferma → cattura innerHTML di .chapter-content
+  │     └── Salva in IndexedDB (noesisDB)
+  │           → toast &quot;✅ Snapshot saved&quot;
+  │
+  ├── SNAPSHOT HISTORY (pulsante 🕐 viola nella toolbar)
+  │     │
+  │     ├── Click → pannello cronologico (dal più recente)
+  │     │
+  │     ├── Per ogni snapshot:
+  │     │     ├── Descrizione + data/ora
+  │     │     ├── [↩ Load]  → ripristina il contenuto del capitolo
+  │     │     │               allo stato di quello snapshot
+  │     │     └── [🗑️ Delete] → elimina definitivamente lo snapshot
+  │     │
+  │     └── Stato vuoto: &quot;No snapshots yet.&quot;
+  │
+  └── ACCESSO DALLA LIBRERIA
+        ├── Click nome capitolo → carica snapshot più recente
+        └── Click nome snapshot → carica quello snapshot specifico
+</code></pre>
+<p><strong>Scenari tipici di utilizzo degli snapshot:</strong></p>
+<pre><code>SCENARIO STUDIO PROGRESSIVO:
+  1. Estrai capitolo (snapshot automaticamente disponibile al salvataggio)
+  2. Leggi e annota → Salva snapshot &quot;Lettura iniziale&quot;
+  3. Aggiungi highlight → Salva snapshot &quot;Con highlights&quot;
+  4. Raccogli chunk → Salva snapshot &quot;Dopo raccolta&quot;
+  5. Dalla libreria: accedi a qualsiasi versione con un click
+
+SCENARIO BACKUP PRIMA DI MODIFICHE:
+  1. Hai un capitolo ben annotato
+  2. Salva snapshot &quot;Versione definitiva&quot; prima di procedere
+  3. Modifica liberamente
+  4. Se necessario, ripristina da Snapshot History
+
+SCENARIO COMPARAZIONE VERSIONI:
+  1. Salva più snapshot con descrizioni esplicite
+  2. Apri versioni diverse dalla libreria in tab separate
+  3. Confronta le annotazioni nelle diverse fasi di studio
+</code></pre>
+<hr />
+<h2 id="fase-4-editor-wysiwyg">Fase 4 — EDITOR WYSIWYG (sn56.x / Noesis Editor)</h2>
+<p><strong>Produzione del documento finale.</strong> L'editor WYSIWYG è l'ambiente di annotazione e studio di Noesis, basato su <strong>Summernote-lite 0.9.1</strong>. È noto anche come <strong>sn56.x</strong> o <strong>Summernote Editor</strong>.</p>
+<blockquote>
+<p><strong>Nota:</strong> L'ambiente Extract Chapter è ora <strong>unificato</strong> con il Noesis Editor (sn56.x). Quando estrai un capitolo dal Reader, si apre direttamente nell'Editor.</p>
+</blockquote>
+<h3 id="modalita-operative-editor">Modalità operative</h3>
+<table>
+<thead>
+<tr>
+<th>Modalità</th>
+<th>Attivazione</th>
+<th>Caratteristiche</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>chapter</strong></td>
+<td>Da Reader (Extract) o Library (click snapshot)</td>
+<td>Caricato con HTML del capitolo, contesto bibliografico (bookName, chapterName, chapterId), salvataggio in IDB + filesystem</td>
+</tr>
+<tr>
+<td><strong>standalone</strong></td>
+<td>Library → "Open Editor"</td>
+<td>Editor vuoto, nessun contesto, salvataggio solo su filesystem</td>
+</tr>
+</tbody>
+</table>
+<h3 id="tre-percorsi-di-accesso-editor">Tre percorsi di accesso</h3>
+<ol>
+<li><strong>Library → Open Editor</strong>: apre editor vuoto (modalità standalone)</li>
+<li><strong>Library → click nome capitolo/snapshot</strong>: apre con snapshot più recente o specifico (modalità chapter)</li>
+<li><strong>Reader → Extract</strong>: estrae capitolo e apre immediatamente in editor (modalità chapter)</li>
+</ol>
+<pre><code>LAUNCH EDITOR (dropdown)
+         │
+    ┌────┴────────────────────────────┐
+    │                                 │
+    ▼                                 ▼
+Da Collezione                   Da Intero Capitolo Estratto
+(chunk selezionati o tutti)     (tutto il contenuto HTML)
+    │                                 │
+    └──────────────┬──────────────────┘
+                   ▼
+   ┌──────────────────────────────────────┐
+   │           EDITOR WYSIWYG            │
+   │                                      │
+   │  FORMATTAZIONE                       │
+   │    B  I  U  S  — testo base          │
+   │    H1  H2  H3  — struttura           │
+   │    • Liste  1. Liste numerate        │
+   │                                      │
+   │  CONTENUTO                           │
+   │    🖼️ Inserisci immagine (base64)     │
+   │    ⚙️ Plugin tabelle flottante        │
+   │    A− A+ Font size (8–28px)          │
+   │    🖊️ Excalidraw — diagrammi/flowchart│
+   │                                      │
+   │  EXPORT DOCUMENTO                    │
+   │    TXT · MD · MD+ZIP · JSON          │
+   │    DOCX · PDF (stampa nativa)        │
+   │                                      │
+   │  EXPORT COLLEZIONE                   │
+   │    JSON · HTML · MD · MD+ZIP         │
+   └──────────────────────────────────────┘
+               │
+    ┌──────────┼──────────┐
+    ▼          ▼          ▼
+  Export     Export     Continua
+  Documento  Collezione editing
+</code></pre>
+<hr />
+<h2 id="export-schema-riassuntivo">Export — Schema riassuntivo</h2>
+<pre><code>DOVE POSSO ESPORTARE?
+
+Dall'Noesis Editor — Documento:
+  ├── TXT    — Testo puro
+  ├── MD     — Markdown (via Turndown)
+  ├── MD+ZIP — Markdown + immagini estratte in ZIP
+  ├── JSON   — Struttura documento come JSON
+  ├── DOCX   — Word (via html-docx-js)
+  └── PDF    — Stampa nativa browser (@media print A4)
+
+Dall'Noesis Editor — Collezione Chunk:
+  ├── JSON   — Array chunk (importabile)
+  ├── HTML   — Chunk come documento standalone
+  ├── MD     — Chunk in Markdown
+  └── MD+ZIP — Chunk in Markdown + immagini ZIP
+
+Snapshot (su filesystem locale):
+  ├── 📸  noesis-clean-...html  (senza highlight)
+  ├── 📸  noesis-annot-...html  (con highlight)
+  └── 📸  noesis-origin-...html (reimportabile via meta tag)
+          → Accessibili dalla libreria gerarchica via Import Snapshots
+</code></pre>
+<hr />
+<h2 id="flusso-completo-visione-dinsieme">Flusso Completo — Visione d'Insieme</h2>
+<pre><code>┌──────────┐    ┌──────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────┐
+│          │    │          │    │              │    │              │    │          │
+│ LIBRERIA │───►│  READER  │───►│  ESTRAZIONE  │───►│   SNAPSHOT   │───►│  EDITOR  │
+│          │    │          │    │              │    │              │    │          │
+└──────────┘    └──────────┘    └──────────────┘    └──────────────┘    └──────────┘
+   Import          Lettura         Selezione          Versioning          Produzione
+   .epub           Traduzione      Capitoli           Save/Load/          Report
+   IndexedDB       Highlight       Standalone         Delete              WYSIWYG
+   Gerarchica      Segnalibri      HTML doc           IndexedDB           Export
+   (libri +        Dizionario      Collezioni         noesisDB            PDF/DOCX/HTML
+    capitoli +     Temi            JSON I/O           Accesso da
+    snapshot)                                         libreria
+</code></pre>
+<hr />
+<h2 id="workflow-per-profilo-utente">Workflow per profilo utente</h2>
+<h3 id="studente-workflow-rapido">🎓 Studente — Workflow rapido</h3>
+<pre><code>1. Importa il manuale (.epub)
+2. Naviga al capitolo da studiare (TOC sidebar)
+3. Leggi + evidenzia concetti chiave (giallo)
+4. Evidenzia esempi (verde) e date/nomi (rosa)
+5. Estrai il capitolo (corrente + sottolivelli)
+6. Salva snapshot &quot;Lettura base&quot;
+7. Aggiungi selezioni importanti alla collezione
+8. Salva snapshot &quot;Dopo raccolta chunk&quot;
+9. Lancia l'editor dalla collezione
+10. Struttura gli appunti: H1/H2, liste
+11. Esporta in PDF → consegna o stampa
+12. Riapri versioni precedenti dalla libreria se necessario
+</code></pre>
+<h3 id="ricercatore-workflow-approfondito">🔬 Ricercatore — Workflow approfondito</h3>
+<pre><code>1. Importa il paper/monografia (.epub)
+2. Leggi con traduzione browser attiva se lingua straniera
+3. Seleziona grafici e immagini → aggiungi alla collezione (base64)
+4. Seleziona citazioni rilevanti → collezione
+5. Salva snapshot &quot;Prima revisione&quot;
+6. Esporta la collezione come JSON (backup)
+7. Continua l'analisi, aggiungi annotazioni
+8. Salva snapshot &quot;Annotazioni complete&quot;
+9. Lancia editor dalla collezione
+10. Struttura il report: titoli, tabelle, immagini
+11. Esporta in DOCX per revisione collegiale
+</code></pre>
+<h3 id="bloggercreator-workflow-veloce">📝 Blogger/Creator — Workflow veloce</h3>
+<pre><code>1. Leggi il libro con Noesis
+2. Seleziona i passaggi per la review → collezione
+3. Estrai i capitoli rilevanti
+4. Salva snapshot &quot;Materiale raccolto&quot;
+5. Lancia editor dal capitolo estratto
+6. Scrivi la review nell'editor WYSIWYG
+7. Copia HTML → incolla nel CMS (WordPress, Ghost, ecc.)
+</code></pre>
+<h3 id="lettore-multilingue-workflow-studio-lingua">🌍 Lettore multilingue — Workflow studio lingua</h3>
+<pre><code>1. Importa romanzo o testo nella lingua target
+2. Attiva traduzione browser per lingua madre
+3. Leggi con doppio riferimento (originale + traduzione)
+4. Highlight parole nuove (rosa)
+5. Estrai il capitolo → Salva snapshot &quot;Vocabolario sessione 1&quot;
+7. Collezione delle parole/frasi difficili
+8. Esporta collezione JSON → archivio personale vocabolario
+</code></pre>
+<hr />
+<h2 id="persistenza-dei-dati">Persistenza dei dati</h2>
+<pre><code>COSA VIENE SALVATO E DOVE
+
+localStorage:
+  ├── Preferenze tipografia (font size, interlinea)
+  ├── Tema di lettura selezionato
+  └── Impostazioni interfaccia (colori, opacità)
+
+IndexedDB — EpubLibraryDB:
+  ├── Libri importati (file .epub completi come ArrayBuffer)
+  ├── Posizione di lettura per ogni libro
+  └── Segnalibri per ogni libro
+
+IndexedDB — noesisDB  (NUOVO):
+  ├── Capitoli estratti (chapterRecord con chapterId, bookName, chapterName, createdAt)
+  └── Snapshot per ogni capitolo (array all'interno del chapterRecord)
+        Ogni snapshot: { snapshotId, createdAt, bookName, chapterName,
+                         description, content (HTML completo) }
+
+File system (export):
+  ├── .json → collezioni esportate
+  ├── .pdf  → documenti esportati
+  └── .docx → documenti Word esportati
+</code></pre>
+<hr />
+<h2 id="note-operative">Note operative</h2>
+<ul>
+<li><strong>CORS</strong>: Se alcuni libri non si rendono correttamente, avvia un server locale (<code>python -m http.server 8000</code>) invece di aprire il file con <code>file://</code></li>
+<li><strong>Offline</strong>: Dopo il primo caricamento (scarica CDN), Noesis funziona completamente offline</li>
+<li><strong>Backup</strong>: Esporta periodicamente le collezioni come JSON per non perdere il lavoro di annotazione</li>
+<li><strong>Snapshot</strong>: Salva snapshot prima di modifiche importanti — è il modo più sicuro per tornare a una versione precedente del capitolo estratto</li>
+<li><strong>Immagini nell'editor</strong>: Vengono salvate inline come base64 — il documento è sempre autocontenuto, senza path rotti</li>
+<li><strong>Libreria</strong>: Al riavvio dell'app, la libreria mostra automaticamente tutti i capitoli estratti con i loro snapshot, senza necessità di riaprire i file</li>
+</ul>
+    <div style="margin-top:56px; padding-top:32px; border-top:1px solid var(--border); display:flex; gap:16px; flex-wrap:wrap;">
+      <a href="approfondimenti.html" class="doc-back" style="margin-bottom:0;">← Tutti gli approfondimenti</a>
+      <a href="index.html" class="doc-back" style="margin-bottom:0;">🏠 Home</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>MIT License · Vanilla JS · No Server · <strong>Noesis</strong> · v810</p>
+  <p style="margin-top:8px;"><a href="index.html">Home</a> · <a href="guida.html">Guida</a> · <a href="approfondimenti.html">Approfondimenti</a> · <a href="faq.html">FAQ</a> · <a href="note.html">Note</a></p>
+</footer>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="site.js"></script>
+<script>
+// Highlight TOC item on scroll
+(function(){
+  const links = document.querySelectorAll('.doc-toc a');
+  if (!links.length) return;
+  const headings = Array.from(document.querySelectorAll('.doc-content h2, .doc-content h3'));
+  function onScroll() {
+    const scrollY = window.scrollY + 100;
+    let active = null;
+    headings.forEach(h => { if (h.offsetTop <= scrollY) active = h; });
+    links.forEach(l => l.style.color = '');
+    if (active) {
+      const id = active.getAttribute('id');
+      const link = document.querySelector('.doc-toc a[href="#' + id + '"]');
+      if (link) link.style.color = 'var(--violet)';
+    }
+  }
+  window.addEventListener('scroll', onScroll, {passive: true});
+})();
+</script>
+</body>
+</html>

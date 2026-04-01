@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Helper Tools — Noesis</title>
+  <meta name="description" data-i18n-content="helpers.meta.desc" content="ePub Slimmer, Multi ePub Slimmer, ePub Splitter and PDF.js Viewer — additional tools to manage your EPUBs in the browser.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="approfondimenti.css">
+  <style>
+    .tool-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 28px; box-shadow: var(--shadow); margin-bottom: 32px; }
+    .tool-card-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+    .tool-icon { font-size: 40px; }
+    .tool-meta { flex: 1; }
+    .tool-meta h3 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+    .tool-meta p { font-size: 14px; color: var(--text-muted); }
+    .tool-badges { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    .tool-link { display: inline-flex; align-items: center; gap: 8px; background: var(--violet); color: white; padding: 10px 20px; border-radius: 7px; font-size: 14px; font-weight: 600; text-decoration: none; transition: background 0.15s; }
+    .tool-link:hover { background: var(--violet-dark); }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">📚 <span>Noesis</span></a>
+    <button class="lang-toggle-btn" id="lang-toggle" onclick="window.noesisI18n.toggleLang()" title="Switch to Italian">🇮🇹 IT</button>
+    <button class="nav-toggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links">
+      <a href="index.html" data-i18n="nav.home">Home</a><a href="guida.html" data-i18n="nav.guide">Quick Guide</a><a href="library.html" data-i18n="nav.library">Library</a><a href="navigation.html" data-i18n="nav.reading">Reading</a><a href="htmleditor.html" data-i18n="nav.editor">Editor</a><a href="snapshot.html" data-i18n="nav.snapshot">Snapshot</a><a href="collezioni.html" data-i18n="nav.collections">Collections</a><a href="helpers.html" data-i18n="nav.helpers">Helpers</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="note.html" data-i18n="nav.notes">Notes</a>
+      <div class="nav-dropdown">
+        <a href="approfondimenti.html" data-i18n="nav.deepdives">Deep Dives</a>
+        <div class="nav-dropdown-menu">
+          <span class="dm-label" data-i18n="nav.dm.docs">Documentation</span>
+          <a href="doc-readme.html" data-i18n="nav.dm.readme">📚 README — Overview</a>
+          <a href="doc-ui.html" data-i18n="nav.dm.ui">🖥️ UI — Button Reference</a>
+          <a href="doc-workflow.html" data-i18n="nav.dm.workflow">🔄 Workflow — Usage Flows</a>
+          <a href="doc-tech.html" data-i18n="nav.dm.tech">⚙️ Technical Architecture</a>
+          <a href="doc-library-tech.html" data-i18n="nav.dm.libtech">📚 Technical Doc — Library</a>
+          <a href="doc-reader-tech.html" data-i18n="nav.dm.readtech">📖 Technical Doc — Reader</a>
+          <a href="doc-editor-tech.html" data-i18n="nav.dm.edtech">✏️ Technical Doc — Editor</a>
+          <a href="doc-full-embedding.html" data-i18n="nav.dm.fullembedding">📦 Full Version — Embedding</a>
+          <span class="dm-label" data-i18n="nav.dm.project">Project</span>
+          <a href="doc-adv.html" data-i18n="nav.dm.adv">🌟 Positioning</a>
+          <a href="doc-legal.html" data-i18n="nav.dm.legal">⚖️ Legal Analysis</a>
+          <a href="promo.html" data-i18n="nav.dm.promo">🚀 Presentation</a>
+        </div>
+      </div>
+      <a href="index.html#download" class="nav-cta" data-i18n="nav.download">⬇ Download</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge" data-i18n="helpers.hero.badge">User Manual · Helper Tools</div>
+  <h1 data-i18n="helpers.hero.h1"><em>Additional</em> tools</h1>
+  <p data-i18n="helpers.hero.p">Four tools to manage your EPUBs: high-quality PDF Viewer, single and batch image compression, and splitter to extract chapters as separate files. All in the browser.</p>
+</section>
+
+<div class="container">
+
+  <!-- PDF VIEWER -->
+  <div class="section" style="border-top:none;padding-top:0;">
+    <div class="section-label" data-i18n="helpers.pdfjs.label">Tool 1</div>
+    <h2 class="section-title" data-i18n="helpers.pdfjs.h2">Mozilla <em>PDF.js Viewer</em></h2>
+    <p class="section-sub" data-i18n="helpers.pdfjs.p">High-quality rendering of extracted chapters via Mozilla's open-source PDF viewer. Integrated into the chapter export flow.</p>
+
+    <div class="tool-card">
+      <div class="tool-card-header">
+        <span class="tool-icon">📖</span>
+        <div class="tool-meta">
+          <h3>PDF.js Viewer</h3>
+          <p data-i18n="helpers.pdfjs.meta.p">High-quality PDF rendering directly in the browser</p>
+          <div class="tool-badges">
+            <span class="badge badge-green">Browser native</span>
+            <span class="badge badge-violet">Mozilla</span>
+          </div>
+        </div>
+      </div>
+      <div class="cards">
+        <div class="card">
+          <h3 data-i18n="helpers.pdfjs.view.h">📖 Advanced viewing</h3>
+          <p data-i18n="helpers.pdfjs.view.p">High-quality PDF rendering with support for embedded fonts, complex layouts and accurate colours — superior to the browser print dialog.</p>
+        </div>
+        <div class="card">
+          <h3 data-i18n="helpers.pdfjs.zoom.h">🔍 Zoom and navigation</h3>
+          <p data-i18n="helpers.pdfjs.zoom.p">Zoom in and out with precise percentage, page navigation with direct number input, full-screen view.</p>
+        </div>
+        <div class="card">
+          <h3 data-i18n="helpers.pdfjs.search.h">🔎 Text search</h3>
+          <p data-i18n="helpers.pdfjs.search.p">Full-text search in the PDF with highlighted results. Useful for quickly finding specific terms in long chapters.</p>
+        </div>
+        <div class="card">
+          <h3 data-i18n="helpers.pdfjs.print.h">🖨️ Direct printing</h3>
+          <p data-i18n="helpers.pdfjs.print.p">Print the PDF directly from the viewer using browser native functionality, with print-optimised layout.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="screenshot-block">
+      <img src="new-library-tools-mozilla.png" data-i18n-alt="helpers.img.mozilla" alt="PDF.js Viewer with extracted chapter">
+      <div class="screenshot-caption" data-i18n="helpers.img.mozilla.caption">📖 PDF.js Viewer — high-quality rendering of the extracted chapter</div>
+    </div>
+
+    <div class="callout callout-info mt-24">
+      <span class="callout-icon">ℹ️</span>
+      <div data-i18n="helpers.pdfjs.callout"><strong>How to access the PDF Viewer</strong> — The PDF Viewer is activated from the <strong>👁 PDF Viewer</strong> button in the extracted chapter toolbar. It is not a separate page — it is integrated into the chapter export flow.</div>
+    </div>
+  </div>
+
+  <!-- EPUB SLIMMER -->
+  <div class="section">
+    <div class="section-label" data-i18n="helpers.slimmer.label">Tool 2</div>
+    <h2 class="section-title" data-i18n="helpers.slimmer.h2"><em>ePub Slimmer</em></h2>
+    <p class="section-sub" data-i18n="helpers.slimmer.p">Compresses images in an EPUB file to reduce size. Useful for EPUBs with many high-resolution images that slow down loading.</p>
+
+    <div class="tool-card">
+      <div class="tool-card-header">
+        <span class="tool-icon">🗜️</span>
+        <div class="tool-meta">
+          <h3>ePub Slimmer</h3>
+          <p data-i18n="helpers.slimmer.meta.p">Image compression for a single EPUB file</p>
+          <div class="tool-badges">
+            <span class="badge badge-violet">1 file</span>
+            <span class="badge badge-green">JPG · PNG · WebP</span>
+          </div>
+        </div>
+        <a href="epubslimmer.html" class="tool-link" data-i18n="helpers.slimmer.link">Open tool →</a>
+      </div>
+      <div class="cards">
+        <div class="card accent">
+          <h3 data-i18n="helpers.slimmer.compress.h">🖼️ Image compression</h3>
+          <p data-i18n="helpers.slimmer.compress.p">Compresses all images in the EPUB to JPEG with configurable quality. Maintains aspect ratio and image structure.</p>
+        </div>
+        <div class="card accent">
+          <h3 data-i18n="helpers.slimmer.quality.h">⚙️ Configurable quality</h3>
+          <p data-i18n="helpers.slimmer.quality.p">Adjust compression quality (0–100). Values between 60–80 offer a good balance between size and quality for most EPUBs.</p>
+        </div>
+        <div class="card accent">
+          <h3 data-i18n="helpers.slimmer.nodrm.h">🔒 No DRM</h3>
+          <p data-i18n="helpers.slimmer.nodrm.p">Works only with DRM-free EPUBs. Protected files cannot be processed.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MULTI EPUB SLIMMER -->
+  <div class="section">
+    <div class="section-label" data-i18n="helpers.multislimmer.label">Tool 3</div>
+    <h2 class="section-title" data-i18n="helpers.multislimmer.h2"><em>Multi ePub Slimmer</em></h2>
+    <p class="section-sub" data-i18n="helpers.multislimmer.p">Batch version of ePub Slimmer. Process multiple EPUB files simultaneously with the same compression settings.</p>
+
+    <div class="tool-card">
+      <div class="tool-card-header">
+        <span class="tool-icon">📦</span>
+        <div class="tool-meta">
+          <h3>Multi ePub Slimmer</h3>
+          <p data-i18n="helpers.multislimmer.meta.p">Batch compression of up to 10 EPUB files</p>
+          <div class="tool-badges">
+            <span class="badge badge-violet">Up to 10 files</span>
+            <span class="badge badge-green">Parallel batch</span>
+          </div>
+        </div>
+        <a href="multiepubslimer.html" class="tool-link" data-i18n="helpers.multislimmer.link">Open tool →</a>
+      </div>
+      <div class="cards">
+        <div class="card accent">
+          <h3 data-i18n="helpers.multislimmer.queue.h">🔢 Queue with individual status</h3>
+          <p data-i18n="helpers.multislimmer.queue.p">Each file shows its own status: <span class="badge badge-gray">pending</span> → <span class="badge badge-violet">processing</span> → <span class="badge badge-green">done</span> or <span class="badge badge-red">error</span>.</p>
+        </div>
+        <div class="card accent">
+          <h3 data-i18n="helpers.multislimmer.batch.h">📚 Batch processing</h3>
+          <p data-i18n="helpers.multislimmer.batch.p">Select multiple EPUBs at once. Each one is compressed independently and downloaded automatically.</p>
+        </div>
+        <div class="card accent">
+          <h3 data-i18n="helpers.multislimmer.progress.h">📊 Progress</h3>
+          <p data-i18n="helpers.multislimmer.progress.p">Progress bar for each EPUB during processing. Processed files appear in the results list as they complete.</p>
+        </div>
+        <div class="card accent">
+          <h3 data-i18n="helpers.multislimmer.error.h">⚠️ Error handling</h3>
+          <p data-i18n="helpers.multislimmer.error.p">If one file fails (corrupt EPUB, unsupported format) the others continue processing. Clear error messages for each problematic file.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EPUB SPLITTER -->
+  <div class="section">
+    <div class="section-label" data-i18n="helpers.splitter.label">Tool 4</div>
+    <h2 class="section-title" data-i18n="helpers.splitter.h2"><em>ePub Splitter</em></h2>
+    <p class="section-sub" data-i18n="helpers.splitter.p">Splits an EPUB into individual chapter files. Each chapter is saved as a separate EPUB — useful for reading tools that handle large EPUBs poorly.</p>
+
+    <div class="tool-card">
+      <div class="tool-card-header">
+        <span class="tool-icon">✂️</span>
+        <div class="tool-meta">
+          <h3>ePub Splitter</h3>
+          <p data-i18n="helpers.splitter.meta.p">Extract selected chapters as separate EPUB files</p>
+          <div class="tool-badges">
+            <span class="badge badge-violet">TOC-based</span>
+            <span class="badge badge-green">Multi-select</span>
+          </div>
+        </div>
+        <a href="epubsplitter.html" class="tool-link" data-i18n="helpers.splitter.link">Open tool →</a>
+      </div>
+      <div class="cards">
+        <div class="card accent">
+          <h3 data-i18n="helpers.splitter.split.h">✂️ Split by chapter</h3>
+          <p data-i18n="helpers.splitter.split.p">Each item in the EPUB spine becomes a separate EPUB with correct metadata. Chapter names are taken from the TOC.</p>
+        </div>
+        <div class="card accent">
+          <h3 data-i18n="helpers.splitter.download.h">📦 ZIP download</h3>
+          <p data-i18n="helpers.splitter.download.p">All split EPUBs are packaged in a single ZIP file for download. No intermediate steps.</p>
+        </div>
+      </div>
+
+      <div class="callout callout-info mt-16">
+        <span class="callout-icon">ℹ️</span>
+        <div data-i18n="helpers.splitter.callout"><strong>Difference from Extract Chapter</strong> — The Splitter produces standalone <code>.epub</code> files (importable in other readers). The Extract Chapter function in Noesis produces standalone HTML documents with the integrated Noesis toolbar. They are complementary tools with different purposes.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <a href="collezioni.html" data-i18n="helpers.pagenav.prev">← Collections</a>
+    <a href="faq.html" class="next" data-i18n="helpers.pagenav.next">FAQ →</a>
+  </div>
+</div>
+
+<footer>
+  <p data-i18n="footer.license">MIT License · Vanilla JS · No Server · <strong>Noesis — Reading-to-Knowledge System</strong> · v810</p>
+  <p style="margin-top:8px;"><a href="index.html" data-i18n="footer.home">Home</a> · <a href="guida.html" data-i18n="footer.guide">Guide</a> · <a href="faq.html" data-i18n="footer.faq">FAQ</a> · <a href="note.html" data-i18n="footer.notes">Notes</a></p>
+</footer>
+<script src="translations.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Noesis Editor — Noesis</title>
+  <meta name="description" data-i18n-content="editor.meta.desc" content="Noesis Editor: EPUB chapter extraction, highlighting, snapshots and WYSIWYG Summernote in a single environment. Export PDF, DOCX, Markdown, HTML.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="approfondimenti.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">📚 <span>Noesis</span></a>
+    <button class="lang-toggle-btn" id="lang-toggle" onclick="window.noesisI18n.toggleLang()" title="Switch to Italian">🇮🇹 IT</button>
+    <button class="nav-toggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links">
+      <a href="index.html" data-i18n="nav.home">Home</a><a href="guida.html" data-i18n="nav.guide">Quick Guide</a><a href="library.html" data-i18n="nav.library">Library</a><a href="navigation.html" data-i18n="nav.reading">Reading</a><a href="htmleditor.html" data-i18n="nav.editor">Editor</a><a href="snapshot.html" data-i18n="nav.snapshot">Snapshot</a><a href="collezioni.html" data-i18n="nav.collections">Collections</a><a href="helpers.html" data-i18n="nav.helpers">Helpers</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="note.html" data-i18n="nav.notes">Notes</a>
+      <div class="nav-dropdown">
+        <a href="approfondimenti.html" data-i18n="nav.deepdives">Deep Dives</a>
+        <div class="nav-dropdown-menu">
+          <span class="dm-label" data-i18n="nav.dm.docs">Documentation</span>
+          <a href="doc-readme.html" data-i18n="nav.dm.readme">📚 README — Overview</a>
+          <a href="doc-ui.html" data-i18n="nav.dm.ui">🖥️ UI — Button Reference</a>
+          <a href="doc-workflow.html" data-i18n="nav.dm.workflow">🔄 Workflow — Usage Flows</a>
+          <a href="doc-tech.html" data-i18n="nav.dm.tech">⚙️ Technical Architecture</a>
+          <a href="doc-library-tech.html" data-i18n="nav.dm.libtech">📚 Technical Doc — Library</a>
+          <a href="doc-reader-tech.html" data-i18n="nav.dm.readtech">📖 Technical Doc — Reader</a>
+          <a href="doc-editor-tech.html" data-i18n="nav.dm.edtech">✏️ Technical Doc — Editor</a>
+          <a href="doc-full-embedding.html" data-i18n="nav.dm.fullembedding">📦 Full Version — Embedding</a>
+          <span class="dm-label" data-i18n="nav.dm.project">Project</span>
+          <a href="doc-adv.html" data-i18n="nav.dm.adv">🌟 Positioning</a>
+          <a href="doc-legal.html" data-i18n="nav.dm.legal">⚖️ Legal Analysis</a>
+          <a href="promo.html" data-i18n="nav.dm.promo">🚀 Presentation</a>
+        </div>
+      </div>
+      <a href="index.html#download" class="nav-cta" data-i18n="nav.download">⬇ Download</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge" data-i18n="editor.hero.badge">Environment · Noesis Editor</div>
+  <h1 data-i18n="editor.hero.h1">Noesis Editor — <em>extract, annotate and write</em></h1>
+  <p data-i18n="editor.hero.p">From the click on Extract Chapter in Noesis Reading, <strong>Noesis Summernote Editor</strong> opens directly: a single environment to read the extracted chapter, highlight, manage snapshots, collect chunks and build your document.</p>
+</section>
+
+<div class="container">
+
+  <!-- EXTRACTION MODES -->
+  <div class="section" style="border-top:none;padding-top:0;">
+    <div class="section-label" data-i18n="editor.extract.label">Chapter Extraction</div>
+    <h2 class="section-title" data-i18n="editor.extract.h2">Two modes, <em>one click</em></h2>
+    <p class="section-sub" data-i18n="editor.extract.p">The Extract Chapter button in the reader toolbar opens a dropdown with two options. Noesis reads the book TOC hierarchy and assembles the document automatically, which opens directly in Noesis Editor.</p>
+
+    <div class="cards cards-2">
+      <div class="card accent">
+        <span class="card-icon">📄</span>
+        <h3 data-i18n="editor.card.single.h">Current chapter only</h3>
+        <p data-i18n="editor.card.single.p">Extracts only the chapter displayed in the reader. Focused document, ideal for quick reading, targeted translation or annotation of a single section.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">🌿</span>
+        <h3 data-i18n="editor.card.branch.h">Current + all sublevels</h3>
+        <p data-i18n="editor.card.branch.p">Extracts the current chapter plus <strong>all nested sub-chapters</strong>, assembled in EPUB spine order into a single document. Ideal for broad sections or entire parts of an essay.</p>
+      </div>
+    </div>
+
+    <div class="screenshot-block mt-24">
+      <img src="new-reading-exportchapter.png" data-i18n-alt="editor.img.extract" alt="Extract Chapter dropdown">
+      <div class="screenshot-caption" data-i18n="editor.img.extract.caption">📥 Extract Chapter — dropdown with the two extraction modes in the reader</div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="section">
+    <div class="section-label" data-i18n="editor.how.label">How it works</div>
+    <h2 class="section-title" data-i18n="editor.how.h2">The extraction <em>process</em></h2>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h4 data-i18n="editor.how.step1.h">TOC structure parsing</h4>
+          <p data-i18n="editor.how.step1.p">Noesis reads the current TOC node and recursively identifies all child sub-nodes. For hierarchical extraction, the complete list of EPUB files to assemble is built.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h4 data-i18n="editor.how.step2.h">Image loading and conversion</h4>
+          <p data-i18n="editor.how.step2.p">For each extracted chapter, Noesis accesses the image files inside the EPUB via JSZip, converts them to <strong>inline base64</strong> and embeds them directly in the document. The result is a fully self-contained HTML with no external dependencies.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h4 data-i18n="editor.how.step3.h">Payload generation and editor opening</h4>
+          <p data-i18n="editor.how.step3.p">The HTML content is injected into a JSON payload along with <code>bookName</code>, <code>chapterId</code> and <code>chapter</code> mode. Noesis Editor opens in a new tab via Blob URL with content already loaded.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h4 data-i18n="editor.how.step4.h">Registration in noesisLibraryDB</h4>
+          <p data-i18n="editor.how.step4.p">The chapter is registered as a <code>chapterRecord</code> in <code>noesisLibraryDB</code> (IndexedDB) with a unique <code>chapterId</code> and an empty <code>snapshots[]</code> array, ready for the versioning system.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UNIFIED ENVIRONMENT -->
+  <div class="section">
+    <div class="section-label" data-i18n="editor.unified.label">Noesis Editor Environment</div>
+    <h2 class="section-title" data-i18n="editor.unified.h2">One environment for <em>everything</em></h2>
+    <p class="section-sub" data-i18n="editor.unified.p">Previously there were two separate environments: the "Extracted Chapter" and the "Report Editor". Today they are unified in <strong>Noesis Editor</strong> — a single Summernote editor managing reading, annotation, editing and export without intermediate steps.</p>
+
+    <div class="cards cards-2">
+      <div class="card accent">
+        <span class="card-icon">📖</span>
+        <h3 data-i18n="editor.unified.chapter.h">Chapter mode</h3>
+        <p data-i18n="editor.unified.chapter.p">Opens with the extracted chapter content already loaded. Allows annotation with highlights, snapshot management, chunk collection and full text editing before export.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">✏️</span>
+        <h3 data-i18n="editor.unified.standalone.h">Standalone mode</h3>
+        <p data-i18n="editor.unified.standalone.p">Empty editor, accessible from the Library via the "Open Editor" button. Free use without a starting chapter — ideal for notes, drafts and independent documents.</p>
+      </div>
+    </div>
+
+    <div class="callout callout-info mt-24">
+      <span class="callout-icon">ℹ️</span>
+      <div data-i18n="editor.unified.callout"><strong>Opens in a new tab</strong> — Noesis Editor always opens in a separate browser tab via Blob URL. You can keep the library, reader and editor open simultaneously to switch between environments without losing work.</div>
+    </div>
+  </div>
+
+  <!-- HIGHLIGHTING -->
+  <div class="section">
+    <div class="section-label" data-i18n="editor.hl.label">Highlighting</div>
+    <h2 class="section-title" data-i18n="editor.hl.h2">3-colour <em>annotation</em></h2>
+    <p class="section-sub" data-i18n="editor.hl.p">Colour highlighting is available in Noesis Editor via native Summernote. Select the text and apply the background colour corresponding to the semantic category.</p>
+
+    <div class="cards">
+      <div class="card" style="border-left: 4px solid #fbbf24;">
+        <span class="card-icon">🟡</span>
+        <h3 data-i18n="editor.hl.yellow.h">Yellow</h3>
+        <p data-i18n="editor.hl.yellow.p">Core concepts, definitions, key information to memorise. The primary colour of academic annotation.</p>
+      </div>
+      <div class="card" style="border-left: 4px solid #34d399;">
+        <span class="card-icon">🟢</span>
+        <h3 data-i18n="editor.hl.green.h">Green</h3>
+        <p data-i18n="editor.hl.green.p">Examples, quotes, practical cases, empirical evidence. Distinguishes the concrete from the abstract in the text.</p>
+      </div>
+      <div class="card" style="border-left: 4px solid #f472b6;">
+        <span class="card-icon">🩷</span>
+        <h3 data-i18n="editor.hl.pink.h">Pink</h3>
+        <p data-i18n="editor.hl.pink.p">Technical terms, proper names, vocabulary to study. Perfect for language study and specialist nomenclature.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">✕</span>
+        <h3 data-i18n="editor.hl.remove.h">Remove highlight</h3>
+        <p data-i18n="editor.hl.remove.p">Select the highlighted text and apply "no colour" to remove the highlight while keeping the text intact.</p>
+      </div>
+    </div>
+
+    <div class="callout callout-tip mt-16">
+      <span class="callout-icon">💡</span>
+      <div data-i18n="editor.hl.callout"><strong>Highlights are preserved in annotated snapshots</strong> — Save Snapshot saves two files: <code>_clean.html</code> (without highlights) and <code>_annot.html</code> (with highlights). You can return to any previous state of your study session. <a href="snapshot.html" style="color:var(--violet);">Snapshot documentation →</a></div>
+    </div>
+  </div>
+
+  <!-- MAIN TOOLBAR -->
+  <div class="section">
+    <div class="section-label" data-i18n="editor.toolbar.label">Toolbar</div>
+    <h2 class="section-title" data-i18n="editor.toolbar.h2">The <em>Editor</em> button bar</h2>
+    <p class="section-sub" data-i18n="editor.toolbar.p">The Noesis Editor has a structured toolbar at the bottom of the screen, divided into three sections: Chapter, Collection and Tools.</p>
+
+    <div class="screenshot-block mt-24">
+      <img src="new-editor-buttons.png" data-i18n-alt="editor.img.toolbar" alt="Noesis Editor main toolbar">
+      <div class="screenshot-caption" data-i18n="editor.img.toolbar.caption">CHAPTER: new · open · save snapshot · options | COLLECTION: add · export · import · options · preview · delete | TOOLS</div>
+    </div>
+
+    <div class="cards mt-24">
+      <div class="card accent">
+        <span class="card-icon"><i class="bi bi-file-earmark-plus"></i></span>
+        <h3 data-i18n="editor.chapter.new.h">New</h3>
+        <p data-i18n="editor.chapter.new.p">Resets the editor in place — empties the content area for a new document. Does not lose the current chapter in noesisDB.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon"><i class="bi bi-folder2-open"></i></span>
+        <h3 data-i18n="editor.chapter.open.h">Open</h3>
+        <p data-i18n="editor.chapter.open.p">Opens a file picker to load an existing HTML file directly into the editor. Useful for reopening a snapshot saved on the filesystem.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon"><i class="bi bi-floppy"></i></span>
+        <h3 data-i18n="editor.chapter.save.h">Save Snapshot</h3>
+        <p data-i18n="editor.chapter.save.p">The main snapshot operation. Generates two files simultaneously: <code>_clean.html</code> (no highlight colours) and <code>_annot.html</code> (with all highlights). Both are downloaded and also recorded in <code>noesisDB</code>.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon"><i class="bi bi-three-dots"></i></span>
+        <h3 data-i18n="editor.chapter.options.h">CHAPTER — Options</h3>
+        <p data-i18n="editor.chapter.options.p">Dropdown with additional options for the current chapter: rename, metadata information and other contextual actions.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon"><i class="bi bi-collection"></i></span>
+        <h3 data-i18n="editor.collection.add.h">[+] Add chunk</h3>
+        <p data-i18n="editor.collection.add.p">Adds a text chunk from the current selection, or activates capture mode for images (double-tap) and tables (long press).</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon"><i class="bi bi-box-arrow-up"></i></span>
+        <h3 data-i18n="editor.collection.export.h">Export JSON</h3>
+        <p data-i18n="editor.collection.export.p">Saves all collected chunks as a JSON file. Importable in future sessions to continue working on the same collection.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon"><i class="bi bi-box-arrow-in-down"></i></span>
+        <h3 data-i18n="editor.collection.import.h">Import JSON</h3>
+        <p data-i18n="editor.collection.import.p">Loads a previously exported JSON collection. Chunks are added to the current session.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon"><i class="bi bi-eye"></i></span>
+        <h3 data-i18n="editor.collection.preview.h">Preview</h3>
+        <p data-i18n="editor.collection.preview.p">Opens the Collection Inspect panel: list of all chunks with visual preview, type (text/image/table), selection for export and delete button.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon"><i class="bi bi-trash"></i></span>
+        <h3 data-i18n="editor.collection.delete.h">COLLECTION — Delete</h3>
+        <p data-i18n="editor.collection.delete.p">Deletes all chunks from the current collection after confirmation. The operation is irreversible.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon"><i class="bi bi-wrench"></i></span>
+        <h3 data-i18n="editor.toolbar.tools.h">TOOLS</h3>
+        <p data-i18n="editor.toolbar.tools.p">Opens the tools panel with access to integrated helpers: Excalidraw, Pandoc Online and Mozilla PDF Viewer.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUMMERNOTE TOOLBAR -->
+  <div class="section">
+    <div class="section-label" data-i18n="editor.summernote.label">Summernote Editor</div>
+    <h2 class="section-title" data-i18n="editor.summernote.h2">The <em>WYSIWYG</em> toolbar</h2>
+    <p class="section-sub" data-i18n="editor.summernote.p">Noesis Editor is built on Summernote Lite 0.9.1 + jQuery 3.7.1. The full toolbar offers all formatting controls, plus Noesis-specific extensions.</p>
+
+    <div class="screenshot-block mt-24">
+      <img src="new-editor-summernote buttons.png" data-i18n-alt="editor.img.summernote" alt="Summernote toolbar in Noesis Editor">
+      <div class="screenshot-caption" data-i18n="editor.img.summernote.caption">✨ AI · B · I · U · S · X² · X₂ · eraser · font · size · colour · lists · align · indent · table · link · image · media · — · scissors · </> · ?</div>
+    </div>
+
+    <div class="cards mt-24">
+      <div class="card">
+        <span class="card-icon"><i class="bi bi-stars"></i></span>
+        <h3 data-i18n="editor.sn.ai.h">✨ AI Assistant</h3>
+        <p data-i18n="editor.sn.ai.p">First button in the toolbar. Opens the AI panel with summary, rephrasing and analysis functions for text selected in the editor.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">B I U S</span>
+        <h3 data-i18n="editor.sn.inline.h">Inline formatting</h3>
+        <p data-i18n="editor.sn.inline.p"><strong>Bold</strong>, <em>Italic</em>, <u>Underline</u>, <s>Strikethrough</s>. Applied with Summernote commands on the active selection in the WYSIWYG editor.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">X² X₂</span>
+        <h3 data-i18n="editor.sn.script.h">Superscript and Subscript</h3>
+        <p data-i18n="editor.sn.script.p">Superscript (X²) for mathematical notation, numeric citations and units. Subscript (X₂) for chemical formulas and scientific notation.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon"><i class="bi bi-eraser"></i></span>
+        <h3 data-i18n="editor.sn.eraser.h">Eraser — Remove formatting</h3>
+        <p data-i18n="editor.sn.eraser.p">Removes all inline formatting from the selection: bold, italic, colours, font-size — restores pure plain text.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">• 1.</span>
+        <h3 data-i18n="editor.sn.lists.h">Lists</h3>
+        <p data-i18n="editor.sn.lists.p">Bulleted and numbered lists managed by Summernote. Indentation is handled with Tab/Shift+Tab or the indent button in the toolbar.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon"><i class="bi bi-table"></i></span>
+        <h3 data-i18n="editor.sn.tables.h">Tables</h3>
+        <p data-i18n="editor.sn.tables.p">Inserts a table with the grid picker. Once inserted, the floating contextual toolbar allows adding/deleting rows and columns without code.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon"><i class="bi bi-link-45deg"></i></span>
+        <h3 data-i18n="editor.sn.link.h">Link</h3>
+        <p data-i18n="editor.sn.link.p">Inserts or edits a hyperlink on the selection. Opens a popup with the URL field and the option to open in a new tab.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon"><i class="bi bi-film"></i></span>
+        <h3 data-i18n="editor.sn.media.h">Media</h3>
+        <p data-i18n="editor.sn.media.p">Inserts a video or audio element via embed URL. Useful for integrating multimedia content directly in the document.</p>
+      </div>
+    </div>
+
+    <div class="screenshot-block mt-24">
+      <img src="new-editor-editing.png" data-i18n-alt="editor.img.editing" alt="WYSIWYG editor with Summernote toolbar">
+      <div class="screenshot-caption" data-i18n="editor.img.editing.caption">✏️ Noesis Editor — full Summernote toolbar with formatting and plugins</div>
+    </div>
+  </div>
+
+  <!-- TABLES PLUGIN -->
+  <div class="section">
+    <div class="section-label" data-i18n="editor.table.label">Tables Plugin</div>
+    <h2 class="section-title" data-i18n="editor.table.h2">Table management <em>without code</em></h2>
+    <p class="section-sub" data-i18n="editor.table.p">The tables plugin adds a floating contextual toolbar that appears automatically when the cursor is in a cell. All structure operations are available with one click.</p>
+
+    <div class="cards">
+      <div class="card accent">
+        <span class="card-icon">⬆️</span>
+        <h3 data-i18n="editor.table.rowabove.h">Insert row above</h3>
+        <p data-i18n="editor.table.rowabove.p">Inserts a new empty row immediately above the row where the cursor is.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">⬇️</span>
+        <h3 data-i18n="editor.table.rowbelow.h">Insert row below</h3>
+        <p data-i18n="editor.table.rowbelow.p">Inserts a new empty row immediately below the current row.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">⬅️</span>
+        <h3 data-i18n="editor.table.colleft.h">Insert column left</h3>
+        <p data-i18n="editor.table.colleft.p">Adds a new empty column to the left of the current column.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">➡️</span>
+        <h3 data-i18n="editor.table.colright.h">Insert column right</h3>
+        <p data-i18n="editor.table.colright.p">Adds a new empty column to the right of the current column.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">🗑️</span>
+        <h3 data-i18n="editor.table.delrow.h">Delete row</h3>
+        <p data-i18n="editor.table.delrow.p">Completely removes the row where the cursor is with all its contents.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">🗑️</span>
+        <h3 data-i18n="editor.table.delcol.h">Delete column</h3>
+        <p data-i18n="editor.table.delcol.p">Completely removes the current column with all its contents.</p>
+      </div>
+    </div>
+
+    <div class="screenshot-block mt-24">
+      <img src="new-editor-editing.png" data-i18n-alt="editor.img.table" alt="Table Editor plugin with floating toolbar">
+      <div class="screenshot-caption" data-i18n="editor.img.table.caption">⊞ Table Editor — floating contextual toolbar with structure operations</div>
+    </div>
+  </div>
+
+  <!-- IMAGE PLUGIN -->
+  <div class="section">
+    <div class="section-label" data-i18n="editor.imgplugin.label">Image Plugin</div>
+    <h2 class="section-title" data-i18n="editor.imgplugin.h2">Visual <em>resizing</em></h2>
+    <p class="section-sub" data-i18n="editor.imgplugin.p">The Image Resizer plugin allows resizing images directly in the editor by dragging handles, without needing to enter dimensions manually.</p>
+
+    <div class="cards cards-2">
+      <div class="card accent">
+        <span class="card-icon">🎯</span>
+        <h3 data-i18n="editor.imgplugin.select.h">Visual selection</h3>
+        <p data-i18n="editor.imgplugin.select.p">Clicking on an image in the document shows a selection overlay with handles at the corners and centre sides — exactly like in graphics software.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">↔️</span>
+        <h3 data-i18n="editor.imgplugin.resize.h">Drag resizing</h3>
+        <p data-i18n="editor.imgplugin.resize.p">Drag the handles to scale the image. The plugin updates the element's <code>width</code> and <code>height</code> in real time during dragging.</p>
+      </div>
+    </div>
+
+    <div class="screenshot-block mt-24">
+      <img src="new-editor-editing.png" data-i18n-alt="editor.imgplugin.img" alt="Image Resizer plugin with resize handles">
+      <div class="screenshot-caption" data-i18n="editor.imgplugin.img.caption">↔️ Image Resizer — selection and visual resize handles</div>
+    </div>
+
+    <div class="callout callout-tip">
+      <span class="callout-icon">💡</span>
+      <div data-i18n="editor.imgplugin.callout"><strong>Images always base64</strong> — All images in the editor are saved as inline base64: both those from the extracted EPUB and those imported from local files. The exported document is always self-contained and portable.</div>
+    </div>
+  </div>
+
+  <!-- EXCALIDRAW -->
+  <div class="section">
+    <div class="section-label" data-i18n="editor.excalidraw.label">Excalidraw <span style="font-size:11px;background:#7c3aed;color:#fff;border-radius:4px;padding:2px 6px;margin-left:6px;vertical-align:middle;">v810</span></div>
+    <h2 class="section-title" data-i18n="editor.excalidraw.h2">Integrated <em>diagrams</em></h2>
+    <p class="section-sub" data-i18n="editor.excalidraw.p">Noesis Editor integrates Excalidraw in a dedicated tab. Create diagrams, flowcharts and mind maps visually, then export them directly into your document.</p>
+
+    <div class="cards cards-2">
+      <div class="card accent">
+        <span class="card-icon">🖊️</span>
+        <h3 data-i18n="editor.excalidraw.fork.h">Local Noesis fork</h3>
+        <p data-i18n="editor.excalidraw.fork.p">Excalidraw is included as an integrated fork in the application — no external CDN, no data upload. It opens in a separate browser tab and works completely offline.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">📐</span>
+        <h3 data-i18n="editor.excalidraw.export.h">SVG and PNG</h3>
+        <p data-i18n="editor.excalidraw.export.p">Export your diagrams as SVG (vector, infinitely scalable) or PNG (raster for immediate embedding). Then insert the file into the document via the editor's image plugin.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">🗺️</span>
+        <h3 data-i18n="editor.excalidraw.create.h">What you can create</h3>
+        <p data-i18n="editor.excalidraw.create.p">Conceptual flowcharts, mind maps, cause-effect diagrams, relationship schemas, visual timelines. Any visual structure to support your study notes.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">🔒</span>
+        <h3 data-i18n="editor.excalidraw.privacy.h">No data shared</h3>
+        <p data-i18n="editor.excalidraw.privacy.p">The Noesis fork of Excalidraw sends nothing to external servers. Your diagrams remain local until you manually export them as files.</p>
+      </div>
+    </div>
+
+    <div class="screenshot-block mt-24">
+      <img src="new-editor-excalidraw.png" data-i18n-alt="editor.img.excalidraw" alt="Noesis Editor — Excalidraw integrated in dedicated tab">
+      <div class="screenshot-caption" data-i18n="editor.img.excalidraw.caption">✏️ Excalidraw — diagram, flowchart and mind map creation integrated in Noesis Editor</div>
+    </div>
+  </div>
+
+  <!-- EXPORT -->
+  <div class="section">
+    <div class="section-label" data-i18n="editor.export.label">Export</div>
+    <h2 class="section-title" data-i18n="editor.export.h2">Export in <em>any format</em></h2>
+    <p class="section-sub" data-i18n="editor.export.p">The export menu in the Noesis Editor Tools section offers multiple output formats for all use cases.</p>
+
+    <div class="cards">
+      <div class="card accent">
+        <span class="card-icon">📄</span>
+        <h3 data-i18n="editor.export.txt.h">TXT</h3>
+        <p data-i18n="editor.export.txt.p">Plain text without formatting. Ideal for analysis pipelines, LLM model input, or lightweight archiving of textual content.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">Md</span>
+        <h3 data-i18n="editor.export.md.h">Markdown</h3>
+        <p data-i18n="editor.export.md.p">Markdown format converted by Turndown. Inline images are retained in the ZIP version.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">📦</span>
+        <h3 data-i18n="editor.export.mdzip.h">Markdown + ZIP</h3>
+        <p data-i18n="editor.export.mdzip.p">Markdown with images extracted as separate files and packaged in a ZIP. Ideal for documents with many base64 images to publish on platforms that accept asset uploads.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">{}</span>
+        <h3 data-i18n="editor.export.json.h">JSON</h3>
+        <p data-i18n="editor.export.json.p">Complete document data structure in JSON format. Useful for programmatic integrations, structured backups or import into other systems.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">📝</span>
+        <h3 data-i18n="editor.export.docx.h">DOCX</h3>
+        <p data-i18n="editor.export.docx.p">Word document generated by html-docx-js with full formatting. Compatible with LibreOffice, Google Docs and Microsoft Word.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">🖨️</span>
+        <h3 data-i18n="editor.export.pdf.h">PDF (print)</h3>
+        <p data-i18n="editor.export.pdf.p">Opens the browser native print dialog. For advanced rendering, use the PDF.js Viewer from the Library Tools toolbar.</p>
+      </div>
+    </div>
+
+    <div class="screenshot-block mt-24">
+      <img src="new-editor-export-menu.png" data-i18n-alt="editor.img.export" alt="Noesis Editor export menu">
+      <div class="screenshot-caption" data-i18n="editor.img.export.caption">📤 Export menu — all available formats</div>
+    </div>
+
+    <div class="callout callout-tip mt-16">
+      <span class="callout-icon">💡</span>
+      <div data-i18n="editor.export.callout"><strong>Collection export</strong> — The export menu also includes options to export the current collection: JSON, HTML, MD and MD+ZIP. These options work on the collected chunks, not the editor text. <a href="collezioni.html" style="color:var(--violet);">Collections documentation →</a></div>
+    </div>
+  </div>
+
+  <!-- QUICK EXPORT -->
+  <div class="section">
+    <div class="section-label" data-i18n="editor.quickexport.label">Quick Export</div>
+    <h2 class="section-title" data-i18n="editor.quickexport.h2">Export the chapter <em>directly</em></h2>
+    <p class="section-sub" data-i18n="editor.quickexport.p">In addition to the full export menu, Noesis Editor offers quick export buttons in the toolbar to export the extracted chapter content without going through the editor.</p>
+
+    <div class="cards">
+      <div class="card accent">
+        <span class="card-icon">🖨️</span>
+        <h3 data-i18n="editor.quickexport.pdf.h">Print / Save PDF</h3>
+        <p data-i18n="editor.quickexport.pdf.p">Native browser print with optimised <code>@media print</code> CSS — hides toolbar, handles page breaks, preserves colours. Save as PDF from the browser dialog.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">📝</span>
+        <h3 data-i18n="editor.quickexport.docx.h">Save as DOCX</h3>
+        <p data-i18n="editor.quickexport.docx.p">Exports the chapter in Word format with automatic download. The DOCX file is compatible with Microsoft Word, Google Docs and LibreOffice.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">👁</span>
+        <h3 data-i18n="editor.quickexport.pdfviewer.h">PDF Viewer</h3>
+        <p data-i18n="editor.quickexport.pdfviewer.p">Opens Mozilla PDF.js in a new tab with the chapter content — high-quality rendering, zoom, text search and direct printing from the viewer.</p>
+      </div>
+    </div>
+
+    <div class="callout callout-tip mt-16">
+      <span class="callout-icon">💡</span>
+      <div data-i18n="editor.quickexport.callout"><strong>Images always visible</strong> — All images are saved as inline base64 in the extracted document. Exported PDFs and DOCXs are completely standalone — no external path to maintain, no broken images.</div>
+    </div>
+  </div>
+
+  <!-- CHUNK COLLECTION -->
+  <div class="section">
+    <div class="section-label" data-i18n="editor.chunks.label">Chunk Collection</div>
+    <h2 class="section-title" data-i18n="editor.chunks.h2">Collect, inspect and <em>inject chunks</em></h2>
+    <p class="section-sub" data-i18n="editor.chunks.p">During reading in Noesis Reading you can collect text chunks — paragraphs, quotes, extracts — into the collection. In Noesis Editor the Inspect Panel lets you view the collected chunks and inject them into the current document with one click.</p>
+
+    <div class="cards cards-2">
+      <div class="card accent">
+        <span class="card-icon">📌</span>
+        <h3 data-i18n="editor.chunks.inspect.h">Inspect Panel</h3>
+        <p data-i18n="editor.chunks.inspect.p">The editor's side panel shows all chunks in the current collection with title, text and origin. Available in both <em>chapter</em> and <em>standalone</em> mode.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">💉</span>
+        <h3 data-i18n="editor.chunks.inject.h">Inject into document</h3>
+        <p data-i18n="editor.chunks.inject.p">Click on a chunk to insert it at the current insertion point in the document. The text is pasted as formatted HTML, preserving the structure of the original paragraph.</p>
+      </div>
+    </div>
+
+    <div class="screenshot-block mt-24">
+      <img src="new-editor-collection-inspect.png" data-i18n-alt="editor.img.chunks" alt="Inspect Panel of the collection in Noesis Editor">
+      <div class="screenshot-caption" data-i18n="editor.img.chunks.caption">📌 Inspect Panel — chunks collected during reading, ready for injection into the document</div>
+    </div>
+
+    <div class="callout callout-tip mt-16">
+      <span class="callout-icon">💡</span>
+      <div data-i18n="editor.chunks.callout"><strong>Chunks and collections</strong> — Chunks are saved in <code>noesisCollectionDB</code> (IndexedDB) per book. You can collect across multiple reading sessions and always find them available in the Inspect Panel. <a href="collezioni.html" style="color:var(--violet);">Collections documentation →</a></div>
+    </div>
+  </div>
+
+  <!-- IMPORT SNAPSHOT -->
+  <div class="section">
+    <div class="section-label" data-i18n="editor.importsnap.label">Import Snapshot</div>
+    <h2 class="section-title" data-i18n="editor.importsnap.h2">Reload a <em>previous version</em></h2>
+    <p class="section-sub" data-i18n="editor.importsnap.p">Noesis Editor allows importing snapshots previously saved to the filesystem — even from different sessions or other devices. The system reads the Noesis meta tags embedded in the file and restores the correct context.</p>
+
+    <div class="cards cards-2">
+      <div class="card accent">
+        <span class="card-icon">📂</span>
+        <h3 data-i18n="editor.importsnap.file.h">Import from file</h3>
+        <p data-i18n="editor.importsnap.file.p">Use the <strong>Import Snapshot</strong> button in the editor toolbar to open the file picker. Select a previously saved <code>_annot.html</code> or <code>_clean.html</code> file.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">🏷️</span>
+        <h3 data-i18n="editor.importsnap.meta.h">Noesis meta tags</h3>
+        <p data-i18n="editor.importsnap.meta.p">Every snapshot contains meta tags with <code>chapterId</code>, book name and variant. The system reads them automatically and reconnects the document to the correct Library hierarchy.</p>
+      </div>
+    </div>
+
+    <div class="screenshot-block mt-24">
+      <img src="new-editor-import-snapshots.png" data-i18n-alt="editor.img.importsnap" alt="Import Snapshot in Noesis Editor">
+      <div class="screenshot-caption" data-i18n="editor.img.importsnap.caption">📂 Import Snapshot — loading previous versions with automatic reconnection to the chapter</div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <a href="navigation.html" data-i18n="editor.pagenav.prev">← Noesis Reading</a>
+    <a href="snapshot.html" class="next" data-i18n="editor.pagenav.next">Snapshot →</a>
+  </div>
+</div>
+
+<footer>
+  <p data-i18n="footer.license">MIT License · Vanilla JS · No Server · <strong>Noesis — Reading-to-Knowledge System</strong> · v810</p>
+  <p style="margin-top:8px;"><a href="index.html" data-i18n="footer.home">Home</a> · <a href="guida.html" data-i18n="footer.guide">Guide</a> · <a href="faq.html" data-i18n="footer.faq">FAQ</a> · <a href="note.html" data-i18n="footer.notes">Notes</a></p>
+</footer>
+<script src="translations.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

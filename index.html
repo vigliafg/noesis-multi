@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Noesis — Reading-to-Knowledge System</title>
+  <meta name="description" data-i18n-content="index.meta.desc" content="Noesis is a multilingual EPUB reader and integrated study environment. Read, translate, annotate, extract chapters, save snapshots and create documents — all in the browser, zero server.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="approfondimenti.css">
+  <style>
+    /* ── HOME-SPECIFIC ── */
+    .hero-home { padding: 88px 28px 72px; }
+    .hero-home h1 { font-size: clamp(32px, 6vw, 56px); }
+    .stats-row { display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; margin-top: 48px; }
+    .stat { text-align: center; }
+    .stat-num { font-size: 36px; font-weight: 800; color: var(--violet-light); display: block; }
+    .stat-label { font-size: 13px; color: #6b7280; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 32px; }
+    .feature-card { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow); transition: box-shadow 0.2s, transform 0.15s; }
+    .feature-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .feature-card.highlight { border-color: rgba(124,58,237,0.3); background: rgba(124,58,237,0.02); }
+    .feature-icon { font-size: 32px; margin-bottom: 14px; display: block; }
+    .feature-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .feature-card p { font-size: 14px; color: var(--text-muted); line-height: 1.65; }
+    .feature-tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; background: rgba(124,58,237,0.12); color: var(--violet); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; }
+    .section-dark { background: linear-gradient(135deg, #0f0f18 0%, #1a1030 100%); color: white; padding: 72px 28px; }
+    .section-dark .section-title { color: #f0ece4; }
+    .section-dark .section-sub { color: #9ca3af; }
+    .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 32px; }
+    .compare-col { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius); padding: 24px; }
+    .compare-col.noesis { border-color: rgba(124,58,237,0.5); background: rgba(124,58,237,0.08); }
+    .compare-col h4 { font-size: 14px; font-weight: 700; margin-bottom: 16px; color: #f0ece4; }
+    .compare-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 13px; color: #9ca3af; }
+    .compare-row:last-child { border-bottom: none; }
+    .compare-row strong { color: #f0ece4; font-size: 13px; }
+    .tick { color: #10b981; font-weight: 700; }
+    .cross { color: #ef4444; }
+    .toolbar-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .tab-btn { padding: 8px 18px; border-radius: 6px; border: 1px solid var(--border); background: white; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; color: var(--text-muted); }
+    .tab-btn.active { background: var(--violet); color: white; border-color: var(--violet); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .themes-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 24px; }
+    .theme-swatch { border-radius: 8px; overflow: hidden; border: 2px solid var(--border); cursor: default; }
+    .theme-swatch-color { height: 48px; }
+    .theme-swatch-label { font-size: 11px; text-align: center; padding: 6px; background: white; font-weight: 600; color: var(--text-muted); }
+    .privacy-list { list-style: none; margin-top: 20px; }
+    .privacy-list li { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 14px; color: #d1d5db; }
+    .privacy-list li:last-child { border-bottom: none; }
+    .privacy-list .tick { font-size: 18px; }
+    .users-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-top: 28px; }
+    .user-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius); padding: 20px; }
+    .user-card .emoji { font-size: 28px; display: block; margin-bottom: 10px; }
+    .user-card h4 { font-size: 14px; font-weight: 700; color: #f0ece4; margin-bottom: 6px; }
+    .user-card p { font-size: 13px; color: #9ca3af; line-height: 1.55; }
+    .install-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 28px; }
+    .install-step { text-align: center; padding: 24px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius); }
+    .install-num { width: 36px; height: 36px; border-radius: 50%; background: var(--violet); color: white; font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
+    .install-step h4 { font-size: 14px; font-weight: 700; color: #f0ece4; margin-bottom: 8px; }
+    .install-step p { font-size: 13px; color: #9ca3af; }
+    .install-step code { display: block; margin-top: 8px; background: rgba(0,0,0,0.3); padding: 6px 10px; border-radius: 4px; font-size: 12px; color: #a78bfa; font-family: monospace; }
+    @media (max-width: 768px) {
+      .compare-grid { grid-template-columns: 1fr; }
+      .themes-grid { grid-template-columns: repeat(3, 1fr); }
+      .install-steps { grid-template-columns: 1fr 1fr; }
+      .download-editions-grid { grid-template-columns: 1fr !important; }
+    }
+    @media (max-width: 480px) {
+      .install-steps { grid-template-columns: 1fr; }
+      .themes-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">📚 <span>Noesis</span></a>
+    <button class="lang-toggle-btn" id="lang-toggle" onclick="window.noesisI18n.toggleLang()" title="Switch to Italian">🇮🇹 IT</button>
+    <button class="nav-toggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links">
+      <a href="index.html" data-i18n="nav.home">Home</a><a href="guida.html" data-i18n="nav.guide">Quick Guide</a><a href="library.html" data-i18n="nav.library">Library</a><a href="navigation.html" data-i18n="nav.reading">Reading</a><a href="htmleditor.html" data-i18n="nav.editor">Editor</a><a href="snapshot.html" data-i18n="nav.snapshot">Snapshot</a><a href="collezioni.html" data-i18n="nav.collections">Collections</a><a href="helpers.html" data-i18n="nav.helpers">Helpers</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="note.html" data-i18n="nav.notes">Notes</a>
+      <div class="nav-dropdown">
+        <a href="approfondimenti.html" data-i18n="nav.deepdives">Deep Dives</a>
+        <div class="nav-dropdown-menu">
+          <span class="dm-label" data-i18n="nav.dm.docs">Documentation</span>
+          <a href="doc-readme.html" data-i18n="nav.dm.readme">📚 README — Overview</a>
+          <a href="doc-ui.html" data-i18n="nav.dm.ui">🖥️ UI — Button Reference</a>
+          <a href="doc-workflow.html" data-i18n="nav.dm.workflow">🔄 Workflow — Usage Flows</a>
+          <a href="doc-tech.html" data-i18n="nav.dm.tech">⚙️ Technical Architecture</a>
+          <a href="doc-library-tech.html" data-i18n="nav.dm.libtech">📚 Technical Doc — Library</a>
+          <a href="doc-reader-tech.html" data-i18n="nav.dm.readtech">📖 Technical Doc — Reader</a>
+          <a href="doc-editor-tech.html" data-i18n="nav.dm.edtech">✏️ Technical Doc — Editor</a>
+          <a href="doc-full-embedding.html" data-i18n="nav.dm.fullembedding">📦 Full Version — Embedding</a>
+          <span class="dm-label" data-i18n="nav.dm.project">Project</span>
+          <a href="doc-adv.html" data-i18n="nav.dm.adv">🌟 Positioning</a>
+          <a href="doc-legal.html" data-i18n="nav.dm.legal">⚖️ Legal Analysis</a>
+          <a href="promo.html" data-i18n="nav.dm.promo">🚀 Presentation</a>
+        </div>
+      </div>
+      <a href="#download" class="nav-cta" data-i18n="nav.download">⬇ Download</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero hero-home">
+  <div class="hero-badge" data-i18n="index.hero.badge">v810 · Reading-to-Knowledge System</div>
+  <h1 data-i18n="index.hero.h1">Read in any language.<br><em>Turn books into knowledge.</em></h1>
+  <p data-i18n="index.hero.p">A multilingual EPUB reader with highlights, chapter extraction, snapshot versioning and integrated WYSIWYG editor. All in the browser. Zero server. Zero account.</p>
+  <div class="hero-ctas">
+    <a href="noesis810.html" class="btn-live-demo" target="_blank" rel="noopener" data-i18n="index.hero.btn.demo">▶ Live Demo</a>
+    <a href="#download" class="btn-primary" data-i18n="index.hero.btn.download">⬇ Download free</a>
+    <a href="guida.html" class="btn-secondary" data-i18n="index.hero.btn.guide">📖 Quick Guide →</a>
+    <a href="#features" class="btn-secondary" data-i18n="index.hero.btn.features">Explore features ↓</a>
+  </div>
+  <div class="stats-row">
+    <div class="stat"><span class="stat-num">15</span><span class="stat-label" data-i18n="index.stat.themes">reading themes</span></div>
+    <div class="stat"><span class="stat-num">3</span><span class="stat-label" data-i18n="index.stat.export">export modes</span></div>
+    <div class="stat"><span class="stat-num">∞</span><span class="stat-label" data-i18n="index.stat.books">books in library</span></div>
+    <div class="stat"><span class="stat-num">0</span><span class="stat-label" data-i18n="index.stat.servers">servers required</span></div>
+    <div class="stat"><span class="stat-num">2</span><span class="stat-label" data-i18n="index.stat.db">local databases</span></div>
+  </div>
+</section>
+
+<div class="container-wide">
+
+  <!-- SCREENSHOT HERO -->
+  <div class="screenshot-block" style="margin-top:0; margin-bottom: 48px;">
+    <img src="new-library-chapters-snapshot.png" data-i18n-alt="index.img.library" alt="Noesis hierarchical library — books, extracted chapters and snapshots">
+    <div class="screenshot-caption" data-i18n="index.img.library.caption">📚 Hierarchical Library — each book shows extracted chapters and saved snapshots in a single view</div>
+  </div>
+
+  <!-- FEATURES -->
+  <div id="features">
+    <div class="section-label" data-i18n="index.features.label">Features</div>
+    <h2 class="section-title" data-i18n="index.features.h2">Everything you need <em>to really read</em></h2>
+    <p class="section-sub" data-i18n="index.features.p">Noesis combines reading, translation, annotation, versioning and document creation in a single HTML file. No installation, no account.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="feature-icon">🌍</span>
+        <h3 data-i18n="index.feat.multilingual.h">Multilingual reading</h3>
+        <p data-i18n="index.feat.multilingual.p">Instant translation via native browser. Zero external APIs, zero per-character costs. Read foreign bestsellers on release day.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🎨</span>
+        <h3 data-i18n="index.feat.highlight.h">3-colour Highlighting</h3>
+        <p data-i18n="index.feat.highlight.p">Yellow, green, pink with selective removal. Highlights are preserved in annotated snapshots.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🗂️</span>
+        <h3 data-i18n="index.feat.extract.h">Hierarchical chapter extraction</h3>
+        <p data-i18n="index.feat.extract.p">Extract the current chapter or the entire branch (chapter + all sublevels). Inline base64 images, full toolbar ready.</p>
+      </div>
+      <div class="feature-card highlight">
+        <div class="feature-tag">v810</div>
+        <span class="feature-icon">📸</span>
+        <h3 data-i18n="index.feat.snapshot.h">Snapshot System</h3>
+        <p data-i18n="index.feat.snapshot.p">Save successive versions of the extracted chapter directly to the filesystem. Reload any version with one click. Real, portable HTML files.</p>
+      </div>
+      <div class="feature-card highlight">
+        <div class="feature-tag">v810</div>
+        <span class="feature-icon">🖊️</span>
+        <h3 data-i18n="index.feat.excalidraw.h">Excalidraw integrated</h3>
+        <p data-i18n="index.feat.excalidraw.p">Create diagrams, flowcharts and mind maps directly in the editor. Export as SVG or PNG. Saved locally in the browser.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">📦</span>
+        <h3 data-i18n="index.feat.chunks.h">Chunk collection</h3>
+        <p data-i18n="index.feat.chunks.p">Select text, images and tables → added to the collection. Exportable as JSON, importable into the editor to build documents.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">✏️</span>
+        <h3 data-i18n="index.feat.editor.h">Integrated WYSIWYG Editor</h3>
+        <p data-i18n="index.feat.editor.p">Full formatting, tables with floating toolbar, inline base64 images. Export to PDF, DOCX or HTML for CMS.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🔒</span>
+        <h3 data-i18n="index.feat.privacy.h">Zero server, zero tracking</h3>
+        <p data-i18n="index.feat.privacy.p">Everything local. Books in EpubLibraryDB, snapshots in noesisDB, preferences in localStorage. Not a byte leaves the device.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🛠️</span>
+        <h3 data-i18n="index.feat.helpers.h">Helper tools included</h3>
+        <p data-i18n="index.feat.helpers.p">ePub Slimmer, Multi ePub Slimmer and ePub Splitter: compress, batch-process and extract chapters — all in the browser.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- WORKFLOW -->
+  <div class="section">
+    <div class="section-label" data-i18n="index.workflow.label">Workflow</div>
+    <h2 class="section-title" data-i18n="index.workflow.h2">A <em>complete</em> flow from reading to knowledge</h2>
+    <p class="section-sub" data-i18n="index.workflow.p">Each phase connects to the next without switching application.</p>
+    <div class="workflow-grid">
+      <a href="library.html" class="wf-step" style="--wf-color:#7c3aed;">
+        <span class="wf-icon">📚</span>
+        <span class="wf-label" data-i18n="index.workflow.library">Library</span>
+      </a>
+      <div class="wf-arrow">→</div>
+      <a href="navigation.html" class="wf-step" style="--wf-color:#3b82f6;">
+        <span class="wf-icon">📖</span>
+        <span class="wf-label" data-i18n="index.workflow.reader">Reader</span>
+      </a>
+      <div class="wf-arrow">→</div>
+      <a href="htmleditor.html" class="wf-step" style="--wf-color:#10b981;">
+        <span class="wf-icon">✏️</span>
+        <span class="wf-label" data-i18n="index.workflow.extract">Extract + Editor</span>
+      </a>
+      <div class="wf-arrow">→</div>
+      <a href="snapshot.html" class="wf-step wf-active" style="--wf-color:#f59e0b;">
+        <span class="wf-icon">📸</span>
+        <span class="wf-label" data-i18n="index.workflow.snapshot">Snapshot</span>
+        <span class="wf-new">v810</span>
+      </a>
+      <div class="wf-arrow">→</div>
+      <a href="collezioni.html" class="wf-step" style="--wf-color:#8b5cf6;">
+        <span class="wf-icon">📦</span>
+        <span class="wf-label" data-i18n="index.workflow.collections">Collezioni</span>
+      </a>
+      <div class="wf-arrow">→</div>
+      <a href="htmleditor.html" class="wf-step" style="--wf-color:#ef4444;">
+        <span class="wf-icon">✏️</span>
+        <span class="wf-label" data-i18n="index.workflow.editor">Editor</span>
+      </a>
+      <div class="wf-arrow">→</div>
+      <a href="guida.html#fase-6" class="wf-step" style="--wf-color:#0ea5e9;">
+        <span class="wf-icon">📤</span>
+        <span class="wf-label" data-i18n="index.workflow.export">Export</span>
+      </a>
+    </div>
+    <div style="text-align:center; margin-top:32px;">
+      <a href="guida.html" class="btn-primary" style="display:inline-flex;" data-i18n="index.workflow.btn">Read the full guide →</a>
+    </div>
+  </div>
+
+  <!-- ESTRAZIONE -->
+  <div class="section">
+    <div class="section-label" data-i18n="index.extract.label">Chapter Extraction</div>
+    <h2 class="section-title" data-i18n="index.extract.h2">Extract exactly <em>what you need</em></h2>
+    <p class="section-sub" data-i18n="index.extract.p">The system understands the book hierarchy. One click to extract the current chapter or the entire nested branch.</p>
+    <div class="cards cards-2">
+      <div class="card accent">
+        <span class="card-icon">📄</span>
+        <h3 data-i18n="index.extract.single.h">Current chapter only</h3>
+        <p data-i18n="index.extract.single.p">Focused document on a single topic. Ideal for quick reading, translation or targeted annotation.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">🌿</span>
+        <h3 data-i18n="index.extract.branch.h">Corrente + tutti i sottolivelli</h3>
+        <p data-i18n="index.extract.branch.p">L'intero ramo gerarchico in un documento — capitoli, sotto-capitoli e contenuti annidati uniti automaticamente.</p>
+      </div>
+    </div>
+    <div class="screenshot-block mt-24">
+      <img src="new-reading-exportchapter.png" data-i18n-alt="index.img.extract" alt="Chapter extraction menu — current chapter and current + sublevels">
+      <div class="screenshot-caption" data-i18n="index.img.extract.caption">📄 Extraction menu — choose just the current chapter or the entire branch with all sublevels</div>
+    </div>
+  </div>
+
+  <!-- TOOLBAR TABS -->
+  <div class="section">
+    <div class="section-label" data-i18n="index.toolbar.label">Interface</div>
+    <h2 class="section-title" data-i18n="index.toolbar.h2">Every button, <em>in the right place</em></h2>
+    <div class="toolbar-tabs">
+      <button class="tab-btn active" onclick="showTab('reader')" data-i18n="index.tab.reader">📖 Reader</button>
+      <button class="tab-btn" onclick="showTab('editor')" data-i18n="index.tab.editor">✏️ Noesis Editor</button>
+    </div>
+
+    <div id="tab-reader" class="tab-panel active">
+      <div class="screenshot-block" style="margin-top:0;">
+        <img src="new-reading-buttons.png" data-i18n-alt="index.img.readerbtn" alt="Noesis Reading toolbar">
+        <div class="screenshot-caption" data-i18n="index.img.readerbtn.caption">← Library · Sidebar · Bookmarks · Highlight (yellow) · Display · Scroll · % · Save State (orange) · Extract Chapter (green) · ?</div>
+      </div>
+      <div class="cards">
+        <div class="card"><h3 data-i18n="index.card.sidebar.h">Toggle Sidebar</h3><p data-i18n="index.card.sidebar.p">Shows/hides the expandable hierarchical TOC up to 3 levels.</p></div>
+        <div class="card"><h3 data-i18n="index.card.display.h">Display Settings</h3><p data-i18n="index.card.display.p">Unified accordion panel: 15 themes in 5 groups, typography and interface colours.</p></div>
+        <div class="card"><h3 data-i18n="index.card.extractch.h">Extract Chapter</h3><p data-i18n="index.card.extractch.p">Dropdown: current chapter only or current + all sublevels. Opens directly in Noesis Editor.</p></div>
+      </div>
+    </div>
+
+    <div id="tab-editor" class="tab-panel">
+      <div class="screenshot-block" style="margin-top:0; width:70%; margin-left:auto; margin-right:auto;">
+        <img src="new-editor-buttons.png" data-i18n-alt="index.img.editorbtn" alt="Noesis Editor main toolbar" style="width:100%; height:auto; display:block;">
+        <div class="screenshot-caption" data-i18n="index.img.editorbtn.caption">CHAPTER: new · open · save snapshot · options &nbsp;|&nbsp; COLLECTION: add · export · import · options · preview · delete &nbsp;|&nbsp; TOOLS</div>
+      </div>
+      <div class="screenshot-block mt-24">
+        <img src="new-editor-summernote buttons.png" data-i18n-alt="index.img.summernote" alt="Summernote toolbar Noesis Editor">
+        <div class="screenshot-caption" data-i18n="index.img.summernote.caption">✨ AI · B · I · U · S · X² · X₂ · eraser · font · size · colour · lists · align · indent · table · link · image · media · — · scissors · &lt;/&gt; · ?</div>
+      </div>
+      <div class="callout callout-new">
+        <span class="callout-icon">📸</span>
+        <div data-i18n="index.callout.snapshot"><strong>v810 — Save Snapshot to filesystem</strong> — Saves two files: <code>_clean.html</code> (no highlights) and <code>_annot.html</code> (with highlights). Reimport them into the library with one click via "Import Snapshots".</div>
+      </div>
+      <div class="cards">
+        <div class="card"><h3 data-i18n="index.card.unified.h">Unified environment</h3><p data-i18n="index.card.unified.p">Extracted chapter, highlights, snapshots and WYSIWYG editing in a single Noesis Editor window — no intermediate steps.</p></div>
+        <div class="card"><h3 data-i18n="index.card.excalidraw.h">Excalidraw integrated</h3><p data-i18n="index.card.excalidraw.p">Create diagrams, flowcharts and mind maps in a dedicated tab. Export as SVG or PNG inline in the document.</p></div>
+        <div class="card"><h3 data-i18n="index.card.exportuniv.h">Universal export</h3><p data-i18n="index.card.exportuniv.p">TXT, Markdown, MD+ZIP, DOCX, PDF, JSON. Base64 images are always inline — no broken paths.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEMI -->
+  <div class="section">
+    <div class="section-label" data-i18n="index.themes.label">Reading Themes</div>
+    <h2 class="section-title" data-i18n="index.themes.h2">15 themes, <em>5 groups</em> for every moment</h2>
+    <div class="themes-grid">
+      <div class="theme-swatch"><div class="theme-swatch-color" style="background:#ffffff;"></div><div class="theme-swatch-label">White</div></div>
+      <div class="theme-swatch"><div class="theme-swatch-color" style="background:#f5f5f0;"></div><div class="theme-swatch-label">Soft White</div></div>
+      <div class="theme-swatch"><div class="theme-swatch-color" style="background:#fdf6e3;"></div><div class="theme-swatch-label">Cream</div></div>
+      <div class="theme-swatch"><div class="theme-swatch-color" style="background:#f4ecd8;"></div><div class="theme-swatch-label">Sepia</div></div>
+      <div class="theme-swatch"><div class="theme-swatch-color" style="background:#f2e8c9;"></div><div class="theme-swatch-label">Parchment</div></div>
+      <div class="theme-swatch"><div class="theme-swatch-color" style="background:#e8e8e8;"></div><div class="theme-swatch-label">Light Gray</div></div>
+      <div class="theme-swatch"><div class="theme-swatch-color" style="background:#d8dde6;"></div><div class="theme-swatch-label">Cool Gray</div></div>
+      <div class="theme-swatch"><div class="theme-swatch-color" style="background:#ddd8d0;"></div><div class="theme-swatch-label">Warm Gray</div></div>
+      <div class="theme-swatch"><div class="theme-swatch-color" style="background:#6b7280;"></div><div class="theme-swatch-label">Mid Gray</div></div>
+      <div class="theme-swatch"><div class="theme-swatch-color" style="background:#475569;"></div><div class="theme-swatch-label">Slate</div></div>
+      <div class="theme-swatch"><div class="theme-swatch-color" style="background:#374151;"></div><div class="theme-swatch-label">Dark Gray</div></div>
+      <div class="theme-swatch"><div class="theme-swatch-color" style="background:#2d3748;"></div><div class="theme-swatch-label">Charcoal</div></div>
+      <div class="theme-swatch"><div class="theme-swatch-color" style="background:#1a202c;"></div><div class="theme-swatch-label">Dark</div></div>
+      <div class="theme-swatch"><div class="theme-swatch-color" style="background:#0f172a;"></div><div class="theme-swatch-label">Midnight</div></div>
+      <div class="theme-swatch"><div class="theme-swatch-color" style="background:#000000;"></div><div class="theme-swatch-label">True Black</div></div>
+    </div>
+    <div class="screenshot-block mt-24">
+      <img src="new-reading-themes.png" data-i18n-alt="index.img.themes" alt="Reading theme selection popup — 15 themes in 5 groups">
+      <div class="screenshot-caption" data-i18n="index.img.themes.caption">🎨 Display panel — 15 themes in 5 groups, customisable typography and interface colours</div>
+    </div>
+  </div>
+
+</div><!-- /container-wide -->
+
+<!-- PRIVACY (dark) -->
+<section class="section-dark">
+  <div style="max-width:900px; margin:0 auto; padding: 0 28px;">
+    <div class="section-label" style="color:var(--violet-light);" data-i18n="index.privacy.label">Privacy</div>
+    <h2 class="section-title" data-i18n="index.privacy.h2">Zero server. <em style="color:var(--violet-light);">Zero tracking.</em></h2>
+    <p class="section-sub" data-i18n="index.privacy.p">Fully local architecture — not a byte of your books, annotations or snapshots leaves the device.</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:40px; margin-top:32px;">
+      <div>
+        <ul class="privacy-list">
+          <li><span class="tick">✓</span> <span data-i18n="index.privacy.li1">Books saved in IndexedDB (EpubLibraryDB) — local</span></li>
+          <li><span class="tick">✓</span> <span data-i18n="index.privacy.li2">Chapter metadata in IndexedDB (noesisDB) — local, snapshots on filesystem</span></li>
+          <li><span class="tick">✓</span> <span data-i18n="index.privacy.li3">Preferences in localStorage — local</span></li>
+          <li><span class="tick">✓</span> <span data-i18n="index.privacy.li4">No communication with external servers</span></li>
+          <li><span class="tick">✓</span> <span data-i18n="index.privacy.li5">Works offline after first load</span></li>
+          <li><span class="tick">✓</span> <span data-i18n="index.privacy.li6">No account, no subscription</span></li>
+          <li><span class="tick">✓</span> <span data-i18n="index.privacy.li7">Automatic GDPR compliance (privacy by design)</span></li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="color:#f0ece4; margin-bottom:16px; font-size:15px;" data-i18n="index.compare.title">Noesis vs Readers with account</h4>
+        <div class="compare-col noesis">
+          <div class="compare-row"><strong data-i18n="index.compare.account">Account required</strong><span class="tick" data-i18n="index.compare.account.v">No ✓</span></div>
+          <div class="compare-row"><strong data-i18n="index.compare.ownfiles">Own .epub files</strong><span class="tick" data-i18n="index.compare.ownfiles.v">Sì ✓</span></div>
+          <div class="compare-row"><strong data-i18n="index.compare.cloud">Cloud data</strong><span class="cross" data-i18n="index.compare.cloud.v">Mai ✓</span></div>
+          <div class="compare-row"><strong data-i18n="index.compare.offline">Works offline</strong><span class="tick" data-i18n="index.compare.offline.v">Sempre ✓</span></div>
+          <div class="compare-row"><strong data-i18n="index.compare.cost">Cost</strong><span class="tick" data-i18n="index.compare.cost.v">Gratis ✓</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CHI LO USA (dark) -->
+<section class="section-dark" style="padding-top: 0; border-top: 1px solid rgba(255,255,255,0.06);">
+  <div style="max-width:1100px; margin:0 auto; padding: 56px 28px 0;">
+    <div class="section-label" style="color:var(--violet-light);" data-i18n="index.users.label">Who uses it</div>
+    <h2 class="section-title" style="margin-bottom:8px;" data-i18n="index.users.h2">Seven ways to <em style="color:var(--violet-light);">read better</em></h2>
+    <p class="section-sub" data-i18n="index.users.p">Noesis is for those who read to understand, study and build knowledge.</p>
+    <div class="users-grid">
+      <div class="user-card"><span class="emoji">📖</span><h4 data-i18n="index.user.reader.h">General Reader</h4><p data-i18n="index.user.reader.p">Read foreign bestsellers translated on the fly by the browser, without waiting for the official translation.</p></div>
+      <div class="user-card"><span class="emoji">🎓</span><h4 data-i18n="index.user.student.h">Student</h4><p data-i18n="index.user.student.p">Extract chapters, highlight, save study version snapshots, generate PDFs for submission.</p></div>
+      <div class="user-card"><span class="emoji">🔬</span><h4 data-i18n="index.user.researcher.h">Researcher</h4><p data-i18n="index.user.researcher.p">Collect base64 images and charts, assemble reports with tables, version revisions with snapshots.</p></div>
+      <div class="user-card"><span class="emoji">🌍</span><h4 data-i18n="index.user.multilingual.h">Multilingual Reader</h4><p data-i18n="index.user.multilingual.p">Study foreign languages with new vocabulary highlighted and native browser translation.</p></div>
+      <div class="user-card"><span class="emoji">📝</span><h4 data-i18n="index.user.blogger.h">Blogger / Creator</h4><p data-i18n="index.user.blogger.p">Create professional reviews in WYSIWYG and paste the HTML directly into your CMS.</p></div>
+      <div class="user-card"><span class="emoji">🎓</span><h4 data-i18n="index.user.teacher.h">Teacher</h4><p data-i18n="index.user.teacher.p">Prepare handouts from manuals. Highlight for concepts. PDF export for the class.</p></div>
+      <div class="user-card"><span class="emoji">🧳</span><h4 data-i18n="index.user.traveller.h">Traveller</h4><p data-i18n="index.user.traveller.p">Extract sections from travel guides, add notes, export offline PDF for your phone.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- DOWNLOAD -->
+<div class="container-wide" id="download">
+  <div class="download-block">
+    <div class="badge badge-violet" style="margin-bottom:16px;" data-i18n="index.download.badge">v810 · MIT License · Vanilla JS</div>
+    <h3 data-i18n="index.download.h3">Download. Unzip. Open.</h3>
+    <p data-i18n="index.download.p">No installation. No server. No account. Choose the version that best suits your needs.</p>
+
+    <!-- DOWNLOAD COMPARISON -->
+    <div class="download-editions-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin:28px 0; text-align:left;">
+
+      <!-- Regular -->
+      <div style="border:2px solid rgba(124,58,237,0.5); border-radius:12px; padding:24px; background:rgba(124,58,237,0.04); position:relative;">
+        <div class="badge badge-violet" style="margin-bottom:12px;" data-i18n="index.dl.regular.badge">Recommended</div>
+        <h4 style="font-size:18px; font-weight:800; margin-bottom:6px;" data-i18n="index.dl.regular.h">Regular Version</h4>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;" data-i18n="index.dl.regular.p">App snella: le librerie JS sono caricate da CDN all'apertura. Ideale per uso quotidiano — sempre aggiornata, file più piccolo e facile da mantenere.</p>
+        <ul style="font-size:13px; color:var(--text-muted); list-style:none; margin:0 0 20px; padding:0; line-height:2;">
+          <li><span style="color:#10b981; font-weight:700;">✓</span> <span data-i18n="index.dl.regular.li1">File leggero (&lt; 200 KB)</span></li>
+          <li><span style="color:#10b981; font-weight:700;">✓</span> <span data-i18n="index.dl.regular.li2">Dipendenze sempre aggiornate via CDN</span></li>
+          <li><span style="color:#10b981; font-weight:700;">✓</span> <span data-i18n="index.dl.regular.li3">Facile da aggiornare all'ultima versione</span></li>
+          <li><span style="color:#ef4444; font-weight:700;">✗</span> <span data-i18n="index.dl.regular.li4">Richiede connessione internet al primo avvio</span></li>
+          <li><span style="color:#ef4444; font-weight:700;">✗</span> <span data-i18n="index.dl.regular.li5">Traduzione browser (non funziona offline)</span></li>
+        </ul>
+        <a href="noesis810.zip" class="btn-download" style="display:block; text-align:center;">⬇ noesis810.zip</a>
+      </div>
+
+      <!-- Full / Serverless -->
+      <div style="border:2px solid rgba(16,185,129,0.4); border-radius:12px; padding:24px; background:rgba(16,185,129,0.03); position:relative;">
+        <div class="badge" style="background:rgba(16,185,129,0.15); color:#059669; margin-bottom:12px;" data-i18n="index.dl.full.badge">Serverless / Offline</div>
+        <h4 style="font-size:18px; font-weight:800; margin-bottom:6px;" data-i18n="index.dl.full.h">Full Version</h4>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;" data-i18n="index.dl.full.p">Tutte le dipendenze embedded nel file HTML. Funziona completamente offline, senza CDN, senza connessione — ideale per ambienti isolati o archivio a lungo termine.</p>
+        <ul style="font-size:13px; color:var(--text-muted); list-style:none; margin:0 0 20px; padding:0; line-height:2;">
+          <li><span style="color:#10b981; font-weight:700;">✓</span> <span data-i18n="index.dl.full.li1">100% offline — zero dipendenze esterne</span></li>
+          <li><span style="color:#10b981; font-weight:700;">✓</span> <span data-i18n="index.dl.full.li2">File unico autosufficiente</span></li>
+          <li><span style="color:#10b981; font-weight:700;">✓</span> <span data-i18n="index.dl.full.li3">Ideale per archivio e ambienti air-gapped</span></li>
+          <li><span style="color:#ef4444; font-weight:700;">✗</span> <span data-i18n="index.dl.full.li4">File più pesante (~5–10 MB)</span></li>
+          <li><span style="color:#ef4444; font-weight:700;">✗</span> <span data-i18n="index.dl.full.li5">Traduzione browser non disponibile offline</span></li>
+        </ul>
+        <a href="noesis810-full.zip" class="btn-download" style="display:block; text-align:center; background:linear-gradient(135deg,#059669,#10b981);">⬇ noesis810-full.zip</a>
+        <p style="font-size:12px; color:var(--text-muted); margin-top:10px; text-align:center;"><span data-i18n="index.dl.full.deps">Isolated dependencies:</span> <a href="noesis-full-Deps.zip" style="color:var(--violet);">noesis-full-Deps.zip</a></p>
+      </div>
+
+    </div>
+
+    <div style="margin-top: 24px;">
+      <div class="install-steps">
+        <div class="install-step"><div class="install-num">1</div><h4 data-i18n="index.install.step1.h">Download the zip</h4><p data-i18n="index.install.step1.p">Salva <code>noesis810.zip</code> nella cartella Download.</p></div>
+        <div class="install-step"><div class="install-num">2</div><h4 data-i18n="index.install.step2.h">Unzip</h4><p data-i18n="index.install.step2.p"><strong>Win:</strong> tasto destro → Estrai<br><strong>Mac:</strong> doppio click<br><strong>Linux:</strong> <code>unzip noesis810.zip</code></p></div>
+        <div class="install-step"><div class="install-num">3</div><h4 data-i18n="index.install.step3.h">Open in browser</h4><p data-i18n="index.install.step3.p">Doppio click su <code>noesis810.html</code> oppure trascinalo in Chrome, Firefox o Edge.</p></div>
+        <div class="install-step"><div class="install-num">4</div><h4 data-i18n="index.install.step4.h">Import a book</h4><p data-i18n="index.install.step4.p">Clicca <strong>+ Add Book</strong>, seleziona un file <code>.epub</code> e inizia a leggere.</p></div>
+      </div>
+      <div class="callout callout-tip" style="margin-top:20px; text-align:left; color:#1e3a5f;">
+        <span class="callout-icon">💡</span>
+        <div><strong data-i18n="common.localserver">Local server recommended</strong> — <span data-i18n="common.localserver.body">Per la migliore esperienza con file EPUB complessi, avvia un server locale: <code>python -m http.server 8000</code> nella cartella decompressa e apri <code>http://localhost:8000/noesis810.html</code></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANUALE HUB -->
+  <div class="section">
+    <div class="section-label" data-i18n="index.manual.label">User Manual</div>
+    <h2 class="section-title" data-i18n="index.manual.h2">Learn Noesis <em>step by step</em></h2>
+    <p class="section-sub" data-i18n="index.manual.p">Complete documentation organised by topic. Start from the quick guide or jump straight to the feature you need.</p>
+    <div class="features-grid" style="margin-top:24px;">
+      <a href="guida.html" style="text-decoration:none; color:inherit;"><div class="card accent"><span class="card-icon">🚀</span><h3 data-i18n="index.manual.guide.h">Quick Guide</h3><p data-i18n="index.manual.guide.p">From first launch to first extracted book — full workflow in 5 minutes.</p></div></a>
+      <a href="library.html" style="text-decoration:none; color:inherit;"><div class="card"><span class="card-icon">📚</span><h3>Noesis Library</h3><p data-i18n="index.manual.library.p">EPUB library, books → chapters → snapshots hierarchy, standalone Open Editor.</p></div></a>
+      <a href="navigation.html" style="text-decoration:none; color:inherit;"><div class="card"><span class="card-icon">📖</span><h3>Noesis Reading</h3><p data-i18n="index.manual.reading.p">Reading mode, sidebar TOC, 15 themes, bookmarks, highlighting and Extract Chapter.</p></div></a>
+      <a href="snapshot.html" style="text-decoration:none; color:inherit;"><div class="card new-feature"><span class="card-icon">📸</span><h3>Snapshot</h3><p data-i18n="index.manual.snapshot.p">Chapter versioning — save, reload and delete versions.</p></div></a>
+      <a href="collezioni.html" style="text-decoration:none; color:inherit;"><div class="card"><span class="card-icon">📦</span><h3 data-i18n="index.manual.collections.h">Collezioni</h3><p data-i18n="index.manual.collections.p">Text, image and table chunk collection. JSON import/export.</p></div></a>
+      <a href="htmleditor.html" style="text-decoration:none; color:inherit;"><div class="card"><span class="card-icon">✏️</span><h3>Noesis Editor</h3><p data-i18n="index.manual.editor.p">Chapter extraction, highlighting, snapshots and WYSIWYG unified. PDF, DOCX, MD, HTML export.</p></div></a>
+      <a href="helpers.html" style="text-decoration:none; color:inherit;"><div class="card"><span class="card-icon">🛠️</span><h3>Helper tools</h3><p data-i18n="index.manual.helpers.p">ePub Slimmer, Multi Slimmer, ePub Splitter — advanced EPUB management.</p></div></a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p data-i18n="footer.license">MIT License · Vanilla JS · No Server · <strong>Noesis — Reading-to-Knowledge System</strong> · v810</p>
+  <p style="margin-top:8px;">
+    <a href="index.html" data-i18n="footer.home">Home</a> · <a href="guida.html" data-i18n="footer.guide">Guide</a> · <a href="faq.html" data-i18n="footer.faq">FAQ</a> · <a href="note.html" data-i18n="footer.notes">Notes</a>
+  </p>
+</footer>
+
+<script src="translations.js"></script>
+<script src="site.js"></script>
+<script>
+function showTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>

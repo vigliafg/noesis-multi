@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQ — Noesis</title>
+  <meta name="description" data-i18n-content="faq.meta.desc" content="Frequently asked questions about Noesis: EPUB import, snapshots, collections, export, browser compatibility and troubleshooting.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="approfondimenti.css">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">📚 <span>Noesis</span></a>
+    <button class="lang-toggle-btn" id="lang-toggle" onclick="window.noesisI18n.toggleLang()" title="Switch to Italian">🇮🇹 IT</button>
+    <button class="nav-toggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links">
+      <a href="index.html" data-i18n="nav.home">Home</a><a href="guida.html" data-i18n="nav.guide">Quick Guide</a><a href="library.html" data-i18n="nav.library">Library</a><a href="navigation.html" data-i18n="nav.reading">Reading</a><a href="htmleditor.html" data-i18n="nav.editor">Editor</a><a href="snapshot.html" data-i18n="nav.snapshot">Snapshot</a><a href="collezioni.html" data-i18n="nav.collections">Collections</a><a href="helpers.html" data-i18n="nav.helpers">Helpers</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="note.html" data-i18n="nav.notes">Notes</a>
+      <div class="nav-dropdown">
+        <a href="approfondimenti.html" data-i18n="nav.deepdives">Deep Dives</a>
+        <div class="nav-dropdown-menu">
+          <span class="dm-label" data-i18n="nav.dm.docs">Documentation</span>
+          <a href="doc-readme.html" data-i18n="nav.dm.readme">📚 README — Overview</a>
+          <a href="doc-ui.html" data-i18n="nav.dm.ui">🖥️ UI — Button Reference</a>
+          <a href="doc-workflow.html" data-i18n="nav.dm.workflow">🔄 Workflow — Usage Flows</a>
+          <a href="doc-tech.html" data-i18n="nav.dm.tech">⚙️ Technical Architecture</a>
+          <a href="doc-library-tech.html" data-i18n="nav.dm.libtech">📚 Technical Doc — Library</a>
+          <a href="doc-reader-tech.html" data-i18n="nav.dm.readtech">📖 Technical Doc — Reader</a>
+          <a href="doc-editor-tech.html" data-i18n="nav.dm.edtech">✏️ Technical Doc — Editor</a>
+          <a href="doc-full-embedding.html" data-i18n="nav.dm.fullembedding">📦 Full Version — Embedding</a>
+          <span class="dm-label" data-i18n="nav.dm.project">Project</span>
+          <a href="doc-adv.html" data-i18n="nav.dm.adv">🌟 Positioning</a>
+          <a href="doc-legal.html" data-i18n="nav.dm.legal">⚖️ Legal Analysis</a>
+          <a href="promo.html" data-i18n="nav.dm.promo">🚀 Presentation</a>
+        </div>
+      </div>
+      <a href="index.html#download" class="nav-cta" data-i18n="nav.download">⬇ Download</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge" data-i18n="faq.hero.badge">Support · FAQ</div>
+  <h1 data-i18n="faq.hero.h1">Frequently Asked <em>Questions</em></h1>
+  <p data-i18n="faq.hero.p">Answers to the most common questions about Noesis — from installation to snapshots, from privacy to browser compatibility.</p>
+</section>
+
+<div class="container">
+
+  <!-- SETUP -->
+  <div class="section" style="border-top:none;padding-top:0;">
+    <div class="section-label" data-i18n="faq.setup.label">First launch</div>
+    <h2 class="section-title" data-i18n="faq.setup.h2">Installation and <em>setup</em></h2>
+
+    <div class="accordion">
+      <div class="accordion-item">
+        <button class="accordion-btn" data-i18n="faq.q.install">How do I install Noesis?<span class="icon">+</span></button>
+        <div class="accordion-body">
+          <p data-i18n="faq.a.install.p1">There is nothing to install. Download <code>noesis810.zip</code> from the homepage, unzip it and double-click <code>noesis810.html</code>. The file opens in the browser and the app is ready.</p>
+          <p style="margin-top:10px;" data-i18n="faq.a.install.p2">For the best experience (especially with EPUBs that have external resources) start a local server: <code>python -m http.server 8000</code> in the extracted folder, then open <code>http://localhost:8000/noesis810.html</code>.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-btn" data-i18n="faq.q.browsers">Which browsers does Noesis support?<span class="icon">+</span></button>
+        <div class="accordion-body">
+          <div data-i18n="faq.a.browsers"></div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-btn" data-i18n="faq.q.mobile">Does it work on mobile?<span class="icon">+</span></button>
+        <div class="accordion-body">
+          <p data-i18n="faq.a.mobile">Yes, Noesis is responsive and works on modern mobile browsers. The interface adapts to small screens with a hamburger menu for navigation. However, Noesis is primarily optimised for desktop use — document production (editor, export, snapshot management) is more comfortable on a computer with keyboard and large screen.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-btn" data-i18n="faq.q.internet">Does Noesis require an internet connection?<span class="icon">+</span></button>
+        <div class="accordion-body">
+          <p data-i18n="faq.a.internet">Only for the first load (downloads CDN libraries: ePub.js, JSZip, Bootstrap Icons, jQuery, Summernote, Mozilla PDF.js). After the first launch, Noesis works completely offline. Browser translation requires an internet connection (the translation service belongs to the browser, not Noesis).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOKS -->
+  <div class="section">
+    <div class="section-label" data-i18n="faq.books.label">Books and library</div>
+    <h2 class="section-title" data-i18n="faq.books.h2">Import and <em>book management</em></h2>
+
+    <div class="accordion">
+      <div class="accordion-item">
+        <button class="accordion-btn" data-i18n="faq.q.noload">The book won't load — what do I do?<span class="icon">+</span></button>
+        <div class="accordion-body">
+          <p data-i18n="faq.a.noload.1"><strong>1. Verify the file is a valid EPUB</strong> and is not DRM-protected. Noesis does not support DRM files.</p>
+          <p style="margin-top:8px;" data-i18n="faq.a.noload.2"><strong>2. Use a local server.</strong> Open a shell in the Noesis folder and run <code>python -m http.server 8000</code>, then access <code>http://localhost:8000/noesis810.html</code>. Many EPUB loading issues are due to CORS restrictions with the <code>file://</code> protocol.</p>
+          <p style="margin-top:8px;" data-i18n="faq.a.noload.3"><strong>3. Check IndexedDB</strong> in DevTools → Application → Storage → IndexedDB → EpubLibraryDB → books to verify the book was saved.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-btn" data-i18n="faq.q.howmany">How many books can I keep in the library?<span class="icon">+</span></button>
+        <div class="accordion-body">
+          <p data-i18n="faq.a.howmany">Technically unlimited — the library is only constrained by available IndexedDB space in the browser. In practice, modern browsers grant 50–100MB of IndexedDB storage by default (expandable). An average EPUB is 2–5MB, an EPUB with many images can reach 50–100MB. Use ePub Slimmer for large EPUBs.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-btn" data-i18n="faq.q.images">Images in the book don't display<span class="icon">+</span></button>
+        <div class="accordion-body">
+          <p data-i18n="faq.a.images">Some EPUBs use non-standard relative paths for images — this can cause issues with the <code>file://</code> protocol. Solutions:</p>
+          <ul style="padding-left:20px; margin-top:8px; line-height:1.9;">
+            <li data-i18n="faq.a.images.li1">Use the local server (<code>python -m http.server 8000</code>)</li>
+            <li data-i18n="faq.a.images.li2">Extract the chapter: images are converted to inline base64 and are always visible in the extracted document</li>
+            <li data-i18n="faq.a.images.li3">Use ePub Slimmer which rewrites image paths</li>
+          </ul>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-btn" data-i18n="faq.q.toc">The sidebar TOC is empty<span class="icon">+</span></button>
+        <div class="accordion-body">
+          <p data-i18n="faq.a.toc">Some EPUBs do not include a navigation file (NCX or nav.xhtml). You can verify by opening the browser console and checking <code>book.navigation.toc</code>. If it is empty or undefined, the book has no TOC and you can only navigate with the arrows.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SNAPSHOTS -->
+  <div class="section">
+    <div class="section-label" data-i18n="faq.snapshot.label">Snapshots</div>
+    <h2 class="section-title" data-i18n="faq.snapshot.h2">Questions about <em>snapshots</em></h2>
+
+    <div class="accordion">
+      <div class="accordion-item">
+        <button class="accordion-btn" data-i18n="faq.q.persist">Are snapshots retained after closing the browser?<span class="icon">+</span></button>
+        <div class="accordion-body">
+          <p data-i18n="faq.a.persist">Yes. Snapshots are saved as <strong>HTML files on the local filesystem</strong> via the browser File System Access API. Metadata (name, date, file reference) is kept in <code>noesisDB</code> (IndexedDB). Files remain on disk until you explicitly delete them from the Snapshot History interface or from the filesystem.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-btn" data-i18n="faq.q.size">How much space do snapshots take?<span class="icon">+</span></button>
+        <div class="accordion-body">
+          <p data-i18n="faq.a.size">Each snapshot contains the complete HTML of the chapter (no diff, no compression). An average chapter with text and some base64 images takes between 500KB and 5MB per snapshot. If you have many snapshots on chapters with many images, check space in DevTools → Application → Storage. Delete obsolete snapshots from Snapshot History.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-btn" data-i18n="faq.q.transfer">Can I access snapshots from another device?<span class="icon">+</span></button>
+        <div class="accordion-body">
+          <p data-i18n="faq.a.transfer">Not automatically. Snapshots are HTML files on your local filesystem — there is no cloud or sync (by design — total privacy). To transfer work to another device: copy the snapshot files to the same folder on the new device, then import them from the Snapshot History interface. Also copy the EPUB file and the Noesis file.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-btn" data-i18n="faq.q.undo">I loaded a snapshot by mistake — can I undo?<span class="icon">+</span></button>
+        <div class="accordion-body">
+          <p data-i18n="faq.a.undo">If you had saved a snapshot of your current work before loading, you can simply reload that snapshot. If you had no snapshot of the current work, the restore is not undoable — the content has been replaced. <strong>Best practice: always save a snapshot before loading a previous version.</strong></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPORT -->
+  <div class="section">
+    <div class="section-label" data-i18n="faq.export.label">Export and Editor</div>
+    <h2 class="section-title" data-i18n="faq.export.h2">Export, PDF and <em>DOCX</em></h2>
+
+    <div class="accordion">
+      <div class="accordion-item">
+        <button class="accordion-btn" data-i18n="faq.q.pdf">PDF export does not work or fails<span class="icon">+</span></button>
+        <div class="accordion-body">
+          <p data-i18n="faq.a.pdf">In v810, PDF export uses the native browser print (<code>window.print()</code>) — no external libraries required and always works offline. If the print dialog does not open, verify that popups are not blocked. Alternatively, use the <strong>👁 PDF Viewer</strong> button to open Mozilla PDF.js and print from there. For DOCX, use the DOCX button in the extracted chapter toolbar.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-btn" data-i18n="faq.q.pdfimages">Can I export images in the PDF?<span class="icon">+</span></button>
+        <div class="accordion-body">
+          <p data-i18n="faq.a.pdfimages">Yes. Images in the extracted chapter are already converted to inline base64. They are automatically included in PDF and DOCX export without additional configuration. The exported document is completely self-contained.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-btn" data-i18n="faq.q.cms">How do I copy the editor content to my CMS?<span class="icon">+</span></button>
+        <div class="accordion-body">
+          <p data-i18n="faq.a.cms">Use the <strong>&lt;/&gt; Copy HTML</strong> button in the editor toolbar. It copies all document HTML to the clipboard. In WordPress, switch to HTML mode of the editor (HTML Code block or classic editor → text); in Ghost, use the HTML block; in Webflow, paste into a Rich Text or HTML Embed element.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-btn" data-i18n="faq.q.docx">The DOCX file opens badly in Word<span class="icon">+</span></button>
+        <div class="accordion-body">
+          <p data-i18n="faq.a.docx">The DOCX generated by Noesis follows the basic OOXML format. It works well in LibreOffice and Google Docs. In Word some complex formatting (nested tables, large base64 images) may be interpreted slightly differently. For optimal Word compatibility, use print → PDF as the final delivery format.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRIVACY -->
+  <div class="section">
+    <div class="section-label" data-i18n="faq.privacy.label">Privacy and storage</div>
+    <h2 class="section-title" data-i18n="faq.privacy.h2">Data and <em>privacy</em></h2>
+
+    <div class="accordion">
+      <div class="accordion-item">
+        <button class="accordion-btn" data-i18n="faq.q.data">Where is my data saved?<span class="icon">+</span></button>
+        <div class="accordion-body">
+          <p data-i18n="faq.a.data">All Noesis data is saved locally in your browser. No data leaves the device. The storage used:</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-btn" data-i18n="faq.q.clear">What happens if I clear browser data?<span class="icon">+</span></button>
+        <div class="accordion-body">
+          <p data-i18n="faq.a.clear">Clearing browser data (Clear browsing data → Cookies and cached files → IndexedDB) removes books from the library, extracted chapter metadata and snapshot metadata from noesisDB. <strong>It does not delete snapshot HTML files</strong> that you have saved to the filesystem — those remain available for reimport. Books must be reimported from the original EPUB files.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-btn" data-i18n="faq.q.gdpr">Is Noesis GDPR compliant?<span class="icon">+</span></button>
+        <div class="accordion-body">
+          <p data-i18n="faq.a.gdpr">Yes, completely. Noesis implements privacy by design: zero data transmission to external servers, zero tracking, zero analytics. All data remains in your browser and on your device. There is nothing to declare or manage from a GDPR perspective because no personal data is collected or transmitted.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TECH -->
+  <div class="section">
+    <div class="section-label" data-i18n="faq.tech.label">Technology</div>
+    <h2 class="section-title" data-i18n="faq.tech.h2">Browser <em>APIs used</em></h2>
+
+    <div class="cards">
+      <div class="card">
+        <span class="card-icon">💾</span>
+        <h3 data-i18n="faq.tech.idb.h">💾 IndexedDB</h3>
+        <p data-i18n="faq.tech.idb.p">Persistent storage for books (EpubLibraryDB) and extracted chapters + snapshots (noesisDB). Asynchronous, supports large binary files.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">📋</span>
+        <h3 data-i18n="faq.tech.clipboard.h">📋 Clipboard API</h3>
+        <p data-i18n="faq.tech.clipboard.p">Captures text selections for chunks and copies editor HTML to the clipboard for pasting into a CMS.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">🖼️</span>
+        <h3 data-i18n="faq.tech.canvas.h">🖼️ Canvas API</h3>
+        <p data-i18n="faq.tech.canvas.p">Used for image compression and conversion in ePub Slimmer and for editor image resizing. PDF export in v810 uses native browser printing, not Canvas.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">🌐</span>
+        <h3 data-i18n="faq.tech.translation.h">🌐 Translation API (browser)</h3>
+        <p data-i18n="faq.tech.translation.p">Native integrated browser translation (Chrome, Edge, Firefox). This is not a Noesis API — it is a browser feature that Noesis does not control.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">🖨️</span>
+        <h3 data-i18n="faq.tech.print.h">🖨️ Print API</h3>
+        <p data-i18n="faq.tech.print.p">Native printing and PDF saving via <code>window.print()</code> with <code>@media print</code> CSS optimised for each context (reader, extracted chapter, editor).</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">📁</span>
+        <h3 data-i18n="faq.tech.filereader.h">📁 FileReader API</h3>
+        <p data-i18n="faq.tech.filereader.p">Import of EPUB files and images from the user filesystem. Read as ArrayBuffer for JSZip and as base64 for editor images.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <a href="helpers.html" data-i18n="faq.pagenav.prev">← Helpers</a>
+    <a href="note.html" class="next" data-i18n="faq.pagenav.next">Notes →</a>
+  </div>
+</div>
+
+<footer>
+  <p data-i18n="footer.license">MIT License · Vanilla JS · No Server · <strong>Noesis — Reading-to-Knowledge System</strong> · v810</p>
+  <p style="margin-top:8px;"><a href="index.html" data-i18n="footer.home">Home</a> · <a href="guida.html" data-i18n="footer.guide">Guide</a> · <a href="faq.html" data-i18n="footer.faq">FAQ</a> · <a href="note.html" data-i18n="footer.notes">Notes</a></p>
+</footer>
+<script src="translations.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

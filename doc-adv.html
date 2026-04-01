@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Posizionamento e Punti di Forza — Noesis</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="approfondimenti.css">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">📚 <span>Noesis</span></a>
+    <button class="lang-toggle-btn" id="lang-toggle" onclick="window.noesisI18n.toggleLang()" title="Switch to Italian">🇮🇹 IT</button>
+    <button class="nav-toggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links">
+      <a href="index.html" data-i18n="nav.home">Home</a><a href="guida.html" data-i18n="nav.guide">Quick Guide</a><a href="library.html" data-i18n="nav.library">Library</a><a href="navigation.html" data-i18n="nav.reading">Reading</a><a href="htmleditor.html" data-i18n="nav.editor">Editor</a><a href="snapshot.html" data-i18n="nav.snapshot">Snapshot</a><a href="collezioni.html" data-i18n="nav.collections">Collections</a><a href="helpers.html" data-i18n="nav.helpers">Helpers</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="note.html" data-i18n="nav.notes">Notes</a>
+      <div class="nav-dropdown">
+        <a href="approfondimenti.html" data-i18n="nav.deepdives">Deep Dives</a>
+        <div class="nav-dropdown-menu">
+          <span class="dm-label" data-i18n="nav.dm.docs">Documentation</span>
+          <a href="doc-readme.html" data-i18n="nav.dm.readme">📚 README — Overview</a>
+          <a href="doc-ui.html" data-i18n="nav.dm.ui">🖥️ UI — Button Reference</a>
+          <a href="doc-workflow.html" data-i18n="nav.dm.workflow">🔄 Workflow — Usage Flows</a>
+          <a href="doc-tech.html" data-i18n="nav.dm.tech">⚙️ Technical Architecture</a>
+          <a href="doc-library-tech.html" data-i18n="nav.dm.libtech">📚 Technical Doc — Library</a>
+          <a href="doc-reader-tech.html" data-i18n="nav.dm.readtech">📖 Technical Doc — Reader</a>
+          <a href="doc-editor-tech.html" data-i18n="nav.dm.edtech">✏️ Technical Doc — Editor</a>
+          <a href="doc-full-embedding.html" data-i18n="nav.dm.fullembedding">📦 Full Version — Embedding</a>
+          <span class="dm-label" data-i18n="nav.dm.project">Project</span>
+          <a href="doc-adv.html" data-i18n="nav.dm.adv">🌟 Positioning</a>
+          <a href="doc-legal.html" data-i18n="nav.dm.legal">⚖️ Legal Analysis</a>
+          <a href="promo.html" data-i18n="nav.dm.promo">🚀 Presentation</a>
+        </div>
+      </div>
+      <a href="index.html#download" class="nav-cta" data-i18n="nav.download">⬇ Download</a>
+    </div>
+  </div>
+</nav>
+<div class="callout callout-info deepdive-translation-callout" style="margin:0;border-radius:0;background:#1e3a5f;color:#e0eeff;border:none;border-bottom:2px solid #3b82f6;">
+  <span class="callout-icon">🌐</span>
+  <div data-i18n="deepdive.callout">🌐 This page is written in Italian. Use your browser's <strong>Translate</strong> feature to read it in your language.</div>
+</div>
+
+<section class="hero-doc">
+  <div class="doc-tag" style="color:#8b5cf6;background:rgba(139,92,246,0.15);border:1px solid #8b5cf644;">🌟 Progetto</div>
+  <h1>Posizionamento e Punti di Forza</h1>
+  <p class="doc-subtitle">Noesis nel panorama dei reader EPUB — confronto con i competitor, value points e pubblico ideale.</p>
+</section>
+
+<div class="doc-layout">
+  <div class="doc-toc" id="doc-toc"><h4>In questa pagina</h4><ul>
+<li><a href="#il-concetto-reading-to-knowledge-system" class="">Il concetto: Reading-to-Knowledge System</a></li>
+<li><a href="#il-panorama-degli-epub-reader-confronto" class="">Il panorama degli EPUB reader: confronto</a></li>
+<li><a href="#categoria-1-reader-desktop-tradizionali" class="toc-h3">Categoria 1 — Reader desktop tradizionali</a></li>
+<li><a href="#categoria-2-reader-web-based-con-account" class="toc-h3">Categoria 2 — Reader web-based con account</a></li>
+<li><a href="#categoria-3-app-di-lettura-e-studio-mobili" class="toc-h3">Categoria 3 — App di lettura e studio mobili</a></li>
+<li><a href="#categoria-4-strumenti-di-annotazione-e-studio" class="toc-h3">Categoria 4 — Strumenti di annotazione e studio</a></li>
+<li><a href="#categoria-5-editor-di-documenti-word-google-docs" class="toc-h3">Categoria 5 — Editor di documenti (Word, Google Docs)</a></li>
+<li><a href="#punti-di-forza-analisi-funzione-per-funzione" class="">Punti di forza — Analisi funzione per funzione</a></li>
+<li><a href="#1-lettura-multilingue-senza-api-esterne" class="toc-h3">1. 🌍 Lettura multilingue senza API esterne</a></li>
+<li><a href="#2-sistema-di-raccolta-chunk" class="toc-h3">2. 📦 Sistema di raccolta chunk</a></li>
+<li><a href="#3-estrazione-capitoli-con-gerarchia" class="toc-h3">3. 🗂️ Estrazione capitoli con gerarchia</a></li>
+<li><a href="#4-sistema-di-versioning-a-snapshot" class="toc-h3">4. 📸 Sistema di versioning a Snapshot</a></li>
+<li><a href="#5-libreria-gerarchica-con-accesso-diretto-agli-snapshot" class="toc-h3">5. 📚 Libreria gerarchica con accesso diretto agli snapshot</a></li>
+<li><a href="#6-editor-wysiwyg-integrato-con-tabelle-e-immagini-base64" class="toc-h3">6. ✏️ Editor WYSIWYG integrato con tabelle e immagini base64</a></li>
+<li><a href="#7-zero-server-zero-tracking-zero-account" class="toc-h3">7. 🔒 Zero server, zero tracking, zero account</a></li>
+<li><a href="#8-export-multiplo-nativi-pdf-docx-html" class="toc-h3">8. 📄 Export multiplo nativi (PDF, DOCX, HTML)</a></li>
+<li><a href="#9-excalidraw-integrato-nelleditor" class="toc-h3">9. 🖊️ Excalidraw integrato nell'Editor (v810)</a></li>
+<li><a href="#10-15-temi-con-gruppi-semantici" class="toc-h3">10. 🎨 15 temi con gruppi semantici</a></li>
+<li><a href="#dove-noesis-non-compete-e-lo-sa" class="">Dove Noesis non compete (e lo sa)</a></li>
+<li><a href="#il-pubblico-ideale-di-noesis" class="">Il pubblico ideale di Noesis</a></li>
+<li><a href="#sintesi-del-posizionamento" class="">Sintesi del posizionamento</a></li>
+</ul></div>
+  <div class="doc-content">
+    <a href="approfondimenti.html" class="doc-back">← Tutti gli approfondimenti</a>
+    <h1 id="noesis-concetto-posizionamento-e-punti-di-forza">🌟 Noesis — Concetto, Posizionamento e Punti di Forza</h1>
+<blockquote>
+<p>Noesis nel panorama degli EPUB reader: cosa è, cosa non è, e perché esiste.</p>
+</blockquote>
+<hr />
+<h2 id="il-concetto-reading-to-knowledge-system">Il concetto: Reading-to-Knowledge System</h2>
+<p>Noesis si definisce un <strong>Reading-to-Knowledge System</strong>, non semplicemente un reader.</p>
+<p>La distinzione è sostanziale. Un reader ti permette di leggere. Un Reading-to-Knowledge System trasforma la lettura in un processo attivo di produzione di conoscenza: annotazione, selezione, rielaborazione, versioning, esportazione.</p>
+<p>La domanda di partenza è precisa:</p>
+<blockquote>
+<p><em>Perché devo interrompere la lettura per prendere appunti su un'altra app? Perché le evidenziazioni rimangono nel libro e non diventano mai un documento di studio? Perché devo usare tre strumenti diversi per leggere, studiare ed esportare? E perché non posso tornare a una versione precedente del mio lavoro di studio, come farei con un documento in un editor professionale?</em></p>
+</blockquote>
+<p>Noesis risponde unificando questi strumenti in un singolo ambiente che vive nel browser.</p>
+<hr />
+<h2 id="il-panorama-degli-epub-reader-confronto">Il panorama degli EPUB reader: confronto</h2>
+<h3 id="categoria-1-reader-desktop-tradizionali">Categoria 1 — Reader desktop tradizionali</h3>
+<p><strong>Calibre, Adobe Digital Editions, Kobo Desktop</strong></p>
+<table>
+<thead>
+<tr>
+<th>Dimensione</th>
+<th>Noesis</th>
+<th>Reader tradizionali</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Installazione</td>
+<td>❌ Non richiesta — file HTML</td>
+<td>✅ App nativa installata</td>
+</tr>
+<tr>
+<td>Gestione libreria</td>
+<td>✅ IndexedDB nel browser</td>
+<td>✅ File system locale</td>
+</tr>
+<tr>
+<td>Traduzione integrata</td>
+<td>✅ Via browser</td>
+<td>❌ Non presente</td>
+</tr>
+<tr>
+<td>Annotazioni</td>
+<td>✅ Highlight 3 colori</td>
+<td>✅ Highlight e note</td>
+</tr>
+<tr>
+<td>Raccolta chunk</td>
+<td>✅ Sistema collezioni</td>
+<td>❌ Assente</td>
+</tr>
+<tr>
+<td>Estrazione capitoli</td>
+<td>✅ Con gerarchia</td>
+<td>❌ Assente</td>
+</tr>
+<tr>
+<td>Versioning del lavoro di studio</td>
+<td>✅ Sistema snapshot</td>
+<td>❌ Assente</td>
+</tr>
+<tr>
+<td>Export multiplo</td>
+<td>✅ PDF, DOCX, HTML</td>
+<td>❌ Limitato</td>
+</tr>
+<tr>
+<td>Editor integrato</td>
+<td>✅ WYSIWYG completo</td>
+<td>❌ Assente</td>
+</tr>
+<tr>
+<td>Privacy</td>
+<td>✅ Zero server</td>
+<td>✅ Locale</td>
+</tr>
+<tr>
+<td>Multipiattaforma</td>
+<td>✅ Qualsiasi browser</td>
+<td>❌ Per OS specifico</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Vantaggio Noesis</strong>: va oltre la lettura con un workflow di studio integrato e versioning degli appunti. Svantaggio: gestione libreria meno matura rispetto a Calibre per grandi collezioni.</p>
+<hr />
+<h3 id="categoria-2-reader-web-based-con-account">Categoria 2 — Reader web-based con account</h3>
+<p><strong>Kindle Cloud Reader, Kobo Web, Google Play Books</strong></p>
+<table>
+<thead>
+<tr>
+<th>Dimensione</th>
+<th>Noesis</th>
+<th>Reader web con account</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Account richiesto</td>
+<td>✅ No</td>
+<td>❌ Sì, obbligatorio</td>
+</tr>
+<tr>
+<td>File propri (.epub)</td>
+<td>✅ Sì, qualsiasi</td>
+<td>❌ Solo acquistati sulla piattaforma</td>
+</tr>
+<tr>
+<td>Privacy</td>
+<td>✅ Zero server</td>
+<td>❌ Dati su cloud del provider</td>
+</tr>
+<tr>
+<td>Offline</td>
+<td>✅ Sì</td>
+<td>❌ Parziale o no</td>
+</tr>
+<tr>
+<td>DRM</td>
+<td>✅ No (file liberi)</td>
+<td>❌ Dipende dalla piattaforma</td>
+</tr>
+<tr>
+<td>Traduzione</td>
+<td>✅ Browser nativo</td>
+<td>⚠️ Solo alcune piattaforme</td>
+</tr>
+<tr>
+<td>Export/estrazione</td>
+<td>✅ Sì</td>
+<td>❌ Non permesso</td>
+</tr>
+<tr>
+<td>Versioning appunti</td>
+<td>✅ Sistema snapshot</td>
+<td>❌ Assente</td>
+</tr>
+<tr>
+<td>Costo</td>
+<td>✅ Gratis</td>
+<td>❌ Abbonamento o acquisto</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Vantaggio Noesis</strong>: libertà totale. L'utente porta i propri file, non dipende da nessuna piattaforma, non paga abbonamenti, non è tracciato.</p>
+<hr />
+<h3 id="categoria-3-app-di-lettura-e-studio-mobili">Categoria 3 — App di lettura e studio mobili</h3>
+<p><strong>Moon+ Reader Pro, Lithium, ReadEra (Android)</strong></p>
+<table>
+<thead>
+<tr>
+<th>Dimensione</th>
+<th>Noesis</th>
+<th>App mobili</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Browser-based</td>
+<td>✅ Sì</td>
+<td>❌ App nativa</td>
+</tr>
+<tr>
+<td>Highlight</td>
+<td>✅ 3 colori</td>
+<td>✅ Spesso multicolore</td>
+</tr>
+<tr>
+<td>Dizionario integrato</td>
+<td>✕</td>
+<td>✅ Dizionari offline</td>
+</tr>
+<tr>
+<td>Export capitoli</td>
+<td>✅ Sì, con gerarchia</td>
+<td>❌ Raramente</td>
+</tr>
+<tr>
+<td>Editor report</td>
+<td>✅ WYSIWYG completo</td>
+<td>❌ Assente</td>
+</tr>
+<tr>
+<td>Export DOCX/PDF</td>
+<td>✅ Sì</td>
+<td>❌ Raramente</td>
+</tr>
+<tr>
+<td>Versioning del lavoro</td>
+<td>✅ Sistema snapshot</td>
+<td>❌ Assente</td>
+</tr>
+<tr>
+<td>Desktop</td>
+<td>✅ Ottimale su desktop</td>
+<td>⚠️ Progettate per mobile</td>
+</tr>
+<tr>
+<td>Costo</td>
+<td>✅ Gratis</td>
+<td>⚠️ Spesso a pagamento</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Vantaggio Noesis</strong>: la produzione di documenti di studio (editor, export PDF/DOCX, snapshot) è dove le app mobili di lettura non arrivano. Noesis è progettato per chi studia a un computer.</p>
+<hr />
+<h3 id="categoria-4-strumenti-di-annotazione-e-studio">Categoria 4 — Strumenti di annotazione e studio</h3>
+<p><strong>Hypothesis, Readwise, Kindle Highlights</strong></p>
+<table>
+<thead>
+<tr>
+<th>Dimensione</th>
+<th>Noesis</th>
+<th>Strumenti di annotazione</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Integrazione con reader</td>
+<td>✅ Tutto in un file</td>
+<td>❌ Plugin/estensione separata</td>
+</tr>
+<tr>
+<td>Raccolta highlight</td>
+<td>✅ Sì</td>
+<td>✅ Core feature</td>
+</tr>
+<tr>
+<td>Versioning appunti</td>
+<td>✅ Sistema snapshot locale</td>
+<td>❌ Versioning cloud (Readwise)</td>
+</tr>
+<tr>
+<td>Flashcard / spaced repetition</td>
+<td>❌ Assente</td>
+<td>✅ In alcuni (Readwise)</td>
+</tr>
+<tr>
+<td>Export</td>
+<td>✅ PDF, DOCX, HTML</td>
+<td>✅ Markdown, Notion, ecc.</td>
+</tr>
+<tr>
+<td>Privacy</td>
+<td>✅ Offline totale</td>
+<td>❌ Servizio cloud con account</td>
+</tr>
+<tr>
+<td>Costo</td>
+<td>✅ Gratis</td>
+<td>❌ Abbonamento mensile</td>
+</tr>
+<tr>
+<td>Collegamento a libri .epub</td>
+<td>✅ Diretto</td>
+<td>⚠️ Dipende dall'integrazione</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Vantaggio Noesis</strong>: è self-contained, gratuito e offline. Il versioning via snapshot è locale e non richiede alcun servizio cloud. Svantaggio: non ha spaced repetition o integrazione con Notion/Obsidian.</p>
+<hr />
+<h3 id="categoria-5-editor-di-documenti-word-google-docs">Categoria 5 — Editor di documenti (Word, Google Docs)</h3>
+<p><strong>Microsoft Word, Google Docs, LibreOffice Writer</strong></p>
+<table>
+<thead>
+<tr>
+<th>Dimensione</th>
+<th>Noesis Editor</th>
+<th>Editor di documenti</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Scopo</td>
+<td>Studio da libri EPUB</td>
+<td>Scrittura documentale generale</td>
+</tr>
+<tr>
+<td>Import da EPUB</td>
+<td>✅ Diretto</td>
+<td>❌ Non supportato</td>
+</tr>
+<tr>
+<td>Versioning del contenuto</td>
+<td>✅ Snapshot nel capitolo estratto</td>
+<td>✅ Cronologia revisioni (Google Docs)</td>
+</tr>
+<tr>
+<td>Collaborazione</td>
+<td>❌ Assente</td>
+<td>✅ Google Docs</td>
+</tr>
+<tr>
+<td>Template avanzati</td>
+<td>❌ Base</td>
+<td>✅ Avanzati</td>
+</tr>
+<tr>
+<td>Export</td>
+<td>✅ PDF, DOCX, HTML</td>
+<td>✅ Multipli</td>
+</tr>
+<tr>
+<td>Costo</td>
+<td>✅ Gratis</td>
+<td>⚠️ Microsoft 365 a pagamento</td>
+</tr>
+<tr>
+<td>Offline</td>
+<td>✅ Totale</td>
+<td>⚠️ Parziale (Google Docs)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Vantaggio Noesis</strong>: l'editor è integrato direttamente nel flusso di lettura. Nessun copia-incolla tra applicazioni. Il contenuto estratto e i chunk raccolti alimentano direttamente l'editor.</p>
+<hr />
+<h2 id="punti-di-forza-analisi-funzione-per-funzione">Punti di forza — Analisi funzione per funzione</h2>
+<h3 id="1-lettura-multilingue-senza-api-esterne">1. 🌍 Lettura multilingue senza API esterne</h3>
+<p><strong>Il problema comune</strong>: i reader con traduzione integrata usano API di terze parti (Google Translate API, DeepL API) che comportano costi, limiti di caratteri e invio del testo a server esterni.</p>
+<p><strong>La soluzione Noesis</strong>: sfrutta la <strong>traduzione nativa del browser</strong> (già presente in Chrome, Edge, Firefox). Zero costi, zero invio di dati, zero limiti di caratteri. Un'intera opera in una lingua straniera può essere tradotta al volo con un click, gratuitamente, offline.</p>
+<p><strong>Punto di forza unico</strong>: nessun reader EPUB concorrente offre traduzione gratuita e illimitata con questo livello di privacy.</p>
+<hr />
+<h3 id="2-sistema-di-raccolta-chunk">2. 📦 Sistema di raccolta chunk</h3>
+<p><strong>Il problema comune</strong>: evidenziare è passivo. Le evidenziazioni restano nel libro e non diventano mai un documento.</p>
+<p><strong>La soluzione Noesis</strong>: il sistema di <strong>chunk</strong> permette di raccogliere attivamente testo e immagini in una collezione strutturata. I chunk possono essere esportati come JSON (backup, condivisione) e importati nell'editor per costruire un documento di studio.</p>
+<p><strong>Punto di forza unico</strong>: il flusso lettura → raccolta → documento è completamente integrato e non richiede nessun'altra applicazione.</p>
+<hr />
+<h3 id="3-estrazione-capitoli-con-gerarchia">3. 🗂️ Estrazione capitoli con gerarchia</h3>
+<p><strong>Il problema comune</strong>: estrarre un capitolo da un EPUB significa copiare manualmente il testo, perdendo immagini, formattazione e struttura.</p>
+<p><strong>La soluzione Noesis</strong>: l'estrattore comprende la gerarchia del libro (TOC). Con un click si può estrarre un singolo capitolo <em>oppure</em> l'intero ramo (capitolo + tutti i sottolivelli annidati), ottenendo un documento HTML standalone con tutte le immagini inline (base64), le evidenziazioni attive e la toolbar di studio già pronta.</p>
+<p><strong>Punto di forza unico</strong>: nessun altro reader EPUB offre estrazione gerarchica con assemblaggio automatico di sezioni annidate.</p>
+<hr />
+<h3 id="4-sistema-di-versioning-a-snapshot">4. 📸 Sistema di versioning a Snapshot</h3>
+<p><strong>Il problema comune</strong>: il lavoro di studio su un capitolo estratto — highlights, annotazioni, chunk raccolti — non è mai recuperabile se si modifica il documento. Non esiste un "torna alla versione precedente" in nessun reader EPUB.</p>
+<p><strong>La soluzione Noesis</strong>: il sistema <strong>Snapshot</strong> permette di salvare lo stato completo del capitolo estratto in qualsiasi momento, con una descrizione libera. Ogni snapshot è indipendente, ricaricabile con un click e persistente su filesystem locale come file HTML (metadati in <code>noesisDB</code>). È possibile mantenere versioni parallele ("prima degli highlight", "dopo la raccolta chunk", "versione finale") e spostarsi liberamente tra di esse.</p>
+<p><strong>Punto di forza unico</strong>: nessun reader o strumento di studio offline offre versioning persistente del documento di studio direttamente integrato nel flusso di lettura, senza cloud e senza account.</p>
+<hr />
+<h3 id="5-libreria-gerarchica-con-accesso-diretto-agli-snapshot">5. 📚 Libreria gerarchica con accesso diretto agli snapshot</h3>
+<p><strong>Il problema comune</strong>: la libreria di un reader mostra solo i libri. Per accedere al proprio lavoro di studio su un capitolo, bisogna aprire il libro, navigare al capitolo, riaprire il documento estratto, cercare la versione giusta tra gli snapshot.</p>
+<p><strong>La soluzione Noesis</strong>: la <strong>libreria gerarchica</strong> mostra in un'unica vista l'intera struttura del proprio archivio di studio: per ogni libro, i capitoli estratti; per ogni capitolo, gli snapshot salvati (dal più recente). Con un singolo click si accede direttamente a qualsiasi versione di qualsiasi capitolo estratto, senza passare per il reader.</p>
+<p><strong>Punto di forza unico</strong>: la libreria diventa un archivio di conoscenza navigabile, non solo un catalogo di libri.</p>
+<hr />
+<h3 id="6-editor-wysiwyg-integrato-con-tabelle-e-immagini-base64">6. ✏️ Editor WYSIWYG integrato con tabelle e immagini base64</h3>
+<p><strong>Il problema comune</strong>: per creare un documento di studio da un EPUB si apre Word o Google Docs, si copia il testo, si rincollano le immagini, si perde tempo in operazioni manuali.</p>
+<p><strong>La soluzione Noesis</strong>: l'editor WYSIWYG è parte dell'app. Riceve i chunk raccolti o l'intero capitolo estratto come punto di partenza. Supporta tabelle con toolbar flottante, immagini inline come base64 (mai path rotti), formattazione completa.</p>
+<p><strong>Punto di forza unico</strong>: le immagini salvate come base64 rendono il documento editor completamente autocontenuto — funziona offline, è inviabile via email, non rompe i path se spostato.</p>
+<hr />
+<h3 id="7-zero-server-zero-tracking-zero-account">7. 🔒 Zero server, zero tracking, zero account</h3>
+<p><strong>Il problema comune</strong>: la maggior parte degli strumenti digitali di lettura e studio richiedono un account, inviano dati ai propri server, applicano DRM, o vendono dati di lettura.</p>
+<p><strong>La soluzione Noesis</strong>: architettura <strong>totalmente locale</strong>. I libri vivono in <code>EpubLibraryDB</code>. I capitoli estratti e gli snapshot in <code>noesisDB</code>. Le preferenze in localStorage. Nessun byte lascia il dispositivo. Funziona offline.</p>
+<p><strong>Punto di forza unico</strong>: un tool di studio con questo livello di privacy è raro. È possibile usare Noesis con materiali riservati, testi sotto NDA o documenti personali senza alcun rischio di data leakage.</p>
+<hr />
+<h3 id="8-export-multiplo-nativi-pdf-docx-html">8. 📄 Export multiplo nativi (PDF, DOCX, HTML)</h3>
+<p><strong>Il problema comune</strong>: molti reader offrono l'export solo in un formato, o richiedono strumenti di terze parti.</p>
+<p><strong>La soluzione Noesis</strong>: tre modalità di export direttamente dall'app:<br />
+- <strong>PDF via stampa nativa</strong>: qualità tipografica ottimale, zero dipendenze<br />
+- <strong>DOCX</strong>: compatibilità diretta con Word e Google Docs<br />
+- <strong>HTML copiato negli appunti</strong>: incolla direttamente nel CMS (WordPress, Ghost, ecc.)</p>
+<p><strong>Punto di forza unico</strong>: il percorso da "libro EPUB" a "post WordPress pronto" è interamente contenuto in Noesis.</p>
+<hr />
+<h3 id="9-excalidraw-integrato-nelleditor">9. 🖊️ Excalidraw integrato nell'Editor (v810)</h3>
+<p><strong>Il problema comune</strong>: creare diagrammi o schemi visivi durante lo studio richiede di aprire strumenti esterni (draw.io, Figma, Miro) e reimportare manualmente il risultato.</p>
+<p><strong>La soluzione v810</strong>: Excalidraw (fork Noesis) è accessibile dalla toolbar dell'Editor con un click. Crea diagrammi, flowchart, mappe mentali e schizzi visivi in una tab dedicata. L'output (SVG o PNG) viene inserito nel documento come immagine base64 inline.</p>
+<p><strong>Punto di forza unico</strong>: workflow visivo completamente integrato nel flusso di studio — dal testo al diagramma, senza uscire dall'app e senza perdere il contesto.</p>
+<hr />
+<h3 id="10-15-temi-con-gruppi-semantici">10. 🎨 15 temi con gruppi semantici</h3>
+<p><strong>Il problema comune</strong>: i reader offrono white/sepia/dark. Fine.</p>
+<p><strong>La soluzione Noesis</strong>: 15 temi raggruppati in 5 categorie semantiche (chiari, caldi, grigi chiari, grigi scuri, notturni), con anteprima swatches visiva.</p>
+<hr />
+<h2 id="dove-noesis-non-compete-e-lo-sa">Dove Noesis non compete (e lo sa)</h2>
+<p>Onestà intellettuale: ci sono aree dove Noesis non è il migliore strumento:</p>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Strumento migliore</th>
+<th>Perché</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Grandi librerie (1000+ libri)</td>
+<td>Calibre</td>
+<td>Gestione avanzata metadati, plugin, conversione formati</td>
+</tr>
+<tr>
+<td>Spaced repetition / flashcard</td>
+<td>Anki + Readwise</td>
+<td>Algoritmi SM2, integrazione con Kindle</td>
+</tr>
+<tr>
+<td>Collaborazione</td>
+<td>Google Docs</td>
+<td>Commenti in tempo reale, revisioni multi-utente</td>
+</tr>
+<tr>
+<td>Mobile reading</td>
+<td>Moon+ Reader</td>
+<td>Ottimizzato per touch, rotazione, luminosità adattiva</td>
+</tr>
+<tr>
+<td>DRM books</td>
+<td>Adobe Digital Editions</td>
+<td>Standard de facto per ebook con DRM</td>
+</tr>
+<tr>
+<td>Integrazione Notion/Obsidian</td>
+<td>Readwise</td>
+<td>Sincronizzazione diretta con PKM tools</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="il-pubblico-ideale-di-noesis">Il pubblico ideale di Noesis</h2>
+<p>Noesis è costruito per chi:</p>
+<ol>
+<li><strong>Legge per studiare o creare</strong>, non per il solo piacere (anche quello, ma con uno scopo)</li>
+<li><strong>Rispetta la propria privacy</strong> e non vuole i propri libri su server di terzi</li>
+<li><strong>Lavora su desktop/laptop</strong>, dove la produzione di documenti è naturale</li>
+<li><strong>Vuole tornare alle versioni precedenti</strong> del proprio lavoro di studio senza dipendere da un cloud</li>
+<li><strong>Legge in più lingue</strong> o vuole avvicinarsi a testi stranieri</li>
+<li><strong>Vuole uno strumento gratuito</strong> senza abbonamenti o account</li>
+<li><strong>Ama la semplicità tecnica</strong>: un file HTML, zero installazioni</li>
+</ol>
+<hr />
+<h2 id="sintesi-del-posizionamento">Sintesi del posizionamento</h2>
+<pre><code>                    STUDIO
+                      ▲
+                      │
+          Noesis ●────┼────────────────────
+          (v810)      │                   │
+          + Snapshot  │              Readwise
+          + Library   │
+          gerarchica  │
+PRIVACY ──────────────┼────────────────── CLOUD
+                      │
+                  Calibre
+                      │
+                      │
+                      ▼
+                    LETTURA
+</code></pre>
+<p>Noesis occupa il quadrante <strong>studio + privacy locale</strong>: un'area poco presidiata dove la combinazione di lettura, annotazione, estrazione, versioning e produzione di documenti avviene interamente lato client, senza dipendere da nessun servizio esterno.</p>
+<p>Con la versione 703, il sistema Snapshot e la libreria gerarchica rafforzano ulteriormente questo posizionamento: Noesis non è più solo un reader con strumenti di studio, ma un <strong>archivio di conoscenza personale</strong> dove ogni libro porta con sé la storia del proprio lavoro di lettura.</p>
+<hr />
+<p><em>Noesis non è per tutti. È per chi capisce il valore di uno strumento che ti rispetta come lettore e come creatore di conoscenza.</em></p>
+    <div style="margin-top:56px; padding-top:32px; border-top:1px solid var(--border); display:flex; gap:16px; flex-wrap:wrap;">
+      <a href="approfondimenti.html" class="doc-back" style="margin-bottom:0;">← Tutti gli approfondimenti</a>
+      <a href="index.html" class="doc-back" style="margin-bottom:0;">🏠 Home</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>MIT License · Vanilla JS · No Server · <strong>Noesis</strong> · v810</p>
+  <p style="margin-top:8px;"><a href="index.html">Home</a> · <a href="guida.html">Guida</a> · <a href="approfondimenti.html">Approfondimenti</a> · <a href="faq.html">FAQ</a> · <a href="note.html">Note</a></p>
+</footer>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="site.js"></script>
+<script>
+// Highlight TOC item on scroll
+(function(){
+  const links = document.querySelectorAll('.doc-toc a');
+  if (!links.length) return;
+  const headings = Array.from(document.querySelectorAll('.doc-content h2, .doc-content h3'));
+  function onScroll() {
+    const scrollY = window.scrollY + 100;
+    let active = null;
+    headings.forEach(h => { if (h.offsetTop <= scrollY) active = h; });
+    links.forEach(l => l.style.color = '');
+    if (active) {
+      const id = active.getAttribute('id');
+      const link = document.querySelector('.doc-toc a[href="#' + id + '"]');
+      if (link) link.style.color = 'var(--violet)';
+    }
+  }
+  window.addEventListener('scroll', onScroll, {passive: true});
+})();
+</script>
+</body>
+</html>

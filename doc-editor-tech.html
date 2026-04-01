@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentazione Tecnica — Ambiente Editor — Noesis</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="approfondimenti.css">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">📚 <span>Noesis</span></a>
+    <button class="lang-toggle-btn" id="lang-toggle" onclick="window.noesisI18n.toggleLang()" title="Switch to Italian">🇮🇹 IT</button>
+    <button class="nav-toggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links">
+      <a href="index.html" data-i18n="nav.home">Home</a><a href="guida.html" data-i18n="nav.guide">Quick Guide</a><a href="library.html" data-i18n="nav.library">Library</a><a href="navigation.html" data-i18n="nav.reading">Reading</a><a href="htmleditor.html" data-i18n="nav.editor">Editor</a><a href="snapshot.html" data-i18n="nav.snapshot">Snapshot</a><a href="collezioni.html" data-i18n="nav.collections">Collections</a><a href="helpers.html" data-i18n="nav.helpers">Helpers</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="note.html" data-i18n="nav.notes">Notes</a>
+      <div class="nav-dropdown">
+        <a href="approfondimenti.html" data-i18n="nav.deepdives">Deep Dives</a>
+        <div class="nav-dropdown-menu">
+          <span class="dm-label" data-i18n="nav.dm.docs">Documentation</span>
+          <a href="doc-readme.html" data-i18n="nav.dm.readme">📚 README — Overview</a>
+          <a href="doc-ui.html" data-i18n="nav.dm.ui">🖥️ UI — Button Reference</a>
+          <a href="doc-workflow.html" data-i18n="nav.dm.workflow">🔄 Workflow — Usage Flows</a>
+          <a href="doc-tech.html" data-i18n="nav.dm.tech">⚙️ Technical Architecture</a>
+          <a href="doc-library-tech.html" data-i18n="nav.dm.libtech">📚 Technical Doc — Library</a>
+          <a href="doc-reader-tech.html" data-i18n="nav.dm.readtech">📖 Technical Doc — Reader</a>
+          <a href="doc-editor-tech.html" data-i18n="nav.dm.edtech">✏️ Technical Doc — Editor</a>
+          <a href="doc-full-embedding.html" data-i18n="nav.dm.fullembedding">📦 Full Version — Embedding</a>
+          <span class="dm-label" data-i18n="nav.dm.project">Project</span>
+          <a href="doc-adv.html" data-i18n="nav.dm.adv">🌟 Positioning</a>
+          <a href="doc-legal.html" data-i18n="nav.dm.legal">⚖️ Legal Analysis</a>
+          <a href="promo.html" data-i18n="nav.dm.promo">🚀 Presentation</a>
+        </div>
+      </div>
+      <a href="index.html#download" class="nav-cta" data-i18n="nav.download">⬇ Download</a>
+    </div>
+  </div>
+</nav>
+<div class="callout callout-info deepdive-translation-callout" style="margin:0;border-radius:0;background:#1e3a5f;color:#e0eeff;border:none;border-bottom:2px solid #3b82f6;">
+  <span class="callout-icon">🌐</span>
+  <div data-i18n="deepdive.callout">🌐 This page is written in Italian. Use your browser's <strong>Translate</strong> feature to read it in your language.</div>
+</div>
+
+<section class="hero-doc">
+  <div class="doc-tag" style="color:#f59e0b;background:rgba(245,158,11,0.15);border:1px solid #f59e0b44;">✏️ Tecnico</div>
+  <h1>Documentazione Tecnica — Ambiente Editor</h1>
+  <p class="doc-subtitle">Editor WYSIWYG sn56.x, raccolta chunks, doppio snapshot (clean/annotated), IDB bridge e workflow di annotazione.</p>
+</section>
+
+<div class="doc-layout">
+  <div class="doc-toc" id="doc-toc"><h4>In questa pagina</h4><ul>
+<li><a href="#1-panoramica-generale" class="">Panoramica generale</a></li>
+<li><a href="#2-architettura-tecnica-e-struttura-del-file" class="">Architettura tecnica e struttura del file</a></li>
+<li><a href="#3-i-tre-percorsi-di-accesso-alleditor" class="">I tre percorsi di accesso all'editor</a></li>
+<li><a href="#4-interfaccia-utente--layout-e-componenti" class="">Interfaccia utente — layout e componenti</a></li>
+<li><a href="#5-bottoniera-inferiore--sezione-chapter" class="">Bottoniera inferiore — sezione Chapter</a></li>
+<li><a href="#6-bottoniera-inferiore--sezione-collection" class="">Bottoniera inferiore — sezione Collection</a></li>
+<li><a href="#7-bottoniera-summernote-toolbar-wysiwyg" class="">Bottoniera Summernote (toolbar WYSIWYG)</a></li>
+<li><a href="#8-doppia-memorizzazione-degli-snapshot-clean-e-annotated" class="">Doppia memorizzazione degli snapshot: clean e annotated</a></li>
+<li><a href="#9-memorizzazione-simultanea-idb--filesystem" class="">Memorizzazione simultanea IDB + filesystem</a></li>
+<li><a href="#10-gestione-della-collezione-di-chunks" class="">Gestione della collezione di chunks</a></li>
+<li><a href="#11-pannello-inspect--gestione-visuale-dei-chunks" class="">Pannello Inspect — gestione visuale dei chunks</a></li>
+<li><a href="#12-idb-bridge--comunicazione-postmessage-con-il-parent" class="">IDB Bridge — comunicazione postMessage con il parent</a></li>
+<li><a href="#13-strutture-dati-in-memoria-e-in-indexeddb" class="">Strutture dati in memoria e in IndexedDB</a></li>
+<li><a href="#14-workflow-completo--dalla-library-alleditor-e-ritorno" class="">Workflow completo — dalla Library all'editor e ritorno</a></li>
+<li><a href="#15-import-di-snapshot-da-disco-nella-library" class="">Import di snapshot da disco nella Library</a></li>
+<li><a href="#16-sistema-di-naming-dei-file" class="">Sistema di naming dei file</a></li>
+<li><a href="#17-dipendenze-esterne" class="">Dipendenze esterne</a></li>
+</ul></div>
+  <div class="doc-content">
+    <a href="approfondimenti.html" class="doc-back">← Tutti gli approfondimenti</a>
+    <h1 id="1-panoramica-generale">✏️ Noesis Editor (sn56.x) — Documentazione Tecnica Completa</h1>
+<blockquote>
+<p><strong>Versione di riferimento:</strong> noesis810.html<br />
+<strong>Data documento:</strong> 2026-03-27</p>
+</blockquote>
+<hr />
+<h2 id="1-panoramica-generale">1. Panoramica generale</h2>
+<p><strong>Noesis Editor</strong> (codename <strong>sn56.x</strong>, talvolta riferito come "Summernote Editor") è l'ambiente di annotazione e studio di Noesis. È un editor WYSIWYG HTML completo, basato su <strong>Summernote-lite 0.9.1</strong>, che opera in una finestra separata (contesto <code>blob:null</code>) aperta dinamicamente da <code>noesis810.html</code>.</p>
+<p>Caratteristiche principali:</p>
+<ul>
+<li><strong>Zero-server, zero-installazione.</strong> Il codice sorgente dell'editor è interamente contenuto all'interno di <code>noesis810.html</code> come stringa JSON dentro un <code>&lt;script type="application/json" id="sn56Source"&gt;</code>. Viene estratto a runtime e iniettato in un Blob URL.</li>
+<li><strong>Due modalità operative:</strong> <code>chapter</code> (capitolo estratto da un EPUB, con chapterId e contesto bibliografico) e <code>standalone</code> (editor vuoto senza contesto, aperto direttamente dalla Library).</li>
+<li><strong>Raccolta chunks:</strong> sistema di selezione e accumulo di frammenti di testo, immagini e tabelle in una collezione in-memory, esportabile in più formati.</li>
+<li><strong>Doppio snapshot simultaneo:</strong> ogni salvataggio produce due versioni del documento (clean e annotated) scaricate automaticamente come coppia di file HTML, e salvate contemporaneamente in IndexedDB.</li>
+<li><strong>IDB Bridge:</strong> poiché il contesto <code>blob:null</code> blocca l'accesso diretto a IndexedDB in alcuni browser (Chrome desktop), tutte le operazioni IDB vengono delegate al parent window tramite <code>postMessage</code>.</li>
+</ul>
+<hr />
+<h2 id="2-architettura-tecnica-e-struttura-del-file">2. Architettura tecnica e struttura del file</h2>
+<h3>2.1 Embedding come JSON data island</h3>
+<p>L'intero HTML di sn56.x è embedded in <code>noesis810.html</code> tra i marker:</p>
+<pre><code>&lt;!-- SN56_SOURCE_START --&gt;
+&lt;script type="application/json" id="sn56Source"&gt;"&lt;!DOCTYPE html&gt;…"&lt;/script&gt;
+&lt;!-- SN56_SOURCE_END --&gt;
+</code></pre>
+<p>Il contenuto è una stringa JSON (con escape di tutti i caratteri speciali: backtick → <code>\</code>, <code>&lt;/script&gt;</code> → <code>&lt;\/script&gt;</code>, newline → <code>\n</code>). Questo elimina qualsiasi problema di nesting nei template literal.</p>
+<p>Un file ausiliario <code>build.py</code> automatizza l'aggiornamento della stringa quando sn56.x viene modificato separatamente.</p>
+<h3>2.2 Funzione di lancio: <code>_openSn56(payload)</code></h3>
+<pre><code class="language-javascript">function _openSn56(payload) {
+  const src = JSON.parse(document.getElementById('sn56Source').textContent);
+  const island = payload
+    ? '&lt;script type="application/json" id="noesisPayload"&gt;'
+      + JSON.stringify(payload) + '&lt;\/script&gt;'
+    : '';
+  const html = src.replace('&lt;!-- SN56_PAYLOAD_SLOT --&gt;', island);
+  const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+  const w = window.open(url, '_blank', '');
+  if (w) setTimeout(() => URL.revokeObjectURL(url), 60000);
+  else alert('Please allow popups.');
+}
+</code></pre>
+<p><strong>Meccanismo:</strong></p>
+<ol>
+<li>Decodifica la stringa JSON per ottenere l'HTML sorgente di sn56.x.</li>
+<li>Se c'è un payload, lo serializza in un <code>&lt;script type="application/json" id="noesisPayload"&gt;</code> e lo inserisce nel placeholder <code>&lt;!-- SN56_PAYLOAD_SLOT --&gt;</code>.</li>
+<li>Crea un Blob URL dall'HTML risultante.</li>
+<li>Apre la finestra con <code>window.open(url, '_blank', '')</code> — il terzo argomento esplicito è necessario per preservare <code>window.opener</code> su Chrome.</li>
+<li>Revoca il Blob URL dopo 60 secondi (la finestra è già caricata).</li>
+</ol>
+<h3>2.3 Lettura del payload all'avvio (boot dell'editor)</h3>
+<p>All'interno di sn56.x, dopo che Summernote è inizializzato (<code>initEditor()</code>), viene eseguita la funzione <code>_bootPayload()</code>:</p>
+<pre><code class="language-javascript">function _bootPayload() {
+  var payloadEl = document.getElementById('noesisPayload');
+  if (!payloadEl) return; // standalone: editor vuoto
+  var payload = JSON.parse(payloadEl.textContent);
+  _mode        = payload.mode        || 'standalone';
+  _bookName    = payload.bookName    || '';
+  _chapterName = payload.chapterName || '';
+  _chapterId   = payload.chapterId   || '';
+  if (payload.htmlContent) {
+    $('#editor').summernote('code', payload.htmlContent);
+  }
+  // Aggiorna titolo header
+  // In modalità chunks: disabilita snapshot export
+  // Toast informativo (una volta per sessione, in chapter mode)
+}
+</code></pre>
+<h3>2.4 Caricamento dinamico di jQuery e Summernote</h3>
+<p>sn56.x non include jQuery e Summernote inline: li carica dinamicamente via CDN in cascata:</p>
+<pre><code class="language-javascript">loadScript('https://code.jquery.com/jquery-3.7.1.min.js', function() {
+  loadScript('https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.js', function() {
+    initEditor();
+  });
+});
+</code></pre>
+<hr />
+<h2 id="3-i-tre-percorsi-di-accesso-alleditor">3. I tre percorsi di accesso all'editor</h2>
+<h3>3.1 Percorso 1 — Library → Open Editor (payload null)</h3>
+<p><strong>Trigger:</strong> clic sul pulsante <strong>"Open Editor"</strong> (<code>#libOpenEditorBtn</code>, icona <code>bi-pencil-square</code>) nella toolbar della Library.</p>
+<p><strong>Codice:</strong></p>
+<pre><code class="language-javascript">openEditorBtn.addEventListener('click', function() { _openSn56(null); });
+</code></pre>
+<p><strong>Comportamento:</strong></p>
+<ul>
+<li><code>_openSn56</code> riceve <code>null</code> come payload.</li>
+<li>Il placeholder <code>&lt;!-- SN56_PAYLOAD_SLOT --&gt;</code> rimane vuoto nell'HTML generato.</li>
+<li>In <code>_bootPayload()</code>, <code>payloadEl</code> è <code>null</code> → la funzione esce immediatamente.</li>
+<li>Le variabili globali mantengono i valori di default: <code>_mode = 'standalone'</code>, <code>_bookName = ''</code>, <code>_chapterName = ''</code>, <code>_chapterId = ''</code>.</li>
+<li>L'editor si apre <strong>vuoto</strong> con titolo header <code>"Noesis Editor"</code>.</li>
+<li>Il pulsante <strong>Save</strong> (export clean + annotated) è abilitato ma non salverà in IDB (nessun <code>_chapterId</code>).</li>
+<li>L'utente può importare manualmente un file HTML dall'Import dialog.</li>
+</ul>
+<p><strong>Caso d'uso:</strong> scrittura libera, note personali, documenti indipendenti dai libri.</p>
+<hr />
+<h3>3.2 Percorso 2 — Library → capitolo estratto → snapshot specifico (payload chapter)</h3>
+<p><strong>Trigger:</strong> clic su un <strong>nome di capitolo</strong> nella sezione estratta di un libro (apre il più recente snapshot) oppure clic su uno <strong>snapshot specifico</strong> nella lista sotto il capitolo.</p>
+<p><strong>Codice:</strong></p>
+<pre><code class="language-javascript">// Clic su nome capitolo → snapshot più recente
+entry.querySelector('.chapter-name-btn').onclick = () => {
+  _openExtractedEnv(ch, null);
+};
+
+// Clic su snapshot specifico
+btn.onclick = () => _openExtractedEnv(ch, snap.snapshotId);
+</code></pre>
+<p><strong>Funzione intermediaria <code>_openExtractedEnv</code>:</strong></p>
+<pre><code class="language-javascript">function _openExtractedEnv(chapterRecord, snapshotId) {
+  // Ordina: isOrigin in fondo, gli altri dal più recente
+  const snaps = (chapterRecord.snapshots || []).slice().sort(...);
+  const targetSnap = snapshotId
+    ? snaps.find(s => s.snapshotId === snapshotId)
+    : snaps[0] || null;
+  const htmlContent = targetSnap ? targetSnap.content : '&lt;p&gt;&lt;em&gt;No snapshots yet.&lt;/em&gt;&lt;/p&gt;';
+  _openSn56({
+    mode:        'chapter',
+    htmlContent: htmlContent,
+    bookName:    chapterRecord.bookName    || '',
+    chapterName: chapterRecord.chapterName || '',
+    chapterId:   chapterRecord.chapterId   || ''
+  });
+}
+</code></pre>
+<p><strong>Payload trasmesso:</strong></p>
+<pre><code class="language-json">{
+  "mode": "chapter",
+  "htmlContent": "&lt;p&gt;Contenuto HTML del capitolo/snapshot...&lt;/p&gt;",
+  "bookName": "Nome del libro",
+  "chapterName": "Nome del capitolo",
+  "chapterId": "ch_1234567890_987654"
+}
+</code></pre>
+<p><strong>Comportamento nell'editor:</strong></p>
+<ul>
+<li>Il contenuto HTML viene caricato in Summernote.</li>
+<li>L'header mostra <code>chapterName</code> (o <code>bookName</code> come fallback).</li>
+<li><code>_chapterId</code> è valorizzato → Save salva in IDB + filesystem.</li>
+<li>L'Import dialog mostrerà la lista degli snapshot IDB filtrata per questo <code>chapterId</code>.</li>
+</ul>
+<p><strong>Caso d'uso:</strong> riaprire un capitolo precedentemente annotato per continuare il lavoro, confrontare snapshot, riprendere da un punto specifico.</p>
+<hr />
+<h3>3.3 Percorso 3 — Reader → estrazione capitolo (payload chapter immediato)</h3>
+<p><strong>Trigger:</strong> clic sul pulsante <strong>"Extract"</strong> (<code>#extractChapterBtn</code>) nel Reader, che apre il menu di estrazione (solo capitolo corrente oppure + livelli annidati).</p>
+<p><strong>Codice (estratto dalla funzione di estrazione):</strong></p>
+<pre><code class="language-javascript">// Crea chapterId univoco
+const _chapterId = 'ch_' + Date.now() + '_' + Math.floor(Math.random() * 1e6);
+
+// Salva in IDB con snapshot origin
+const _firstSnapshot = {
+  snapshotId: 'snap_' + ts + '_' + random,
+  createdAt: now.toISOString(),
+  description: 'origin-' + timestamp,
+  isOrigin: true,
+  content: htmlContent
+};
+const _chapterRecord = {
+  chapterId: _chapterId,
+  bookName: currentBookTitle,
+  chapterName: chapterTitle,
+  createdAt: new Date().toISOString(),
+  snapshots: [_firstSnapshot]
+};
+await saveExtractedChapterToDB(_chapterRecord);
+
+// Scarica coppia file HTML
+_autoDownloadHTML(`noesis-extract-${book}__${ch}__${ts}.html`, ...);
+setTimeout(() => _autoDownloadHTML(`noesis-origin-${book}__${ch}__${ts}.html`, ...), 1500);
+
+// Apre l'editor
+_openSn56({
+  mode: 'chapter',
+  htmlContent: htmlContent,
+  bookName: currentBookTitle,
+  chapterName: chapterTitle,
+  chapterId: _chapterId
+});
+</code></pre>
+<p><strong>Sequenza di azioni simultanee al momento dell'estrazione:</strong></p>
+<ol>
+<li>Viene generato un <code>chapterId</code> univoco (<code>ch_</code> + timestamp + random).</li>
+<li>Un record <code>chapterRecord</code> viene scritto in <code>noesisDB</code> con il primo snapshot contrassegnato <code>isOrigin: true</code>.</li>
+<li>Due file HTML vengono scaricati automaticamente nella cartella Download:
+<ul>
+<li><code>noesis-extract-…html</code> (leggibile offline, senza meta tag noesis)</li>
+<li><code>noesis-origin-…html</code> (con meta tag noesis, reimportabile in Library) — scaricato con 1,5s di ritardo per evitare conflitti</li>
+</ul>
+</li>
+<li>L'editor viene aperto con il contenuto del capitolo e il <code>chapterId</code> fresco.</li>
+</ol>
+<p><strong>Caso d'uso:</strong> il flusso primario di Noesis — leggo un EPUB nel Reader, estraggo un capitolo interessante, l'editor si apre immediatamente con il testo pronto per l'annotazione.</p>
+<hr />
+<h2 id="4-interfaccia-utente--layout-e-componenti">4. Interfaccia utente — layout e componenti</h2>
+<h3>4.1 Struttura visiva</h3>
+<pre><code>┌─────────────────────────────────────────────┐
+│ HEADER (blu #0a84ff)                        │
+│ "Nome capitolo / Noesis Editor"    [?]      │
+├─────────────────────────────────────────────┤
+│                                             │
+│   SUMMERNOTE TOOLBAR (generata da Summ.)    │
+│                                             │
+├─────────────────────────────────────────────┤
+│                                             │
+│   AREA EDITOR WYSIWYG (.note-editable)      │
+│   (altezza dinamica, occupa tutto lo spazio │
+│   disponibile tra toolbar e bottom bar)     │
+│                                             │
+├─────────────────────────────────────────────┤
+│ BOTTOM TOOLBAR (nero #111)                  │
+│ [CHAPTER section] [COLLECTION section]      │
+│                   [TOOLS section]           │
+└─────────────────────────────────────────────┘
+</code></pre>
+<h3>4.2 Header</h3>
+<ul>
+<li><strong>Colore:</strong> <code>#0a84ff</code> (blu iOS)</li>
+<li><strong>Titolo (<code>#appHeaderTitle</code>):</strong> in modalità chapter mostra <code>chapterName</code> o <code>bookName</code>; in standalone mostra <code>"Noesis Editor"</code>.</li>
+<li><strong>Pulsante <code>?</code> (<code>#editorHelpBtn</code>):</strong> apre l'overlay di aiuto contestuale con la descrizione di tutti i pulsanti.</li>
+</ul>
+<h3>4.3 Help overlay</h3>
+<p>Overlay modale a schermo intero (sfondo scuro, box dark) con sezioni collassate per:</p>
+<ul>
+<li>Chapter (New, Import, Save, More formats)</li>
+<li>Collection (Add, Import JSON, Export JSON, More formats, Inspect, Clear)</li>
+<li>Inspect Panel</li>
+<li>Tools</li>
+</ul>
+<hr />
+<h2 id="5-bottoniera-inferiore--sezione-chapter">5. Bottoniera inferiore — sezione Chapter</h2>
+<p>La sezione <strong>Chapter</strong> è identificata visivamente da un bordo giallo-arancio e label verticale "CHAPTER" in giallo.</p>
+<h3>5.1 New — <code>#chNewBtn</code> (grigio scuro)</h3>
+<p><strong>Icona:</strong> <code>bi-plus-square</code></p>
+<p><strong>Comportamento:</strong></p>
+<ul>
+<li>Se l'editor è vuoto: resetta immediatamente.</li>
+<li>Se l'editor ha contenuto: mostra <code>confirm("Salvare il documento corrente prima di crearne uno nuovo?")</code>.
+<ul>
+<li>Se confermato: invoca programmaticamente <code>chExportMainBtn.click()</code> per eseguire il doppio salvataggio.</li>
+</ul>
+</li>
+<li>Dopo: svuota Summernote, azzera <code>_bookName</code>, <code>_chapterName</code>, <code>_chapterId</code>, <code>_mode = 'standalone'</code>, svuota la collezione, aggiorna il titolo header.</li>
+</ul>
+<hr />
+<h3>5.2 Import — <code>#chImportBtn</code> (arancione <code>#ff9f0a</code>)</h3>
+<p><strong>Icona:</strong> <code>bi-folder2-open</code></p>
+<p><strong>Comportamento:</strong> apre l'<strong>Import Chapter Dialog</strong> (<code>#chImportOverlay</code>).</p>
+<h4>Import Chapter Dialog</h4>
+<p>Il dialog è un overlay modale con:</p>
+<p><strong>Sezione IDB (se <code>_chapterId</code> è valorizzato):</strong></p>
+<ul>
+<li>Chiama <code>_idbPost('get', { chapterId: _chapterId })</code> per recuperare il record IDB.</li>
+<li>Divide gli snapshot in due gruppi tramite <code>_groupSnapshots()</code>:
+<ul>
+<li><strong>ANNOTATED:</strong> snapshot la cui <code>description</code> non inizia con "clean" (include <code>annot-</code>, <code>origin-</code>, ecc.)</li>
+<li><strong>CLEAN:</strong> snapshot la cui <code>description</code> inizia con "clean"</li>
+</ul>
+</li>
+<li>Entrambi i gruppi sono ordinati per data decrescente (più recente in cima).</li>
+<li>Ogni riga mostra: punto colorato (verde se più recente), timestamp formattato <code>DD/MM/YY HH:MM</code>, descrizione (con ★ se <code>isOrigin</code>).</li>
+<li>Clic su una riga → <code>_loadFromSnapshot(snap)</code> carica il contenuto nel editor e aggiorna le variabili di contesto.</li>
+</ul>
+<p><strong>Sezione file da disco:</strong></p>
+<ul>
+<li>Pulsante "Import from file (any HTML)" in fondo al dialog.</li>
+<li>Apre il file picker (<code>#chImportFileInput</code>, accetta <code>.html,.htm</code>).</li>
+<li>Il file viene letto come testo; vengono estratti i meta tag <code>noesis-*</code> per ricostruire il contesto (bookName, chapterName, chapterId).</li>
+<li>Il meta <code>noesis-snapshot-variant</code> determina se applicare la pulizia dei background-color (<code>clean</code>) o preservarli (<code>annotated</code>).</li>
+</ul>
+<hr />
+<h3>5.3 Save — <code>#chExportMainBtn</code> (verde <code>#30d158</code>)</h3>
+<p><strong>Icona:</strong> <code>bi-file-earmark-arrow-down</code></p>
+<p>Questo è il pulsante centrale del sistema di memorizzazione. Genera <strong>due file HTML simultanei</strong> e <strong>due record snapshot in IDB</strong>. Descritto in dettaglio nella sezione 8 e 9.</p>
+<hr />
+<h3>5.4 More formats — <code>#chMoreBtn</code> (rosso <code>#ff453a</code>)</h3>
+<p><strong>Icona:</strong> <code>bi-three-dots</code></p>
+<p>Apre un dropdown menu con esportazioni alternative del documento completo:</p>
+<table>
+<thead>
+<tr>
+<th>Voce</th>
+<th>Funzione</th>
+<th>Formato</th>
+<th>Mime</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Export TXT</td>
+<td><code>exportTXT()</code></td>
+<td><code>.txt</code></td>
+<td><code>text/plain</code></td>
+</tr>
+<tr>
+<td>Export Markdown</td>
+<td><code>exportMD()</code></td>
+<td><code>.md</code></td>
+<td><code>text/markdown</code></td>
+</tr>
+<tr>
+<td>Export MD + images ZIP</td>
+<td><code>exportMDZip()</code></td>
+<td><code>.zip</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Export JSON doc</td>
+<td><code>exportDocJSON()</code></td>
+<td><code>.json</code></td>
+<td><code>application/json</code></td>
+</tr>
+<tr>
+<td>Print / PDF</td>
+<td><code>exportPDF()</code></td>
+<td>browser print</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Export DOCX</td>
+<td><code>exportDOCX()</code></td>
+<td><code>.docx</code></td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Naming:</strong> tutti usano <code>_promptCustom(tipo, ext)</code> che mostra un prompt con la parte automatica <code>noesis-{tipo}-book__chapter__TS</code> e permette di aggiungere un'etichetta custom.</p>
+<p><strong>Dettagli implementativi:</strong></p>
+<ul>
+<li><code>exportTXT()</code>: estrae il testo da tutti i tag <code>p, h1-h6, li</code> con newline tra i paragrafi.</li>
+<li><code>exportMD()</code>: usa la libreria <strong>TurndownService</strong> per convertire l'HTML in Markdown.</li>
+<li><code>exportMDZip()</code>: converte in Markdown, estrae le immagini base64 in <code>images/img_001.png</code> ecc., crea uno ZIP con JSZip.</li>
+<li><code>exportDocJSON()</code>: wrappa l'HTML grezzo in <code>{ "html": "…" }</code> come JSON.</li>
+<li><code>exportPDF()</code>: copia il contenuto in <code>#print-container</code> (visibile solo in print), applica normalizzazioni CSS su tabelle/immagini, lancia <code>window.print()</code>.</li>
+<li><code>exportDOCX()</code>: usa la libreria <strong>html-docx-js</strong> (<code>window.htmlDocx.asBlob()</code>).</li>
+</ul>
+<hr />
+<h2 id="6-bottoniera-inferiore--sezione-collection">6. Bottoniera inferiore — sezione Collection</h2>
+<p>La sezione <strong>Collection</strong> è identificata da un bordo azzurro-ciano e label verticale "COLLECTION" in azzurro.</p>
+<h3>6.1 Add <code>[+ N]</code> — <code>#addChunkBtn</code></h3>
+<p><strong>Colore:</strong> definito inline (sfondo con bordo)<br />
+<strong>Etichetta:</strong> <code>+</code> con badge numerico <code>#chunkCounter</code> (rosso, posizionato in alto a destra del pulsante)</p>
+<p>Aggiunge alla collezione il contenuto attualmente selezionato. Supporta tre modalità di selezione:</p>
+<p><strong>Caso 1 — Immagine:</strong></p>
+<ul>
+<li>L'immagine deve essere stata preventivamente "tracciata" tramite un <code>mousedown</code> (desktop) o <code>touchstart</code> (Android) sull'<code>&lt;img&gt;</code> nell'area <code>.note-editable</code>. Il riferimento è tenuto in <code>_selectedImg</code>.</li>
+<li>Al clic di <code>[+]</code>: usa <code>_selectedImg.outerHTML</code>.</li>
+</ul>
+<p><strong>Caso 2 — Tabella:</strong></p>
+<ul>
+<li>Analogamente, il <code>mousedown</code> su <code>TD</code>, <code>TH</code>, <code>TABLE</code>, <code>TR</code> o qualsiasi elemento dentro <code>table</code> imposta <code>_selectedTable</code>.</li>
+<li>Al clic di <code>[+]</code>: usa <code>_selectedTable.parentElement.outerHTML</code> se il wrapper non è l'editor stesso, altrimenti <code>_selectedTable.outerHTML</code>.</li>
+</ul>
+<p><strong>Caso 3 — Selezione testo:</strong></p>
+<ul>
+<li>Usa <code>window.getSelection()</code> con <code>getRangeAt(0).cloneContents()</code> per estrarre l'HTML della selezione.</li>
+</ul>
+<p><strong>Shortcut gestuali (Android):</strong></p>
+<ul>
+<li><strong>Doppio tap su immagine:</strong> aggiunge direttamente senza passare da <code>[+]</code>.</li>
+<li><strong>Long press su immagine (600ms):</strong> aggiunge direttamente.</li>
+</ul>
+<p><strong>Funzione <code>_enrichChunk(chunk)</code>:</strong></p>
+<ul>
+<li>Determina il tipo: <code>'table'</code> se <code>/&lt;table[\s&gt;]/i</code>, <code>'image'</code> se <code>/&lt;img[\s&gt;]/i</code>, altrimenti <code>'text'</code>.</li>
+<li>Aggiunge <code>bookName</code>, <code>chapterName</code>, <code>timestamp</code>.</li>
+</ul>
+<p><strong>Funzione <code>_saveChunk(chunk)</code>:</strong></p>
+<ul>
+<li>Assegna un <code>id</code> univoco: <code>Date.now() + '_' + random</code>.</li>
+<li>Aggiunge al array <code>_collection</code>.</li>
+</ul>
+<hr />
+<h3>6.2 Import JSON — pulsante blu <code>#0a84ff</code></h3>
+<p><strong>Icona:</strong> <code>bi-upload</code></p>
+<p>Apre il file picker <code>#collectionImportInput</code> (accetta <code>.json</code>).</p>
+<p>Il file JSON può essere:</p>
+<ul>
+<li>Un array diretto di chunks: <code>[{...}, {...}]</code></li>
+<li>Un oggetto con campo <code>chunks</code>: <code>{ "version": 1, "chunks": [...] }</code></li>
+</ul>
+<p>I chunks importati vengono <strong>aggiunti</strong> alla collezione esistente (non sostituiti). Ogni chunk riceve un nuovo <code>id</code> univoco.</p>
+<hr />
+<h3>6.3 Export JSON — pulsante verde <code>#32d74b</code></h3>
+<p><strong>Icona:</strong> <code>bi-download</code></p>
+<p>Chiama <code>_exportCollectionJson()</code>. Produce:</p>
+<pre><code class="language-json">{
+  "version": 1,
+  "exportedAt": "2026-03-27T10:00:00.000Z",
+  "bookName": "…",
+  "chapterName": "…",
+  "chunks": [
+    {
+      "id": "1711530000000_123456789",
+      "content": "&lt;p&gt;Testo selezionato&lt;/p&gt;",
+      "type": "text",
+      "bookName": "…",
+      "chapterName": "…",
+      "timestamp": 1711530000000
+    }
+  ]
+}
+</code></pre>
+<hr />
+<h3>6.4 More formats collection — <code>#colMoreBtn</code> (arancione <code>#ff9f0a</code>)</h3>
+<p><strong>Icona:</strong> <code>bi-three-dots</code></p>
+<p>Dropdown con tre opzioni:</p>
+<table>
+<thead>
+<tr>
+<th>Voce</th>
+<th>Funzione</th>
+<th>Formato</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Export Markdown</td>
+<td><code>_exportCollectionMd()</code></td>
+<td><code>.md</code></td>
+<td>Immagini omesse, tabelle come HTML raw</td>
+</tr>
+<tr>
+<td>Export MD + images ZIP</td>
+<td><code>_exportCollectionMdZip()</code></td>
+<td><code>.zip</code></td>
+<td>Immagini base64 estratte in <code>images/</code></td>
+</tr>
+<tr>
+<td>Export HTML collection</td>
+<td><code>_exportCollectionHtml()</code></td>
+<td><code>.html</code></td>
+<td>Pagina HTML standalone con tutti i chunk</td>
+</tr>
+</tbody>
+</table>
+<p><code>_exportCollectionHtml()</code> produce una pagina HTML autonoma con tutti i chunk come <code>&lt;div class="chunk"&gt;</code>, con stile CSS inline per leggibilità.</p>
+<hr />
+<h3>6.5 Inspect — pulsante viola <code>#5e5ce6</code></h3>
+<p><strong>Icona:</strong> <code>bi-eye</code></p>
+<p>Apre il pannello <code>#inspectPanel</code> (float non modale). Descritto in dettaglio nella sezione 11.</p>
+<hr />
+<h3>6.6 Clear — pulsante rosso <code>#ff453a</code></h3>
+<p><strong>Icona:</strong> <code>bi-trash</code></p>
+<ul>
+<li>Se la collezione è vuota: mostra toast "Collection already empty".</li>
+<li>Se non vuota: <code>confirm("Clear the collection? (N chunks)")</code> → <code>_clearCollection()</code> → aggiorna contatore.</li>
+</ul>
+<hr />
+<h2 id="7-bottoniera-summernote-toolbar-wysiwyg">7. Bottoniera Summernote (toolbar WYSIWYG)</h2>
+<p>La toolbar di Summernote-lite è posizionata sopra l'area di editing. È generata automaticamente da Summernote secondo la configurazione passata in <code>initEditor()</code>.</p>
+<h3>7.1 Configurazione gruppi toolbar</h3>
+<pre><code class="language-javascript">toolbar: [
+  ['style',    ['style']],             // Stile paragrafo: p, h1-h6, blockquote, pre
+  ['font',     ['bold', 'italic', 'underline', 'strikethrough',
+                'superscript', 'subscript', 'clear']],
+  ['fontname', ['fontname']],          // Famiglia font
+  ['fontsize', ['fontsize']],          // Dimensione font
+  ['color',    ['color']],             // Colore testo e sfondo
+  ['para',     ['ul', 'ol', 'paragraph']], // Liste e allineamento
+  ['height',   ['height']],            // Interlinea
+  ['table',    ['table']],             // Inserimento e modifica tabelle
+  ['insert',   ['link', 'picture', 'video', 'hr']],
+  ['view',     ['fullscreen', 'codeview', 'help']]
+]
+</code></pre>
+<h3>7.2 Stili paragrafo disponibili</h3>
+<p><code>['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre']</code></p>
+<h3>7.3 Font disponibili</h3>
+<p><code>Arial, Arial Black, Comic Sans MS, Courier New, Georgia, Times New Roman, Verdana, system-ui</code></p>
+<h3>7.4 Altezza dinamica dell'editor</h3>
+<p>La funzione <code>_calcEditorHeight()</code> calcola l'altezza disponibile per <code>.note-editable</code> sottraendo dall'altezza della finestra:</p>
+<ul>
+<li>Altezza header app</li>
+<li>Altezza toolbar Summernote</li>
+<li>Altezza statusbar Summernote</li>
+<li>Altezza bottom toolbar</li>
+<li>Padding container (16px)</li>
+</ul>
+<p>Il ricalcolo avviene automaticamente al <code>resize</code> e al cambio di orientamento.</p>
+<h3>7.5 Upload immagini inline</h3>
+<p>Il callback <code>onImageUpload</code> di Summernote converte ogni file caricato in base64 via <code>FileReader</code> e lo inserisce direttamente nell'HTML come <code>&lt;img src="data:image/...;base64,..."&gt;</code>. Le immagini sono quindi completamente embedded nel documento.</p>
+<hr />
+<h2 id="8-doppia-memorizzazione-degli-snapshot-clean-e-annotated">8. Doppia memorizzazione degli snapshot: clean e annotated</h2>
+<p>Ogni volta che l'utente preme il pulsante <strong>Save</strong> (<code>#chExportMainBtn</code>), vengono prodotti <strong>simultaneamente</strong> due snapshot distinti.</p>
+<h3>8.1 Il prompt e la costruzione dei nomi file</h3>
+<p>Prima di qualsiasi export viene mostrato un <strong>unico prompt</strong> che mostra la base automatica del nome file:</p>
+<pre><code>noesis-clean-TitoloLibro__NomeCapitolo__20260327_142530  →  aggiungi etichetta (invio per saltare):
+</code></pre>
+<p>Il risultato dell'etichetta (può essere vuoto) viene usato per entrambi i file.</p>
+<h3>8.2 Schema di naming</h3>
+<pre><code>noesis-{tipo}-{bookSlug}__{chapterSlug}__{YYYYMMDD_HHMMSS}[_{etichetta}].html
+</code></pre>
+<p>Esempi:</p>
+<pre><code>noesis-clean-Ulysses__Proteus__20260327_142530.html
+noesis-annot-Ulysses__Proteus__20260327_142530.html
+noesis-clean-Ulysses__Proteus__20260327_142530_primaLettura.html
+noesis-annot-Ulysses__Proteus__20260327_142530_primaLettura.html
+</code></pre>
+<h3>8.3 Differenza clean vs annotated</h3>
+<p><strong>Clean (<code>noesis-clean-</code>):</strong></p>
+<ul>
+<li>Il contenuto del documento viene processato con due regex che rimuovono tutti gli stili <code>background-color</code> inline:
+<pre><code class="language-javascript">.replace(/background-color\s*:[^;'"]+[;]/gi, '')
+.replace(/background-color\s*:[^"']+(?=["'])/gi, '')
+</code></pre>
+</li>
+<li>Risultato: testo privo di evidenziazioni colorate, adatto alla lettura e alla reimportazione "pulita".</li>
+<li>Contiene il meta tag <code>&lt;meta name="noesis-snapshot-variant" content="clean"&gt;</code>.</li>
+</ul>
+<p><strong>Annotated (<code>noesis-annot-</code>):</strong></p>
+<ul>
+<li>Il contenuto viene usato esattamente com'è, inclusi tutti i colori di evidenziazione, grassetti, corsivi e qualsiasi stile applicato durante l'annotazione.</li>
+<li>Contiene il meta tag <code>&lt;meta name="noesis-snapshot-variant" content="annot"&gt;</code>.</li>
+</ul>
+<h3>8.4 Struttura HTML comune (sharedHead)</h3>
+<p>Entrambi i file condividono lo stesso <code>&lt;head&gt;</code>:</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="it"&gt;&lt;head&gt;
+&lt;meta charset="UTF-8"&gt;
+&lt;meta name="noesis-chapter-id"    content="{_chapterId}"&gt;
+&lt;meta name="noesis-book-name"     content="{_bookName}"&gt;
+&lt;meta name="noesis-chapter-name"  content="{_chapterName}"&gt;
+&lt;title&gt;{chapterName || bookName || 'Chapter'}&lt;/title&gt;
+&lt;style&gt;
+body{max-width:750px;margin:auto;padding:20px;font-family:system-ui;line-height:1.6;}
+img,figure{max-width:100%;height:auto;}
+table{width:100%;table-layout:fixed;border-collapse:collapse;}
+td,th{border:1px solid #ccc;padding:6px;word-break:break-word;}
+&lt;/style&gt;
+</code></pre>
+<p>I meta tag <code>noesis-*</code> sono fondamentali: permettono la <strong>reimportazione dei file nella Library</strong> tramite il sistema "Import Snapshots" (sezione 15).</p>
+<h3>8.5 I due snapshot in IDB</h3>
+<p>In parallelo al download dei file, vengono creati e salvati in IDB due oggetti snapshot:</p>
+<pre><code class="language-javascript">var _snapAnnot = {
+  snapshotId: 'snap_' + ts + '_' + random1,
+  createdAt: now,
+  bookName: _bookName,
+  chapterName: _chapterName,
+  description: 'annot-' + tsStr + descSuffix,  // es: 'annot-20260327-142530-primaLettura'
+  content: docContent   // HTML annotato as-is
+};
+var _snapClean = {
+  snapshotId: 'snap_' + (ts+1) + '_' + random2,
+  createdAt: now,
+  bookName: _bookName,
+  chapterName: _chapterName,
+  description: 'clean-' + tsStr + descSuffix,  // es: 'clean-20260327-142530-primaLettura'
+  content: cleanContent  // HTML con background rimossi
+};
+</code></pre>
+<p>L'ordine di inserimento nell'array <code>record.snapshots</code>:</p>
+<pre><code class="language-javascript">record.snapshots.unshift(_snapClean);   // inserito secondo
+record.snapshots.unshift(_snapAnnot);   // inserito primo → appare in cima
+</code></pre>
+<p><strong>Il snapshot annotated è sempre più in cima del clean</strong> perché è il più "ricco" e tipicamente quello che si vuole riaprire per continuare ad annotare.</p>
+<hr />
+<h2 id="9-memorizzazione-simultanea-idb--filesystem">9. Memorizzazione simultanea IDB + filesystem</h2>
+<h3>9.1 Il doppio output del pulsante Save</h3>
+<p>Ogni pressione del pulsante Save produce <strong>quattro output simultanei</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Destinazione</th>
+<th>File/Oggetto</th>
+<th>Tipo</th>
+<th>Descrizione</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Filesystem (Download)</td>
+<td><code>noesis-clean-…html</code></td>
+<td>HTML</td>
+<td>Versione senza background-color</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Filesystem (Download)</td>
+<td><code>noesis-annot-…html</code></td>
+<td>HTML</td>
+<td>Versione annotata as-is</td>
+</tr>
+<tr>
+<td>3</td>
+<td>IndexedDB (<code>noesisDB</code>)</td>
+<td>snapshot <code>annot-…</code></td>
+<td>JSON in IDB</td>
+<td>Stesso contenuto del file annot</td>
+</tr>
+<tr>
+<td>4</td>
+<td>IndexedDB (<code>noesisDB</code>)</td>
+<td>snapshot <code>clean-…</code></td>
+<td>JSON in IDB</td>
+<td>Stesso contenuto del file clean</td>
+</tr>
+</tbody>
+</table>
+<p>Gli output 1 e 2 avvengono tramite <code>download(filename, '﻿' + html, 'text/html;charset=utf-8')</code> (BOM UTF-8 preposto).<br />
+Gli output 3 e 4 avvengono tramite <code>_idbPost('put', { record: record })</code>.</p>
+<h3>9.2 Perché la doppia memorizzazione?</h3>
+<ul>
+<li><strong>IDB</strong> permette la navigazione rapida nella Library senza doversi ricordare dove si trovano i file su disco. Gli snapshot sono immediatamente accessibili dall'interfaccia Library.</li>
+<li><strong>Filesystem</strong> è la copia di backup persistente e portabile. Se l'IDB viene cancellato (pulizia del browser, cambio device, migrazione), i file su disco permettono la <strong>reimportazione</strong> tramite il meccanismo "Import Snapshots".</li>
+<li>I due sistemi si completano: IDB per la fluidità di workflow, filesystem per la resilienza e la portabilità.</li>
+</ul>
+<h3>9.3 Gestione del caso <code>!_chapterId</code></h3>
+<p>Se l'editor è in modalità <code>standalone</code> (nessun <code>_chapterId</code>), il blocco IDB viene saltato:</p>
+<pre><code class="language-javascript">if (_chapterId) {
+  // ... logica IDB
+}
+</code></pre>
+<p>Il save produce solo i file su filesystem, senza salvare in IDB. L'utente vede il toast <code>"⚠️ Saved to disk only — Library not updated"</code> se il save IDB fallisce per altri motivi.</p>
+<h3>9.4 Gestione errori IDB</h3>
+<p>In caso di fallimento del save IDB (timeout postMessage, opener non disponibile, errore IndexedDB), viene mostrato il toast <code>"⚠️ Saved to disk only — Library not updated"</code>. I file su disco vengono comunque scaricati (il download avviene prima della chiamata IDB).</p>
+<hr />
+<h2 id="10-gestione-della-collezione-di-chunks">10. Gestione della collezione di chunks</h2>
+<h3>10.1 Struttura dati in memoria</h3>
+<p>La collezione è tenuta in un array JavaScript globale <code>_collection</code>:</p>
+<pre><code class="language-javascript">var _collection = []; // Array di chunk objects
+
+// Struttura di un chunk:
+{
+  id:          "1711530000000_123456789",  // univoco, generato al momento del salvataggio
+  content:     "&lt;p&gt;HTML del chunk&lt;/p&gt;",    // HTML grezzo
+  type:        "text" | "image" | "table", // auto-rilevato
+  bookName:    "Nome del libro",
+  chapterName: "Nome del capitolo",
+  timestamp:   1711530000000,             // Date.now()
+  label:       "Etichetta opzionale"      // non usata nell'UI corrente
+}
+</code></pre>
+<p>La collezione è <strong>in-memory only</strong>: non viene persistita in IDB né in localStorage tra sessioni. Viene resettata ad ogni apertura di sn56.x. La persistenza è delegata all'export JSON.</p>
+<h3>10.2 Ciclo di vita di un chunk</h3>
+<pre><code>Selezione nell'editor
+       ↓
+Clic [+] / doppio tap immagine / long press
+       ↓
+_enrichChunk() — aggiunge type, bookName, chapterName, timestamp
+       ↓
+_saveChunk()   — assegna id, push in _collection
+       ↓
+_updateCounter() — aggiorna badge numerico
+       ↓
+[Opzionale] _openInspect() per visualizzare/gestire
+       ↓
+[Export] JSON / MD / HTML
+       ↓
+[Opzionale] Inject in editor / Delete
+</code></pre>
+<h3>10.3 Aggiunta alla collezione — tutti i metodi</h3>
+<p><strong>Metodo 1: pulsante <code>[+]</code></strong></p>
+<ul>
+<li>Testo: via <code>window.getSelection()</code>.</li>
+<li>Immagine: via <code>_selectedImg</code> (tracciato da mousedown/touchstart).</li>
+<li>Tabella: via <code>_selectedTable</code> (tracciato da mousedown su elementi tabella).</li>
+</ul>
+<p><strong>Metodo 2: doppio clic su immagine</strong></p>
+<ul>
+<li>Gestito da <code>dblclick</code> su <code>.note-editable</code>.</li>
+<li>Funziona su desktop e su Android Chrome.</li>
+</ul>
+<p><strong>Metodo 3: long press su immagine (600ms)</strong></p>
+<ul>
+<li>Timer avviato su <code>touchstart</code>, cancellato su <code>touchend</code>/<code>touchmove</code>.</li>
+<li>Pensato per Android dove il doppio tap può essere interpretato diversamente.</li>
+</ul>
+<h3>10.4 Export della collezione — tutti i formati</h3>
+<table>
+<thead>
+<tr>
+<th>Formato</th>
+<th>Funzione</th>
+<th>Nome file</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JSON</td>
+<td><code>_exportCollectionJson()</code></td>
+<td><code>noesis-collection-…json</code></td>
+<td>Struttura completa con metadati</td>
+</tr>
+<tr>
+<td>Markdown</td>
+<td><code>_exportCollectionMd()</code></td>
+<td><code>noesis-colmd-…md</code></td>
+<td>Immagini omesse, tabelle come HTML</td>
+</tr>
+<tr>
+<td>MD + ZIP</td>
+<td><code>_exportCollectionMdZip()</code></td>
+<td><code>noesis-colzip-…zip</code></td>
+<td>Immagini estratte in <code>images/</code></td>
+</tr>
+<tr>
+<td>HTML standalone</td>
+<td><code>_exportCollectionHtml()</code></td>
+<td><code>noesis-colhtml-…html</code></td>
+<td>Pagina pronta per il browser</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="11-pannello-inspect--gestione-visuale-dei-chunks">11. Pannello Inspect — gestione visuale dei chunks</h2>
+<h3>11.1 Caratteristiche del pannello</h3>
+<p>Il pannello <code>#inspectPanel</code> è un elemento <strong>fixed non modale</strong> (non blocca l'editor sottostante):</p>
+<ul>
+<li>Posizionato al centro schermo alla prima apertura.</li>
+<li><strong>Draggable</strong> tramite l'header (<code>#inspectHeader</code>, cursor grab).</li>
+<li><strong>Resizable</strong> tramite handle nell'angolo basso-destra (<code>#inspectResizeHandle</code>, icona ⊞).</li>
+<li>Dimensioni iniziali: <code>min(90vw, 720px)</code> × <code>85vh</code>, minimo <code>260px</code> × <code>200px</code>.</li>
+<li>Supporta sia mouse che touch per drag e resize (gestione unificata con <code>e.touches[0]</code>).</li>
+</ul>
+<h3>11.2 Struttura visiva</h3>
+<pre><code>┌─────────────────────────────────────────────┐ ← drag header
+│ 🔵 Collection — N chunks            [✕]    │
+├─────────────────────────────────────────────┤
+│ Chunk #1 — Text · NomeLibro › NomeCapitolo  │
+│ [☐] [preview testo]           [↓] [⛶] [✕] │
+│ Chunk #2 — Image                            │
+│ [☐] [preview immagine]        [↓] [⛶] [✕] │
+│ Chunk #3 — Table                            │
+│ [☐] [preview tabella]         [↓] [⛶] [✕] │
+├─────────────────────────────────────────────┤
+│ N selected  [All] [None]  [→ Inject in Ed.] │ ← footer
+└──────────────────────────────────────────── ⊞ ← resize handle
+</code></pre>
+<h3>11.3 Azioni per ogni chunk</h3>
+<p>Ogni chunk ha tre pulsanti nella colonna destra (<code>chunk-actions</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Pulsante</th>
+<th>Classe CSS</th>
+<th>Colore</th>
+<th>Azione</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>↓ (Inserisci qui)</td>
+<td><code>chunk-insert-here</code></td>
+<td>verde <code>#30d158</code></td>
+<td>Inject al cursore salvato</td>
+</tr>
+<tr>
+<td>⛶ (Fullscreen)</td>
+<td><code>chunk-fs</code></td>
+<td>giallo <code>#ffd60a</code></td>
+<td>Apre overlay fullscreen</td>
+</tr>
+<tr>
+<td>✕ (Delete)</td>
+<td><code>chunk-del</code></td>
+<td>giallo <code>#ffd60a</code></td>
+<td>Rimuove dalla collezione</td>
+</tr>
+</tbody>
+</table>
+<h3>11.4 Inject al cursore</h3>
+<p>Il pulsante "↓" (<code>chunk-insert-here</code>) usa un sistema di salvataggio/ripristino del cursore:</p>
+<ol>
+<li>All'apertura del pannello Inspect: <code>$('#editor').summernote('saveRange')</code> salva la posizione del cursore.</li>
+<li>Al clic di "↓" per un chunk specifico:
+<ul>
+<li><code>$('#editor').summernote('restoreRange')</code> ripristina il cursore.</li>
+<li>Crea un <code>&lt;div&gt;</code> temporaneo con <code>innerHTML = chunk.content</code>.</li>
+<li>Itera sui <code>childNodes</code> in ordine inverso e li inserisce con <code>insertNode</code>.</li>
+<li><code>$('#editor').summernote('saveRange')</code> aggiorna il cursore alla nuova posizione.</li>
+</ul>
+</li>
+</ol>
+<p>Il pulsante "Inject into Editor" nel footer inserisce <strong>tutti i chunks selezionati</strong> in sequenza.</p>
+<h3>11.5 Chunk fullscreen</h3>
+<p>L'overlay <code>#chunkFsOverlay</code> apre il contenuto di un singolo chunk in fullscreen (sfondo nero, contenuto bianco con scroll). Chiudibile con il pulsante ✕ o clic fuori dall'overlay.</p>
+<h3>11.6 Selezione multipla e inject di gruppo</h3>
+<ul>
+<li>Checkbox per ogni chunk (accent-color <code>#0a84ff</code>).</li>
+<li>Pulsanti <strong>All</strong> / <strong>None</strong> per selezione rapida.</li>
+<li>Il footer mostra "N selected".</li>
+<li>"Inject into Editor" è disabilitato finché almeno un chunk non è selezionato.</li>
+<li>L'inject di gruppo concatena i contenuti con <code>\n</code> e li assegna tramite <code>summernote('code', current + html)</code>.</li>
+</ul>
+<hr />
+<h2 id="12-idb-bridge--comunicazione-postmessage-con-il-parent">12. IDB Bridge — comunicazione postMessage con il parent</h2>
+<h3>12.1 Il problema</h3>
+<p>Il contesto <code>blob:null</code> (finestre aperte con Blob URL) in Chrome desktop ha restrizioni su IndexedDB che causano un <code>SecurityError</code>. È quindi impossibile accedere direttamente a <code>noesisDB</code> dall'editor.</p>
+<h3>12.2 Architettura del bridge</h3>
+<p><strong>Lato sn56.x (child)</strong> — <code>_idbPost(op, payload)</code>:</p>
+<pre><code class="language-javascript">function _idbPost(op, payload) {
+  return new Promise(function(resolve, reject) {
+    var target = window.opener || window.parent;
+    if (!target || target === window) { reject(new Error('No opener/parent')); return; }
+    var id = ++_idbCallbackId;
+    _idbCallbacks[id] = { resolve, reject };
+    target.postMessage({ __noesisIDB: true, id: id, op: op, payload: payload }, '*');
+    setTimeout(function() {
+      if (_idbCallbacks[id]) { delete _idbCallbacks[id]; reject(new Error('IDB timeout')); }
+    }, 8000);
+  });
+}
+</code></pre>
+<p><strong>Lato noesis810.html (parent)</strong> — handler <code>message</code>:</p>
+<pre><code class="language-javascript">window.addEventListener('message', function(e) {
+  var d = e.data;
+  if (!d || !d.__noesisIDB) return;
+  var { id, op, payload } = d;
+  function reply(result, error) {
+    try { e.source.postMessage({ __noesisIDBResponse: true, id, result: result || null, error: error || null }, '*'); }
+    catch(err) {}
+  }
+  if (op === 'get') {
+    getExtractedChapterFromDB(payload.chapterId).then(r => reply(r)).catch(err => reply(null, err.message));
+  } else if (op === 'put') {
+    saveExtractedChapterToDB(payload.record).then(r => reply(r)).catch(err => reply(null, err.message));
+  } else {
+    reply(null, 'Unknown op: ' + op);
+  }
+});
+</code></pre>
+<h3>12.3 Operazioni supportate</h3>
+<table>
+<thead>
+<tr>
+<th>Operazione</th>
+<th>Payload</th>
+<th>Descrizione</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>get</code></td>
+<td><code>{ chapterId: "ch_…" }</code></td>
+<td>Recupera un chapterRecord da noesisDB</td>
+</tr>
+<tr>
+<td><code>put</code></td>
+<td><code>{ record: {...} }</code></td>
+<td>Salva/aggiorna un chapterRecord in noesisDB</td>
+</tr>
+</tbody>
+</table>
+<h3>12.4 Timeout e gestione errori</h3>
+<p>Il bridge ha un timeout di <strong>8 secondi</strong>. Se entro 8s non arriva risposta, la Promise viene rifiettata con <code>Error('IDB timeout')</code>. In tal caso l'editor mostra il toast di warning e il save va solo su filesystem.</p>
+<hr />
+<h2 id="13-strutture-dati-in-memoria-e-in-indexeddb">13. Strutture dati in memoria e in IndexedDB</h2>
+<h3>13.1 Database <code>noesisDB</code> (IndexedDB)</h3>
+<ul>
+<li><strong>Nome:</strong> <code>noesisDB</code></li>
+<li><strong>Versione:</strong> 1</li>
+<li><strong>Object store:</strong> <code>extractedChapters</code>
+<ul>
+<li><strong>keyPath:</strong> <code>chapterId</code></li>
+<li><strong>Indici:</strong> <code>bookName</code> (non unique), <code>chapterName</code> (non unique)</li>
+</ul>
+</li>
+</ul>
+<h3>13.2 <code>chapterRecord</code> (la struttura in IDB)</h3>
+<pre><code class="language-javascript">{
+  chapterId:   "ch_1711530000000_987654",   // chiave primaria, generata all'estrazione
+  bookName:    "Ulysses",
+  chapterName: "Proteus",
+  createdAt:   "2026-03-27T14:25:30.000Z",  // ISO 8601
+
+  snapshots: [
+    // Snapshot più recente per primo (eccetto isOrigin che è in fondo)
+    {
+      snapshotId:  "snap_1711530000001_111222",
+      createdAt:   "2026-03-27T15:00:00.000Z",
+      bookName:    "Ulysses",          // ridondante ma utile
+      chapterName: "Proteus",
+      description: "annot-20260327-150000-primaLettura",
+      isOrigin:    false,              // assente o false per snapshot normali
+      content:     "&lt;p&gt;HTML…&lt;/p&gt;"
+    },
+    {
+      snapshotId:  "snap_1711530000002_333444",
+      description: "clean-20260327-150000-primaLettura",
+      isOrigin:    false,
+      content:     "&lt;p&gt;HTML senza background…&lt;/p&gt;"
+    },
+    {
+      snapshotId:  "snap_1711530000000_000001",
+      description: "origin-20260327_142530",
+      isOrigin:    true,               // snapshot automatico all'estrazione
+      content:     "&lt;p&gt;HTML originale non modificato…&lt;/p&gt;"
+    }
+  ]
+}
+</code></pre>
+<h3>13.3 Ordine di visualizzazione degli snapshot nella Library</h3>
+<p>L'ordinamento applicato in <code>_openExtractedEnv</code> e nella Library è:</p>
+<ol>
+<li>Snapshot con <code>isOrigin: false</code> prima (più recenti in cima per data).</li>
+<li>Snapshot con <code>isOrigin: true</code> in fondo (snapshot originale all'estrazione).</li>
+</ol>
+<p>Nella Library, l'ultimo snapshot in ordine (primo nell'array dopo l'ordinamento) è contrassegnato con la classe CSS <code>latest</code> e un punto verde.</p>
+<h3>13.4 Database <code>EpubLibraryDB</code> (IndexedDB)</h3>
+<ul>
+<li><strong>Nome:</strong> <code>EpubLibraryDB</code></li>
+<li><strong>Versione:</strong> 1</li>
+<li><strong>Object store:</strong> <code>books</code>
+<ul>
+<li><strong>keyPath:</strong> <code>id</code> (timestamp string)</li>
+<li>Nessun indice</li>
+</ul>
+</li>
+</ul>
+<p><strong>Struttura record libro:</strong></p>
+<pre><code class="language-javascript">{
+  id:       "1711530000000",         // Date.now().toString()
+  title:    "Ulysses",
+  author:   "James Joyce",
+  data:     ArrayBuffer,             // file EPUB grezzo
+  cover:    "data:image/jpeg;base64,…",  // copertina in base64
+  addedAt:  1711530000000
+}
+</code></pre>
+<h3>13.5 Variabili globali sn56.x</h3>
+<pre><code class="language-javascript">var _collection  = [];         // Array chunks in memoria
+var _bookName    = '';         // Nome libro corrente
+var _chapterName = '';         // Nome capitolo corrente
+var _chapterId   = '';         // ID univoco del capitolo in IDB
+var _mode        = 'standalone'; // 'chapter' | 'standalone'
+var _toastShown  = false;      // guard per toast one-time
+
+var _selectedImg   = null;     // Ultima immagine tracciata da mousedown
+var _selectedTable = null;     // Ultima tabella tracciata da mousedown
+
+var _inspectSelected = {};     // { chunkId: boolean } selezioni nel panel
+var _savedRange = null;        // Range Summernote salvato prima di Inspect
+
+var _idbCallbacks  = {};       // Callback pending per IDB bridge
+var _idbCallbackId = 0;        // Counter per ID messaggi IDB bridge
+</code></pre>
+<hr />
+<h2 id="14-workflow-completo--dalla-library-alleditor-e-ritorno">14. Workflow completo — dalla Library all'editor e ritorno</h2>
+<h3>14.1 Workflow tipico di studio (percorso Reader)</h3>
+<pre><code>1. Library: clic sulla copertina del libro
+      ↓
+2. Reader: lettura del testo con epub.js
+      ↓
+3. Reader: clic "Extract" → scelta tipo estrazione
+      ↓
+4. Automaticamente (in parallelo):
+   a) noesisDB: scritto chapterRecord con snapshot "origin-..."
+   b) Download: noesis-extract-…html (leggibile offline)
+   c) Download: noesis-origin-…html (con meta tag, 1.5s ritardo)
+   d) nuova tab: sn56.x aperto con payload chapter
+      ↓
+5. Editor: lavoro di annotazione (WYSIWYG Summernote)
+   - Highlight testo con colori
+   - Aggiunte note, commenti
+   - Raccolta chunks nella collezione
+      ↓
+6. Editor: clic Save
+   a) Prompt etichetta opzionale
+   b) Download: noesis-clean-…html
+   c) Download: noesis-annot-…html
+   d) IDB bridge: salva snapshots clean + annot in noesisDB
+      ↓
+7. Library (dopo reload): il capitolo mostra N snapshots
+   - snap "annot-…" (il più recente, punto verde)
+   - snap "clean-…"
+   - snap "origin-…" (in fondo, origine della sessione)
+      ↓
+8. Ritorno al lavoro: clic su snap nella Library
+   → _openExtractedEnv() → _openSn56() con payload del snap
+</code></pre>
+<h3>14.2 Workflow standalone</h3>
+<pre><code>1. Library: clic "Open Editor"
+      ↓
+2. sn56.x si apre vuoto (mode: standalone)
+      ↓
+3. Import dialog: importa file HTML da disco
+   - Se file ha meta tag noesis-*: contesto ricostruito automaticamente
+   - Altrimenti: prompt per bookName e chapterName
+      ↓
+4. Lavoro nell'editor
+      ↓
+5. Save: produce clean + annot
+   - Se _chapterId è stato estratto dai meta tag: anche IDB
+   - Altrimenti: solo filesystem
+</code></pre>
+<hr />
+<h2 id="15-import-di-snapshot-da-disco-nella-library">15. Import di snapshot da disco nella Library</h2>
+<p>Il sistema <strong>Import Snapshots</strong> (<code>#importSnapshotsBtn</code> nella Library) permette di reimportare file HTML salvati su disco in <code>noesisDB</code>, ricostruendo la struttura della Library.</p>
+<h3>15.1 File accettati</h3>
+<p>Il filtro regex sui nomi file è:</p>
+<pre><code>/^noesis-(clean|annot|origin)-.*\.html?$/i
+</code></pre>
+<p>Sono quindi accettati: <code>noesis-clean-…html</code>, <code>noesis-annot-…html</code>, <code>noesis-origin-…html</code>.</p>
+<h3>15.2 Metodo di selezione file</h3>
+<ul>
+<li><strong>Desktop Chrome/Edge</strong> (con <code>window.showDirectoryPicker</code>): apre un <strong>folder picker</strong> che scansiona tutti i file della cartella.</li>
+<li><strong>Android / Safari</strong> (senza <code>showDirectoryPicker</code>): apre il file picker standard (<code>#importSnapshotsInput</code>, <code>multiple</code>).</li>
+</ul>
+<h3>15.3 Logica di processing (<code>_processSnapshotFiles</code>)</h3>
+<p>Per ogni file:</p>
+<ol>
+<li><strong>Parsing HTML:</strong> usa <code>DOMParser</code> per estrarre meta tag <code>noesis-chapter-id</code>, <code>noesis-book-name</code>, <code>noesis-chapter-name</code>, <code>noesis-snapshot-variant</code>.</li>
+<li><strong>Estrazione timestamp dal nome file:</strong> regex <code>noesis-{tipo}-{book}__{ch}__{YYYYMMDD_HHMMSS}[_{custom}].html</code>.</li>
+<li><strong>Costruzione snapshot object</strong> con <code>snapshotId</code> nuovo (non riusa quello originale, per evitare conflitti).</li>
+<li><strong>Match su chapterRecord esistente:</strong>
+<ul>
+<li>Prima per <code>chapterId</code> (match esatto).</li>
+<li>Fallback: match case-insensitive su <code>bookName + chapterName</code>.</li>
+</ul>
+</li>
+<li><strong>Se record trovato:</strong> aggiunge snapshot (se non già presente per description). Origin va in fondo, altri in cima.</li>
+<li><strong>Se record non trovato:</strong> crea nuovo <code>chapterRecord</code> con il file come primo snapshot.</li>
+<li><strong>Deduplicazione:</strong> non importa snapshot con <code>description</code> identica a uno già presente.</li>
+</ol>
+<h3>15.4 Lo snapshot "origin"</h3>
+<p>Il file <code>noesis-origin-…html</code> è lo snapshot automatico generato al momento dell'estrazione. È contrassegnato con <code>isOrigin: true</code> nell'IDB. È sempre posizionato in fondo alla lista e serve come punto di partenza immutabile del testo originale (prima di qualsiasi annotazione).</p>
+<hr />
+<h2 id="16-sistema-di-naming-dei-file">16. Sistema di naming dei file</h2>
+<h3>16.1 Funzioni di costruzione nome</h3>
+<p><strong><code>_buildTimestamp()</code>:</strong></p>
+<pre><code>YYYYMMDD_HHMMSS  (es: 20260327_142530)
+</code></pre>
+<p><strong><code>_buildFileBase(tipo, custom)</code>:</strong></p>
+<pre><code>noesis-{tipo}-{bookSlug}__{chapterSlug}__{timestamp}[_{custom}]
+</code></pre>
+<ul>
+<li><code>bookSlug</code>: max 40 caratteri, solo <code>[a-zA-Z0-9_]</code></li>
+<li><code>chapterSlug</code>: max 40 caratteri, solo <code>[a-zA-Z0-9_]</code></li>
+<li><code>custom</code>: opzionale, solo <code>[a-zA-Z0-9_\-]</code></li>
+</ul>
+<h3>16.2 Tipi di file per categoria</h3>
+<table>
+<thead>
+<tr>
+<th>Tipo</th>
+<th>Suffisso</th>
+<th>Contesto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>clean</code></td>
+<td><code>.html</code></td>
+<td>Chapter export — versione senza background</td>
+</tr>
+<tr>
+<td><code>annot</code></td>
+<td><code>.html</code></td>
+<td>Chapter export — versione annotata</td>
+</tr>
+<tr>
+<td><code>extract</code></td>
+<td><code>.html</code></td>
+<td>Estrazione automatica dal Reader (no meta)</td>
+</tr>
+<tr>
+<td><code>origin</code></td>
+<td><code>.html</code></td>
+<td>Estrazione automatica dal Reader (con meta)</td>
+</tr>
+<tr>
+<td><code>text</code></td>
+<td><code>.txt</code></td>
+<td>Chapter export TXT</td>
+</tr>
+<tr>
+<td><code>markdown</code></td>
+<td><code>.md</code></td>
+<td>Chapter export Markdown</td>
+</tr>
+<tr>
+<td><code>mdzip</code></td>
+<td><code>.zip</code></td>
+<td>Chapter export MD + immagini</td>
+</tr>
+<tr>
+<td><code>jsondoc</code></td>
+<td><code>.json</code></td>
+<td>Chapter export JSON</td>
+</tr>
+<tr>
+<td><code>docx</code></td>
+<td><code>.docx</code></td>
+<td>Chapter export DOCX</td>
+</tr>
+<tr>
+<td><code>collection</code></td>
+<td><code>.json</code></td>
+<td>Collection export JSON</td>
+</tr>
+<tr>
+<td><code>colmd</code></td>
+<td><code>.md</code></td>
+<td>Collection export Markdown</td>
+</tr>
+<tr>
+<td><code>colzip</code></td>
+<td><code>.zip</code></td>
+<td>Collection export MD + immagini</td>
+</tr>
+<tr>
+<td><code>colhtml</code></td>
+<td><code>.html</code></td>
+<td>Collection export HTML</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="17-dipendenze-esterne">17. Dipendenze esterne</h2>
+<h3>17.1 Incluse via CDN (caricate dinamicamente all'avvio di sn56.x)</h3>
+<table>
+<thead>
+<tr>
+<th>Libreria</th>
+<th>Versione</th>
+<th>URL</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>jQuery</td>
+<td>3.7.1</td>
+<td><code>code.jquery.com</code></td>
+<td>Base per Summernote</td>
+</tr>
+<tr>
+<td>Summernote-lite</td>
+<td>0.9.1</td>
+<td><code>cdn.jsdelivr.net/npm/summernote@0.9.1</code></td>
+<td>Editor WYSIWYG</td>
+</tr>
+<tr>
+<td>Bootstrap Icons</td>
+<td>1.11.3</td>
+<td><code>cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3</code></td>
+<td>Icone UI (condivisa con noesis810)</td>
+</tr>
+<tr>
+<td>TurndownService</td>
+<td>latest</td>
+<td><code>cdn.jsdelivr.net/npm/turndown</code></td>
+<td>HTML→Markdown</td>
+</tr>
+<tr>
+<td>JSZip</td>
+<td>latest</td>
+<td><code>cdn.jsdelivr.net/npm/jszip@latest</code></td>
+<td>Generazione ZIP</td>
+</tr>
+<tr>
+<td>html-docx-js</td>
+<td>latest</td>
+<td><code>cdn.jsdelivr.net/npm/html-docx-js</code></td>
+<td>Esportazione DOCX</td>
+</tr>
+</tbody>
+</table>
+<h3>17.2 Incluse in noesis810.html (usate anche dal Reader)</h3>
+<table>
+<thead>
+<tr>
+<th>Libreria</th>
+<th>Versione</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JSZip</td>
+<td>3.10.1</td>
+<td>Già presente nel parent</td>
+</tr>
+<tr>
+<td>epub.js</td>
+<td>0.3.93</td>
+<td>Reader EPUB</td>
+</tr>
+<tr>
+<td>Bootstrap Icons</td>
+<td>1.11.3</td>
+<td>Icone Library e Reader</td>
+</tr>
+</tbody>
+</table>
+<h3>17.3 Strumento opzionale integrato (Tools section)</h3>
+<table>
+<thead>
+<tr>
+<th>Strumento</th>
+<th>URL</th>
+<th>Descrizione</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Noesis Excalidraw</td>
+<td><code>noesis-excalidraw.vercel.app</code></td>
+<td>Fork di Excalidraw per diagrammi e mappe mentali</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Fine documentazione — noesis-editor-sn56-documentation.md</em></p>
+  </div>
+</div>
+<script src="approfondimenti.js"></script>
+</body>
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ePub Slimmer - Batch Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .progress-bar-transition { transition: width 0.2s ease-out; }
+        .file-list-enter { animation: slideIn 0.3s ease-out forwards; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@19.0.0",
+        "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+        "lucide-react": "https://esm.sh/lucide-react@0.454.0",
+        "jszip": "https://esm.sh/jszip@3.10.1"
+      }
+    }
+    </script>
+
+    <script type="module">
+        import React, { useState, useRef, useEffect } from 'react';
+        import ReactDOM from 'react-dom/client';
+        import JSZip from 'jszip';
+        import { 
+            FileArchive, Upload, Settings2, CheckCircle2, 
+            Download, AlertCircle, FileText, Zap, RefreshCw, 
+            Rocket, Trash2, Clock, Loader2, Check
+        } from 'lucide-react';
+
+        // --- Logica di Compressione Core ---
+        const compressImage = async (blob, quality, path) => {
+            const extension = path.split('.').pop().toLowerCase();
+            const isPng = extension === 'png';
+            
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                const url = URL.createObjectURL(blob);
+
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) return reject('Canvas error');
+
+                    ctx.drawImage(img, 0, 0);
+                    const mimeType = isPng ? 'image/png' : 'image/jpeg';
+                    
+                    canvas.toBlob((resultBlob) => {
+                        URL.revokeObjectURL(url);
+                        resolve(resultBlob);
+                    }, mimeType, quality / 100);
+                };
+                img.onerror = () => {
+                    URL.revokeObjectURL(url);
+                    reject('Image load error');
+                };
+                img.src = url;
+            });
+        };
+
+        const App = () => {
+            const [queue, setQueue] = useState([]);
+            const [quality, setQuality] = useState(60);
+            const [isProcessing, setIsProcessing] = useState(false);
+            const [globalProgress, setGlobalProgress] = useState({ current: 0, total: 0 });
+            const [error, setError] = useState(null);
+            const fileInputRef = useRef(null);
+
+            const handleFiles = (e) => {
+                const selectedFiles = Array.from(e.target.files).filter(f => f.name.toLowerCase().endsWith('.epub'));
+                
+                if (selectedFiles.length + queue.length > 10) {
+                    setError("Puoi caricare un massimo di 10 file contemporaneamente.");
+                    return;
+                }
+
+                const newItems = selectedFiles.map(f => ({
+                    id: Math.random().toString(36).substr(2, 9),
+                    file: f,
+                    status: 'pending', // pending, processing, done, error
+                    progress: 0,
+                    result: null,
+                    error: null
+                }));
+
+                setQueue(prev => [...prev, ...newItems]);
+                setError(null);
+                if (fileInputRef.current) fileInputRef.current.value = '';
+            };
+
+            const removeFile = (id) => {
+                if (isProcessing) return;
+                setQueue(prev => prev.filter(item => item.id !== id));
+            };
+
+            const processBatch = async () => {
+                const pendingItems = queue.filter(item => item.status === 'pending');
+                if (pendingItems.length === 0) return;
+
+                setIsProcessing(true);
+                setGlobalProgress({ current: 0, total: pendingItems.length });
+
+                for (let i = 0; i < pendingItems.length; i++) {
+                    const item = pendingItems[i];
+                    setGlobalProgress(prev => ({ ...prev, current: i + 1 }));
+                    
+                    // Aggiorna stato a processing
+                    updateItem(item.id, { status: 'processing' });
+
+                    try {
+                        const zip = await JSZip.loadAsync(item.file);
+                        const imagePaths = [];
+                        
+                        zip.forEach((path) => {
+                            const low = path.toLowerCase();
+                            if (low.endsWith('.jpg') || low.endsWith('.jpeg') || low.endsWith('.png') || low.endsWith('.webp')) {
+                                imagePaths.push(path);
+                            }
+                        });
+
+                        if (imagePaths.length > 0) {
+                            // Compressione immagini parallela (4 alla volta) per ogni libro
+                            const CONCURRENCY = 4;
+                            for (let j = 0; j < imagePaths.length; j += CONCURRENCY) {
+                                const chunk = imagePaths.slice(j, j + CONCURRENCY);
+                                await Promise.all(chunk.map(async (path) => {
+                                    const imgData = await zip.file(path).async('blob');
+                                    const compressedBlob = await compressImage(imgData, quality, path);
+                                    zip.file(path, compressedBlob);
+                                }));
+                                const itemProgress = Math.round(((j + chunk.length) / imagePaths.length) * 100);
+                                updateItem(item.id, { progress: itemProgress });
+                            }
+                        }
+
+                        // Generazione ZIP finale veloce
+                        const outBlob = await zip.generateAsync({ 
+                            type: 'blob', 
+                            compression: 'DEFLATE',
+                            compressionOptions: { level: 1 },
+                            mimeType: 'application/epub+zip'
+                        });
+
+                        const result = {
+                            blob: outBlob,
+                            name: item.file.name.replace(/\.epub$/i, '') + '_slim.epub',
+                            originalSize: item.file.size,
+                            newSize: outBlob.size,
+                            saved: Math.round(((item.file.size - outBlob.size) / item.file.size) * 100)
+                        };
+
+                        updateItem(item.id, { status: 'done', result, progress: 100 });
+                        
+                        // Auto-download al termine di ogni file
+                        triggerDownload(result);
+
+                    } catch (err) {
+                        updateItem(item.id, { status: 'error', error: err.message });
+                    }
+                }
+
+                setIsProcessing(false);
+            };
+
+            const updateItem = (id, updates) => {
+                setQueue(prev => prev.map(item => item.id === id ? { ...item, ...updates } : item));
+            };
+
+            const triggerDownload = (result) => {
+                const url = URL.createObjectURL(result.blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = result.name;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 100);
+            };
+
+            const formatSize = (b) => (b / 1024 / 1024).toFixed(2) + ' MB';
+
+            return React.createElement('div', { className: 'min-h-screen p-4 md:p-8 flex items-start justify-center' },
+                React.createElement('div', { className: 'max-w-3xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 mb-10' },
+                    // Header
+                    React.createElement('div', { className: 'bg-gradient-to-br from-indigo-600 to-blue-700 p-8 text-white relative overflow-hidden' },
+                        React.createElement(Rocket, { size: 120, className: 'absolute -right-8 -bottom-8 text-white opacity-10 rotate-12' }),
+                        React.createElement('div', { className: 'flex items-center gap-4 mb-2' },
+                            React.createElement(FileArchive, { size: 40, className: 'text-blue-200' }),
+                            React.createElement('h1', { className: 'text-3xl font-extrabold tracking-tight' }, 'ePub Slimmer Batch')
+                        ),
+                        React.createElement('p', { className: 'text-blue-100 opacity-90' }, 'Ottimizza fino a 10 libri contemporaneamente con download automatico.')
+                    ),
+
+                    React.createElement('div', { className: 'p-8' },
+                        // Dropzone (Attiva solo se non sta processando o se c'è spazio nella coda)
+                        !isProcessing && queue.length < 10 && React.createElement('div', { 
+                            onClick: () => fileInputRef.current.click(),
+                            className: 'border-4 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer transition-all border-slate-200 hover:border-blue-400 hover:bg-slate-50 mb-8'
+                        },
+                            React.createElement('input', { 
+                                type: 'file', accept: '.epub', multiple: true, 
+                                className: 'hidden', ref: fileInputRef, onChange: handleFiles 
+                            }),
+                            React.createElement(Upload, { size: 40, className: 'text-slate-300' }),
+                            React.createElement('h2', { className: 'mt-2 text-lg font-bold text-slate-700' }, 'Aggiungi file ePub'),
+                            React.createElement('p', { className: 'text-slate-400 text-sm' }, `Trascina qui i tuoi libri (Max 10). Attualmente: ${queue.length}/10`)
+                        ),
+
+                        // Queue List
+                        queue.length > 0 && React.createElement('div', { className: 'space-y-3 mb-8' },
+                            React.createElement('div', { className: 'flex justify-between items-center mb-4' },
+                                React.createElement('h3', { className: 'font-bold text-slate-700 uppercase text-xs tracking-wider' }, 'Coda di elaborazione'),
+                                isProcessing && React.createElement('span', { className: 'text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded' }, 
+                                    `Libro ${globalProgress.current} di ${globalProgress.total}`
+                                )
+                            ),
+                            queue.map((item) => React.createElement('div', { 
+                                key: item.id, 
+                                className: `file-list-enter p-4 rounded-2xl border flex items-center gap-4 transition-all ${
+                                    item.status === 'processing' ? 'border-blue-200 bg-blue-50/50 shadow-sm' : 
+                                    item.status === 'done' ? 'border-emerald-100 bg-emerald-50/30' : 
+                                    'border-slate-100 bg-white'
+                                }`
+                            },
+                                React.createElement('div', { className: 'p-3 rounded-xl bg-slate-100 text-slate-500 shrink-0' },
+                                    item.status === 'processing' ? React.createElement(Loader2, { className: 'animate-spin text-blue-600' }) :
+                                    item.status === 'done' ? React.createElement(Check, { className: 'text-emerald-600' }) :
+                                    item.status === 'error' ? React.createElement(AlertCircle, { className: 'text-red-500' }) :
+                                    React.createElement(Clock, { size: 20 })
+                                ),
+                                React.createElement('div', { className: 'flex-1 min-w-0' },
+                                    React.createElement('div', { className: 'flex justify-between items-start' },
+                                        React.createElement('h4', { className: 'font-bold text-slate-800 truncate text-sm' }, item.file.name),
+                                        item.status === 'done' && React.createElement('span', { className: 'text-[10px] font-black text-emerald-600' }, `-${item.result.saved}%`)
+                                    ),
+                                    React.createElement('div', { className: 'flex items-center gap-3 mt-1' },
+                                        React.createElement('span', { className: 'text-xs text-slate-400' }, formatSize(item.file.size)),
+                                        item.status === 'processing' && React.createElement('div', { className: 'flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden' },
+                                            React.createElement('div', { 
+                                                className: 'bg-blue-600 h-full progress-bar-transition', 
+                                                style: { width: item.progress + '%' } 
+                                            })
+                                        )
+                                    )
+                                ),
+                                !isProcessing && item.status !== 'done' && React.createElement('button', { 
+                                    onClick: () => removeFile(item.id),
+                                    className: 'p-2 text-slate-300 hover:text-red-500 transition-colors'
+                                }, React.createElement(Trash2, { size: 18 }))
+                            ))
+                        ),
+
+                        // Controls
+                        queue.length > 0 && !isProcessing && queue.some(i => i.status === 'pending') && React.createElement('div', { className: 'bg-slate-50 p-6 rounded-3xl border border-slate-100' },
+                            React.createElement('div', { className: 'flex items-center gap-2 mb-4 text-slate-800' },
+                                React.createElement(Settings2, { size: 20 }),
+                                React.createElement('span', { className: 'font-bold' }, 'Qualità per tutti i file')
+                            ),
+                            React.createElement('input', { 
+                                type: 'range', min: 10, max: 80, value: quality, 
+                                onChange: (e) => setQuality(e.target.value),
+                                className: 'w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer mb-2'
+                            }),
+                            React.createElement('div', { className: 'flex justify-between text-xs font-bold text-blue-600' },
+                                React.createElement('span', null, 'PIÙ LEGGERO'),
+                                React.createElement('span', { className: 'text-lg bg-blue-100 px-3 py-1 rounded-full' }, quality + '%'),
+                                React.createElement('span', null, 'QUALITÀ ALTA')
+                            ),
+                            React.createElement('button', { 
+                                onClick: processBatch,
+                                className: 'mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-5 rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2'
+                            }, React.createElement(Zap, { size: 24 }), 'AVVIA COMPRESSIONE BATCH')
+                        ),
+
+                        // Error Global
+                        error && React.createElement('div', { className: 'mt-4 p-4 bg-red-50 border border-red-100 text-red-700 rounded-xl flex items-center gap-3 font-medium' },
+                            React.createElement(AlertCircle, { size: 20 }),
+                            React.createElement('span', null, error)
+                        ),
+
+                        // Reset when all done
+                        !isProcessing && queue.length > 0 && queue.every(i => i.status === 'done' || i.status === 'error') && React.createElement('button', {
+                            onClick: () => setQueue([]),
+                            className: 'mt-4 w-full py-4 text-slate-400 hover:text-slate-600 font-bold transition-all'
+                        }, 'Pulisci coda e ricomincia')
+                    ),
+
+                    React.createElement('div', { className: 'bg-slate-50 p-6 border-t border-slate-100 text-center text-slate-400 text-[10px] font-bold uppercase tracking-widest' },
+                        'Lavorazione Sequenziale per Risparmio RAM • 100% Privacy • Fast Image Engine'
+                    )
+                )
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(React.createElement(App));
+    </script>
+</body>
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notes &amp; Changelog — Noesis</title>
+  <meta name="description" data-i18n-content="notes.meta.desc" content="Version changelog, known issues and usage tips for Noesis EPUB Reader.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="approfondimenti.css">
+  <style>
+    .changelog-entry { border-left: 3px solid var(--border); padding: 0 0 32px 24px; margin-bottom: 0; position: relative; }
+    .changelog-entry::before { content: ''; width: 12px; height: 12px; border-radius: 50%; background: var(--border); position: absolute; left: -7px; top: 6px; }
+    .changelog-entry.current { border-left-color: var(--violet); }
+    .changelog-entry.current::before { background: var(--violet); }
+    .changelog-version { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .changelog-v { font-size: 18px; font-weight: 800; color: var(--text); }
+    .changelog-date { font-size: 13px; color: var(--text-muted); }
+    .changelog-list { list-style: none; }
+    .changelog-list li { padding: 5px 0; font-size: 14px; color: var(--text-muted); display: flex; gap: 10px; }
+    .changelog-list li::before { content: '+'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+    .changelog-list li.fix::before { content: '✓'; color: var(--indigo); }
+    .changelog-list li.change::before { content: '~'; color: #f59e0b; }
+    .issue-card { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 16px; display: flex; gap: 16px; align-items: flex-start; }
+    .issue-status { flex-shrink: 0; }
+    .issue-body h4 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+    .issue-body p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">📚 <span>Noesis</span></a>
+    <button class="lang-toggle-btn" id="lang-toggle" onclick="window.noesisI18n.toggleLang()" title="Switch to Italian">🇮🇹 IT</button>
+    <button class="nav-toggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links">
+      <a href="index.html" data-i18n="nav.home">Home</a><a href="guida.html" data-i18n="nav.guide">Quick Guide</a><a href="library.html" data-i18n="nav.library">Library</a><a href="navigation.html" data-i18n="nav.reading">Reading</a><a href="htmleditor.html" data-i18n="nav.editor">Editor</a><a href="snapshot.html" data-i18n="nav.snapshot">Snapshot</a><a href="collezioni.html" data-i18n="nav.collections">Collections</a><a href="helpers.html" data-i18n="nav.helpers">Helpers</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="note.html" data-i18n="nav.notes">Notes</a>
+      <div class="nav-dropdown">
+        <a href="approfondimenti.html" data-i18n="nav.deepdives">Deep Dives</a>
+        <div class="nav-dropdown-menu">
+          <span class="dm-label" data-i18n="nav.dm.docs">Documentation</span>
+          <a href="doc-readme.html" data-i18n="nav.dm.readme">📚 README — Overview</a>
+          <a href="doc-ui.html" data-i18n="nav.dm.ui">🖥️ UI — Button Reference</a>
+          <a href="doc-workflow.html" data-i18n="nav.dm.workflow">🔄 Workflow — Usage Flows</a>
+          <a href="doc-tech.html" data-i18n="nav.dm.tech">⚙️ Technical Architecture</a>
+          <a href="doc-library-tech.html" data-i18n="nav.dm.libtech">📚 Technical Doc — Library</a>
+          <a href="doc-reader-tech.html" data-i18n="nav.dm.readtech">📖 Technical Doc — Reader</a>
+          <a href="doc-editor-tech.html" data-i18n="nav.dm.edtech">✏️ Technical Doc — Editor</a>
+          <a href="doc-full-embedding.html" data-i18n="nav.dm.fullembedding">📦 Full Version — Embedding</a>
+          <span class="dm-label" data-i18n="nav.dm.project">Project</span>
+          <a href="doc-adv.html" data-i18n="nav.dm.adv">🌟 Positioning</a>
+          <a href="doc-legal.html" data-i18n="nav.dm.legal">⚖️ Legal Analysis</a>
+          <a href="promo.html" data-i18n="nav.dm.promo">🚀 Presentation</a>
+        </div>
+      </div>
+      <a href="index.html#download" class="nav-cta" data-i18n="nav.download">⬇ Download</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge" data-i18n="notes.hero.badge">Version notes</div>
+  <h1 data-i18n="notes.hero.h1">Changelog, <em>Limits</em> and Tips</h1>
+  <p data-i18n="notes.hero.p">Version history, known issues and suggestions for getting the most out of Noesis.</p>
+</section>
+
+<div class="container">
+
+  <!-- CHANGELOG -->
+  <div class="section" style="border-top:none;padding-top:0;">
+    <div class="section-label" data-i18n="notes.changelog.label">Changelog</div>
+    <h2 class="section-title" data-i18n="notes.changelog.h2">Version <em>history</em></h2>
+
+    <div style="margin-top: 32px;">
+
+      <div class="changelog-entry current">
+        <div class="changelog-version">
+          <span class="changelog-v">v810</span>
+          <span class="badge badge-violet" data-i18n="notes.v810.current">Current</span>
+          <span class="changelog-date" data-i18n="notes.v810.date">March 2026</span>
+        </div>
+        <ul class="changelog-list">
+          <li data-i18n="notes.v810.li1">Excalidraw integrated in the editor — diagrams, flowcharts and mind maps in a dedicated tab</li>
+          <li data-i18n="notes.v810.li2">SVG and PNG export from Excalidraw, saved locally in the browser</li>
+          <li data-i18n="notes.v810.li3">Extract Chapter — 2-option menu: "Current chapter only" and "Current + all sublevels"</li>
+          <li data-i18n="notes.v810.li4">Pandoc Online available in the Library Tools dropdown — in-browser document conversions via pandoc.wasm</li>
+          <li data-i18n="notes.v810.li5">Expanded Help Overlay — full Button Reference for Library, Reader and Editor</li>
+          <li class="change" data-i18n="notes.v810.ch1">Snapshots migrated to local filesystem — real HTML files downloaded to disk, no longer in IndexedDB</li>
+          <li class="change" data-i18n="notes.v810.ch2">noesisDB keeps only metadata (ID, name, timestamp) to populate the Library</li>
+          <li class="change" data-i18n="notes.v810.ch3">Import Snapshots — reimport HTML files from disk into noesisDB with one click</li>
+        </ul>
+      </div>
+
+      <div class="changelog-entry">
+        <div class="changelog-version">
+          <span class="changelog-v">v703</span>
+          <span class="changelog-date" data-i18n="notes.v703.date">March 2026</span>
+        </div>
+        <ul class="changelog-list">
+          <li data-i18n="notes.v703.li1">Snapshot system — save, load and delete versions of the extracted chapter</li>
+          <li data-i18n="notes.v703.li2">noesisDB (IndexedDB) — dedicated database for extracted chapters and snapshots</li>
+          <li data-i18n="notes.v703.li3">Dark hierarchical library — book → extracted chapters → snapshots view</li>
+        </ul>
+      </div>
+
+      <div class="changelog-entry">
+        <div class="changelog-version">
+          <span class="changelog-v">v686</span>
+          <span class="changelog-date" data-i18n="notes.v686.date">February 2026</span>
+        </div>
+        <ul class="changelog-list">
+          <li data-i18n="notes.v686.li1">Complete Summernote Lite editor (sn56.x) replaces previous Quill-based editor</li>
+          <li data-i18n="notes.v686.li2">Excalidraw tab in dedicated editor tab</li>
+          <li data-i18n="notes.v686.li3">Full chunk collection system: text, images, tables</li>
+          <li data-i18n="notes.v686.li4">Multi-format export: PDF, DOCX, MD, MD+ZIP, HTML, JSON, TXT</li>
+        </ul>
+      </div>
+
+      <div class="changelog-entry">
+        <div class="changelog-version">
+          <span class="changelog-v">v652</span>
+          <span class="changelog-date" data-i18n="notes.v652.date">January 2026</span>
+        </div>
+        <ul class="changelog-list">
+          <li data-i18n="notes.v652.li1">3-colour highlighting with CFI persistence (yellow, green, pink)</li>
+          <li data-i18n="notes.v652.li2">Hierarchical chapter extraction — current chapter + all sublevels</li>
+          <li data-i18n="notes.v652.li3">Custom bookmarks with localStorage persistence</li>
+          <li data-i18n="notes.v652.li4">15 reading themes in 5 groups</li>
+        </ul>
+      </div>
+
+      <div class="changelog-entry">
+        <div class="changelog-version">
+          <span class="changelog-v">v646</span>
+          <span class="changelog-date" data-i18n="notes.v646.date">December 2025</span>
+        </div>
+        <ul class="changelog-list">
+          <li data-i18n="notes.v646.li1">Initial version — basic EPUB reader with epub.js</li>
+          <li data-i18n="notes.v646.li2">IndexedDB library (EpubLibraryDB)</li>
+          <li data-i18n="notes.v646.li3">Basic reading toolbar with sidebar TOC</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- KNOWN ISSUES -->
+  <div class="section">
+    <div class="section-label" data-i18n="notes.known.label">Known issues</div>
+    <h2 class="section-title" data-i18n="notes.known.h2">Limits and <em>workarounds</em></h2>
+
+    <div class="issue-card">
+      <div class="issue-status"><span class="badge badge-gray">OPEN</span></div>
+      <div class="issue-body">
+        <h4 data-i18n="notes.issue1.h">Android: File System Access API</h4>
+        <p data-i18n="notes.issue1.p">On some Android versions, the File System Access API for saving snapshots may ask for permission each time. This is a browser limitation, not a Noesis bug. Workaround: use the Desktop version for intensive snapshot work.</p>
+      </div>
+    </div>
+
+    <div class="issue-card">
+      <div class="issue-status"><span class="badge badge-gray">OPEN</span></div>
+      <div class="issue-body">
+        <h4 data-i18n="notes.issue2.h">Safari: IndexedDB limitations</h4>
+        <p data-i18n="notes.issue2.p">Safari imposes stricter storage limits for IndexedDB. Large EPUBs (&gt;50MB) may fail to import. Workaround: use ePub Slimmer first to reduce size, or switch to Chrome/Firefox.</p>
+      </div>
+    </div>
+
+    <div class="issue-card">
+      <div class="issue-status"><span class="badge badge-gray">OPEN</span></div>
+      <div class="issue-body">
+        <h4 data-i18n="notes.issue3.h">file:// protocol: CORS restrictions</h4>
+        <p data-i18n="notes.issue3.p">Opening Noesis directly with the <code>file://</code> protocol can cause CORS issues with some EPUBs. Workaround: use a local server (<code>python -m http.server 8000</code>).</p>
+      </div>
+    </div>
+
+    <div class="issue-card">
+      <div class="issue-status"><span class="badge badge-gray">OPEN</span></div>
+      <div class="issue-body">
+        <h4 data-i18n="notes.issue4.h">DOCX and complex Word formatting</h4>
+        <p data-i18n="notes.issue4.p">The DOCX generated by html-docx-js has basic OOXML formatting. Nested tables and very complex images may not render perfectly in Microsoft Word. Workaround: use PDF for delivery, DOCX for editing in LibreOffice/Google Docs.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRO TIPS -->
+  <div class="section">
+    <div class="section-label" data-i18n="notes.tips.label">Pro tips</div>
+    <h2 class="section-title" data-i18n="notes.tips.h2">Get the most from <em>Noesis</em></h2>
+
+    <div class="cards cards-2">
+      <div class="card accent">
+        <h3 data-i18n="notes.tip1.h">💡 Workflow tip: snapshot before editing</h3>
+        <p data-i18n="notes.tip1.p">Always save a snapshot before starting major editing or structural changes to a chapter. The 2-second investment protects against irreversible data loss.</p>
+      </div>
+      <div class="card accent">
+        <h3 data-i18n="notes.tip2.h">💡 Multilingual reading: highlights stay on the original</h3>
+        <p data-i18n="notes.tip2.p">Activate browser translation before reading a foreign text. Highlights are applied on the original text (CFI-based) and remain stable even when switching between original and translated view.</p>
+      </div>
+      <div class="card accent">
+        <h3 data-i18n="notes.tip3.h">💡 Large EPUBs: slim before importing</h3>
+        <p data-i18n="notes.tip3.p">If an EPUB has many high-resolution images (&gt;20MB), use ePub Slimmer before importing. Significantly reduces loading time and space in IndexedDB.</p>
+      </div>
+      <div class="card accent">
+        <h3 data-i18n="notes.tip4.h">💡 Export for CMS: use Copy HTML</h3>
+        <p data-i18n="notes.tip4.p">For WordPress, Ghost or Webflow, use the &lt;/&gt; Copy HTML button. The HTML is already clean with inline base64 images — paste directly into the CMS HTML block.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- LICENSE -->
+  <div class="section">
+    <div class="section-label" data-i18n="notes.license.label">License</div>
+    <h2 class="section-title" data-i18n="notes.license.h2">MIT License — <em>free to use</em></h2>
+    <p class="section-sub" data-i18n="notes.license.p">Noesis is open source software distributed under the MIT license.</p>
+    <div class="cards cards-2">
+      <div class="card accent">
+        <h3 data-i18n="notes.license.can.h">✅ What you can do</h3>
+        <p data-i18n="notes.license.can.p">Use Noesis for any purpose (personal or commercial) · Copy the HTML file · Modify the code · Distribute with the copyright notice · All free, no registration required</p>
+      </div>
+      <div class="card">
+        <h3 data-i18n="notes.license.req.h">📋 Only requirement</h3>
+        <p data-i18n="notes.license.req.p">Keep the original copyright notice in substantial copies or distributions of the software. For personal use, this requirement does not apply.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <a href="faq.html" data-i18n="notes.pagenav.prev">← FAQ</a>
+    <a href="approfondimenti.html" class="next" data-i18n="notes.pagenav.next">Deep Dives →</a>
+  </div>
+</div>
+
+<footer>
+  <p data-i18n="footer.license">MIT License · Vanilla JS · No Server · <strong>Noesis — Reading-to-Knowledge System</strong> · v810</p>
+  <p style="margin-top:8px;"><a href="index.html" data-i18n="footer.home">Home</a> · <a href="guida.html" data-i18n="footer.guide">Guide</a> · <a href="faq.html" data-i18n="footer.faq">FAQ</a> · <a href="note.html" data-i18n="footer.notes">Notes</a></p>
+</footer>
+<script src="translations.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

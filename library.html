@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Noesis Library — Noesis</title>
+  <meta name="description" data-i18n-content="library.meta.desc" content="Noesis Library: manage your EPUB library, browse the books-chapters-snapshots hierarchy and access Noesis Editor in standalone mode.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="approfondimenti.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">📚 <span>Noesis</span></a>
+    <button class="lang-toggle-btn" id="lang-toggle" onclick="window.noesisI18n.toggleLang()" title="Switch to Italian">🇮🇹 IT</button>
+    <button class="nav-toggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links">
+      <a href="index.html" data-i18n="nav.home">Home</a><a href="guida.html" data-i18n="nav.guide">Quick Guide</a><a href="library.html" data-i18n="nav.library">Library</a><a href="navigation.html" data-i18n="nav.reading">Reading</a><a href="htmleditor.html" data-i18n="nav.editor">Editor</a><a href="snapshot.html" data-i18n="nav.snapshot">Snapshot</a><a href="collezioni.html" data-i18n="nav.collections">Collections</a><a href="helpers.html" data-i18n="nav.helpers">Helpers</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="note.html" data-i18n="nav.notes">Notes</a>
+      <div class="nav-dropdown">
+        <a href="approfondimenti.html" data-i18n="nav.deepdives">Deep Dives</a>
+        <div class="nav-dropdown-menu">
+          <span class="dm-label" data-i18n="nav.dm.docs">Documentation</span>
+          <a href="doc-readme.html" data-i18n="nav.dm.readme">📚 README — Overview</a>
+          <a href="doc-ui.html" data-i18n="nav.dm.ui">🖥️ UI — Button Reference</a>
+          <a href="doc-workflow.html" data-i18n="nav.dm.workflow">🔄 Workflow — Usage Flows</a>
+          <a href="doc-tech.html" data-i18n="nav.dm.tech">⚙️ Technical Architecture</a>
+          <a href="doc-library-tech.html" data-i18n="nav.dm.libtech">📚 Technical Doc — Library</a>
+          <a href="doc-reader-tech.html" data-i18n="nav.dm.readtech">📖 Technical Doc — Reader</a>
+          <a href="doc-editor-tech.html" data-i18n="nav.dm.edtech">✏️ Technical Doc — Editor</a>
+          <a href="doc-full-embedding.html" data-i18n="nav.dm.fullembedding">📦 Full Version — Embedding</a>
+          <span class="dm-label" data-i18n="nav.dm.project">Project</span>
+          <a href="doc-adv.html" data-i18n="nav.dm.adv">🌟 Positioning</a>
+          <a href="doc-legal.html" data-i18n="nav.dm.legal">⚖️ Legal Analysis</a>
+          <a href="promo.html" data-i18n="nav.dm.promo">🚀 Presentation</a>
+        </div>
+      </div>
+      <a href="index.html#download" class="nav-cta" data-i18n="nav.download">⬇ Download</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge" data-i18n="library.hero.badge">Environment · Noesis Library</div>
+  <h1 data-i18n="library.hero.h1">Noesis Library — <em>your knowledge library</em></h1>
+  <p data-i18n="library.hero.p">The Noesis entry point. Manage your EPUB collection, browse the books → chapters → snapshots hierarchy, and access Noesis Editor directly from the library.</p>
+</section>
+
+<div class="container">
+
+  <!-- PANORAMICA -->
+  <div class="section" style="border-top:none;padding-top:0;">
+    <div class="section-label" data-i18n="library.overview.label">Overview</div>
+    <h2 class="section-title" data-i18n="library.overview.h2">A <em>hierarchical</em> archive</h2>
+    <p class="section-sub" data-i18n="library.overview.p">Noesis Library organises your knowledge on three levels: each <strong>book</strong> shows <strong>extracted chapters</strong>, and each chapter exposes its <strong>snapshots</strong> saved over time — all accessible with one click.</p>
+
+    <div class="cards">
+      <div class="card accent">
+        <span class="card-icon">📚</span>
+        <h3 data-i18n="library.card.books.h">Books</h3>
+        <p data-i18n="library.card.books.p">Each imported EPUB appears with cover, title, author and number of extracted chapters. Click the cover to open the book in <strong>Noesis Reading</strong>.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">📄</span>
+        <h3 data-i18n="library.card.chapters.h">Extracted chapters</h3>
+        <p data-i18n="library.card.chapters.p">Below each book appear the chapters you have extracted. Click on the chapter name to open the most recent snapshot directly in <strong>Noesis Editor</strong>.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">📸</span>
+        <h3 data-i18n="library.card.snapshots.h">Snapshots</h3>
+        <p data-i18n="library.card.snapshots.p">Each chapter shows its snapshots with name, variant (annotated / clean / origin) and save date. Click on a specific snapshot to open that exact version in the editor.</p>
+      </div>
+    </div>
+
+    <div class="screenshot-block mt-24">
+      <img src="new-library-chapters-snapshot.png" data-i18n-alt="library.img.library" alt="Noesis Library — books, extracted chapters and snapshots hierarchy">
+      <div class="screenshot-caption" data-i18n="library.img.library.caption">📚 Noesis Library — book grid with extracted chapters hierarchy and version snapshots</div>
+    </div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="section">
+    <div class="section-label" data-i18n="library.toolbar.label">Toolbar</div>
+    <h2 class="section-title" data-i18n="library.toolbar.h2">The <em>Library</em> button bar</h2>
+    <p class="section-sub" data-i18n="library.toolbar.p">The top-right toolbar collects all global library commands.</p>
+
+    <div class="screenshot-block mt-24">
+      <img src="new-library-buttons.png" data-i18n-alt="library.img.toolbar" alt="Library button bar">
+      <div class="screenshot-caption" data-i18n="library.img.toolbar.caption">Library button bar</div>
+    </div>
+
+    <div class="cards mt-24">
+      <div class="card">
+        <span class="card-icon">+</span>
+        <h3 data-i18n="library.btn.addbook.h">ADD BOOK</h3>
+        <p data-i18n="library.btn.addbook.p">Opens the browser file picker. Select one or more <code>.epub</code> files from your device. The book is saved in <code>noesisLibraryDB</code> (IndexedDB) and appears immediately in the grid.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon"><i class="bi bi-cloud-arrow-up"></i></span>
+        <h3 data-i18n="library.btn.import.h">Import Snapshots</h3>
+        <p data-i18n="library.btn.import.p">Imports snapshot files previously saved to the filesystem (HTML files with Noesis meta tags). The system reads the embedded <code>chapterId</code> and book name and automatically updates the hierarchy.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon"><i class="bi bi-pencil-square"></i></span>
+        <h3 data-i18n="library.btn.editor.h">Open Editor</h3>
+        <p data-i18n="library.btn.editor.p">Opens Noesis Editor in standalone mode, without a pre-loaded chapter. Ideal for creating documents from scratch or from a collection imported via JSON.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon"><i class="bi bi-moon"></i></span>
+        <h3 data-i18n="library.btn.theme.h">Toggle Theme</h3>
+        <p data-i18n="library.btn.theme.p">Switches between Library light and dark theme. The preference is saved in localStorage and restored on next launch.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon"><i class="bi bi-wrench"></i></span>
+        <h3 data-i18n="library.btn.tools.h">Tools ▾</h3>
+        <p data-i18n="library.btn.tools.p">Dropdown with additional tools: <strong>Pandoc Online</strong> (document conversions in-browser via pandoc.wasm) and <strong>PDF.js Viewer</strong> (high-quality PDF rendering).</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">?</span>
+        <h3 data-i18n="library.btn.help.h">Help Overlay</h3>
+        <p data-i18n="library.btn.help.p">Opens a contextual help panel with the main instructions for using the Library. Also shown at first launch.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOK MANAGEMENT -->
+  <div class="section">
+    <div class="section-label" data-i18n="library.books.label">Book management</div>
+    <h2 class="section-title" data-i18n="library.books.h2">Managing <em>books</em></h2>
+    <p class="section-sub" data-i18n="library.books.p">Each book card in the library offers contextual controls for managing the title and its related content.</p>
+
+    <div class="cards">
+      <div class="card">
+        <span class="card-icon">📖</span>
+        <h3 data-i18n="library.book.open.h">Open in Reader</h3>
+        <p data-i18n="library.book.open.p">Click anywhere on the book cover to open it in Noesis Reading. The reader automatically restores the last saved state (position, theme, font size).</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">🗑️</span>
+        <h3 data-i18n="library.book.delete.h">Delete book</h3>
+        <p data-i18n="library.book.delete.p">The red ✕ button permanently removes the book from IndexedDB and all associated chapter metadata from noesisDB. The snapshot files on the filesystem are <strong>not</strong> deleted — they remain available for future reimport.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">🦊</span>
+        <h3 data-i18n="library.book.mozilla.h">Firefox compatibility</h3>
+        <p data-i18n="library.book.mozilla.p">On Firefox, the Library is fully functional. The only difference is that the Tools dropdown may not show the Pandoc Online tool. All other features — import, reader, editor, snapshots — work identically.</p>
+      </div>
+    </div>
+
+    <div class="screenshot-block mt-24">
+      <img src="new-library-tools-mozilla.png" data-i18n-alt="library.img.mozilla" alt="Library toolbar on Firefox">
+      <div class="screenshot-caption" data-i18n="library.img.mozilla.caption">🦊 Library on Firefox — all features available, slight toolbar differences</div>
+    </div>
+  </div>
+
+  <!-- CHAPTERS AND SNAPSHOTS -->
+  <div class="section">
+    <div class="section-label" data-i18n="library.chapters.label">Chapters and snapshots</div>
+    <h2 class="section-title" data-i18n="library.chapters.h2">The <em>hierarchical</em> structure</h2>
+    <p class="section-sub" data-i18n="library.chapters.p">The hierarchical structure below each book card gives instant access to all extracted work.</p>
+
+    <div class="cards">
+      <div class="card">
+        <span class="card-icon">📋</span>
+        <h3 data-i18n="library.ch.variants.h">Snapshot variants</h3>
+        <p data-i18n="library.ch.variants.p">Each saved snapshot generates two variants: <code>_annot</code> (with highlight colours preserved) and <code>_clean</code> (clean version without colour formatting, ideal for reading or export). The <code>_origin</code> is the snapshot automatically saved at extraction time.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">🖱️</span>
+        <h3 data-i18n="library.ch.click.h">Direct navigation</h3>
+        <p data-i18n="library.ch.click.p">Click on the chapter name → opens the most recent snapshot. Click on a specific snapshot → opens that exact version in Noesis Editor. No intermediate dialogs.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">🗑️</span>
+        <h3 data-i18n="library.ch.delete.h">Delete snapshot</h3>
+        <p data-i18n="library.ch.delete.p">Each snapshot row has a delete button. Removing a snapshot from the library only deletes the IndexedDB metadata record — the HTML file on the filesystem is not touched.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOOLS DROPDOWN -->
+  <div class="section">
+    <div class="section-label" data-i18n="library.tools.label">Tools</div>
+    <h2 class="section-title" data-i18n="library.tools.h2">Accessory <em>tools</em></h2>
+    <p class="section-sub" data-i18n="library.tools.p">The <strong>Tools ▾</strong> dropdown in the toolbar collects the built-in support tools.</p>
+
+    <div class="cards">
+      <div class="card accent">
+        <span class="card-icon">⚙️</span>
+        <h3 data-i18n="library.tools.epub.h">noesis-epub-tools</h3>
+        <p data-i18n="library.tools.epub.p">Direct access to internal helper tools: <strong>ePub Slimmer</strong> (single file compression), <strong>Multi ePub Slimmer</strong> (batch up to 10 files) and <strong>ePub Splitter</strong> (creates standalone EPUB from selected chapters). <a href="helpers.html" style="color:var(--violet);">Helper documentation →</a></p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">🌐</span>
+        <h3 data-i18n="library.tools.pandoc.h">Pandoc Online</h3>
+        <p data-i18n="library.tools.pandoc.p">Opens Pandoc Online in a new tab — universal document converter. Useful for transforming files exported from Noesis Editor into other formats (LaTeX, RST, ODT, etc.).</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">👁</span>
+        <h3 data-i18n="library.tools.pdfjs.h">Mozilla PDF Viewer</h3>
+        <p data-i18n="library.tools.pdfjs.p">Opens Mozilla PDF.js in a new tab. View, search and print any PDF file with high-quality rendering, without leaving the Noesis ecosystem.</p>
+      </div>
+    </div>
+
+    <div class="screenshot-block mt-24">
+      <img src="new-library-tools.png" data-i18n-alt="library.tools.img" alt="Noesis Library — Tools dropdown open with three options">
+      <div class="screenshot-caption" data-i18n="library.tools.img.caption">🛠️ Tools dropdown — noesis-epub-tools, Pandoc Online, Mozilla PDF Viewer</div>
+    </div>
+  </div>
+
+  <!-- OPEN EDITOR STANDALONE -->
+  <div class="section">
+    <div class="section-label" data-i18n="library.standalone.label">Noesis Editor</div>
+    <h2 class="section-title" data-i18n="library.standalone.h2">Open the editor in <em>standalone</em> mode</h2>
+    <p class="section-sub" data-i18n="library.standalone.p">You don't need to extract a chapter to use Noesis Editor. The <strong>Open Editor</strong> button in the toolbar launches the editor in standalone mode — an empty document ready for any content.</p>
+
+    <div class="cards cards-2">
+      <div class="card">
+        <span class="card-icon">✏️</span>
+        <h3 data-i18n="library.standalone.mode.h">Standalone mode</h3>
+        <p data-i18n="library.standalone.mode.p">Empty editor with the full toolbar. You can write, format, insert tables and images, and use Excalidraw exactly as in <em>chapter</em> mode.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">📦</span>
+        <h3 data-i18n="library.standalone.chunks.h">Import chunks from collection</h3>
+        <p data-i18n="library.standalone.chunks.p">Even in standalone mode, the collection Inspect Panel is available. You can inject chunks collected during previous reading sessions into the current document.</p>
+      </div>
+    </div>
+
+    <div class="callout callout-info mt-24">
+      <span class="callout-icon">ℹ️</span>
+      <div data-i18n="library.standalone.callout"><strong>Editor always in a new tab</strong> — Noesis Editor always opens in a separate browser tab, whether from Library (standalone) or from Noesis Reading (chapter). You can have Library, Reading and Editor open simultaneously.</div>
+    </div>
+
+    <a href="htmleditor.html" class="btn-primary" style="display:inline-flex; margin-top:24px;" data-i18n="library.standalone.link">Noesis Editor documentation →</a>
+  </div>
+
+  <div class="page-nav">
+    <a href="index.html">← Home</a>
+    <a href="navigation.html" class="next">Noesis Reading →</a>
+  </div>
+</div>
+
+<footer>
+  <p data-i18n="footer.license">MIT License · Vanilla JS · No Server · <strong>Noesis — Reading-to-Knowledge System</strong> · v810</p>
+  <p style="margin-top:8px;"><a href="index.html" data-i18n="footer.home">Home</a> · <a href="guida.html" data-i18n="footer.guide">Guide</a> · <a href="faq.html" data-i18n="footer.faq">FAQ</a> · <a href="note.html" data-i18n="footer.notes">Notes</a></p>
+</footer>
+<script src="translations.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

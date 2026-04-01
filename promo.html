@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Noesis v810 — Presentazione — Reading-to-Knowledge System</title>
+  <meta name="description" content="Noesis v810: trasforma la tua lettura EPUB in conoscenza pura. Reader multilingue, traduzione streaming, snapshot su filesystem, editor WYSIWYG con Excalidraw. Un singolo file HTML.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="approfondimenti.css">
+  <style>
+    .promo-hero-quote {
+      background: linear-gradient(135deg, #0f0f18 0%, #1a1030 100%);
+      border-left: 4px solid #7c3aed;
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin: 24px 0;
+      color: #d1d5db;
+      font-style: italic;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+    .promo-hero-quote strong { color: #f0ece4; font-style: normal; }
+    .promo-feature-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--violet);
+      color: white;
+      font-size: 13px;
+      font-weight: 800;
+      flex-shrink: 0;
+      margin-right: 10px;
+    }
+    .promo-feature-title {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .promo-feature-title h3 {
+      margin: 0;
+      font-size: 17px;
+    }
+    .promo-workflow-steps {
+      list-style: none;
+      margin: 20px 0;
+      padding: 0;
+    }
+    .promo-workflow-steps li {
+      display: flex;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      align-items: flex-start;
+    }
+    .promo-workflow-steps li:last-child { border-bottom: none; }
+    .wf-step-label {
+      font-weight: 700;
+      color: var(--violet);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      min-width: 80px;
+      padding-top: 2px;
+    }
+    .promo-finale {
+      background: linear-gradient(135deg, #0f0f18 0%, #1a1030 100%);
+      border-radius: 12px;
+      padding: 32px;
+      text-align: center;
+      margin: 32px 0;
+      color: #d1d5db;
+    }
+    .promo-finale blockquote {
+      font-size: 20px;
+      font-style: italic;
+      color: #f0ece4;
+      margin: 0 0 20px;
+      line-height: 1.6;
+    }
+    .promo-specs {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">📚 <span>Noesis</span></a>
+    <button class="lang-toggle-btn" id="lang-toggle" onclick="window.noesisI18n.toggleLang()" title="Switch to Italian">🇮🇹 IT</button>
+    <button class="nav-toggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links">
+      <a href="index.html" data-i18n="nav.home">Home</a><a href="guida.html" data-i18n="nav.guide">Quick Guide</a><a href="library.html" data-i18n="nav.library">Library</a><a href="navigation.html" data-i18n="nav.reading">Reading</a><a href="htmleditor.html" data-i18n="nav.editor">Editor</a><a href="snapshot.html" data-i18n="nav.snapshot">Snapshot</a><a href="collezioni.html" data-i18n="nav.collections">Collections</a><a href="helpers.html" data-i18n="nav.helpers">Helpers</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="note.html" data-i18n="nav.notes">Notes</a>
+      <div class="nav-dropdown">
+        <a href="approfondimenti.html" data-i18n="nav.deepdives">Deep Dives</a>
+        <div class="nav-dropdown-menu">
+          <span class="dm-label" data-i18n="nav.dm.docs">Documentation</span>
+          <a href="doc-readme.html" data-i18n="nav.dm.readme">📚 README — Overview</a>
+          <a href="doc-ui.html" data-i18n="nav.dm.ui">🖥️ UI — Button Reference</a>
+          <a href="doc-workflow.html" data-i18n="nav.dm.workflow">🔄 Workflow — Usage Flows</a>
+          <a href="doc-tech.html" data-i18n="nav.dm.tech">⚙️ Technical Architecture</a>
+          <a href="doc-library-tech.html" data-i18n="nav.dm.libtech">📚 Technical Doc — Library</a>
+          <a href="doc-reader-tech.html" data-i18n="nav.dm.readtech">📖 Technical Doc — Reader</a>
+          <a href="doc-editor-tech.html" data-i18n="nav.dm.edtech">✏️ Technical Doc — Editor</a>
+          <a href="doc-full-embedding.html" data-i18n="nav.dm.fullembedding">📦 Full Version — Embedding</a>
+          <span class="dm-label" data-i18n="nav.dm.project">Project</span>
+          <a href="doc-adv.html" data-i18n="nav.dm.adv">🌟 Positioning</a>
+          <a href="doc-legal.html" data-i18n="nav.dm.legal">⚖️ Legal Analysis</a>
+          <a href="promo.html" data-i18n="nav.dm.promo">🚀 Presentation</a>
+        </div>
+      </div>
+      <a href="index.html#download" class="nav-cta" data-i18n="nav.download">⬇ Download</a>
+    </div>
+  </div>
+</nav>
+<div class="callout callout-info deepdive-translation-callout" style="margin:0;border-radius:0;background:#1e3a5f;color:#e0eeff;border:none;border-bottom:2px solid #3b82f6;">
+  <span class="callout-icon">🌐</span>
+  <div data-i18n="deepdive.callout">🌐 This page is written in Italian. Use your browser's <strong>Translate</strong> feature to read it in your language.</div>
+</div>
+
+
+<section class="hero-doc">
+  <div class="doc-tag" style="color:#10b981;background:rgba(16,185,129,0.15);border:1px solid #10b98144;">🚀 Presentazione</div>
+  <h1>Noesis v810 — <em>Reading-to-Knowledge</em></h1>
+  <p class="doc-subtitle">Trasforma la tua lettura EPUB in conoscenza pura. Un singolo file HTML, zero server, tutta la tua conoscenza in ogni lingua.</p>
+</section>
+
+<div class="doc-layout">
+  <div class="doc-toc" id="doc-toc"><h4>In questa pagina</h4><ul>
+    <li><a href="#introduzione">Introduzione</a></li>
+    <li><a href="#traduzione-intelligente">1. Traduzione Intelligente</a></li>
+    <li><a href="#privacy-totale">2. Privacy Totale</a></li>
+    <li><a href="#esperienza-lettura-studio">3. Lettura e Studio Attivo</a></li>
+    <li><a href="#dall-epub-al-documento">4. Dall'EPUB al Documento</a></li>
+    <li><a href="#editor-integrato">5. Noesis Editor</a></li>
+    <li><a href="#excalidraw">6. Excalidraw Integrato</a></li>
+    <li><a href="#workflow-perfetto">Il Workflow Perfetto</a></li>
+    <li><a href="#filosofia">La Filosofia Noesis</a></li>
+    <li><a href="#inizia-ora">Inizia Ora</a></li>
+  </ul></div>
+
+  <div class="doc-content">
+
+    <h2 id="introduzione">Stanco di reader che imprigionano le tue annotazioni?</h2>
+
+    <div class="promo-hero-quote">
+      <strong>"Non è solo un reader. È il tuo nuovo ambiente di studio integrato, privato, offline e multilingue."</strong>
+    </div>
+
+    <p>Ti sei mai chiesto perché i tuoi appunti debbano restare confinati in un database chiuso invece di diventare la base del tuo prossimo documento?</p>
+    <p><strong>Noesis v810</strong> è un sistema <em>Reading-to-Knowledge</em> che abbatte le barriere tra lettura e produzione intellettuale, integrando strumenti linguistici avanzati direttamente nel tuo workflow. Tutto in un singolo file HTML.</p>
+
+    <hr />
+
+    <h2 id="traduzione-intelligente">1. Traduzione Intelligente (Streaming &amp; One-Shot) 🌍</h2>
+    <p>Noesis v810 sfrutta la potenza del tuo browser per offrirti un supporto linguistico senza precedenti, senza bisogno di API esterne o abbonamenti:</p>
+    <div class="cards cards-2" style="margin-top:16px;">
+      <div class="card accent">
+        <span class="card-icon">📖</span>
+        <h3>Traduzione in Streaming (Reader)</h3>
+        <p>Leggi testi in lingua straniera con la traduzione nativa che scorre insieme a te. Ideale per l'immersione totale nel testo originale mantenendo la comprensione immediata.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">⚡</span>
+        <h3>Traduzione One-Shot (Editor)</h3>
+        <p>Mentre rielabori il tuo capitolo nell'editor, puoi tradurre intere sezioni o il documento estratto con un singolo comando. Trasforma i tuoi studi in una risorsa multilingue pronta all'uso.</p>
+      </div>
+    </div>
+
+    <hr />
+
+    <h2 id="privacy-totale">2. Privacy Totale "By Design" 🛡️</h2>
+    <p>Dimentica account, server e tracciamento. Noesis funziona interamente sul tuo dispositivo.</p>
+    <div class="cards cards-2" style="margin-top:16px;">
+      <div class="card">
+        <span class="card-icon">🔒</span>
+        <h3>Zero Server</h3>
+        <p>I tuoi libri e le tue annotazioni non lasciano mai la tua memoria locale. Libri in EpubLibraryDB, metadati in noesisDB, snapshot sul filesystem. Nessun byte lascia il dispositivo.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">✈️</span>
+        <h3>Funzionamento Offline</h3>
+        <p>Dopo il primo caricamento, sei libero dalla rete. Anche la traduzione sfrutta i servizi locali del browser quando disponibili. Perfetto per treni, aerei, zone senza connessione.</p>
+      </div>
+    </div>
+
+    <hr />
+
+    <h2 id="esperienza-lettura-studio">3. Un'Esperienza di Lettura e Studio Attivo 📖</h2>
+    <ul>
+      <li><strong>Personalizzazione estrema</strong>: 15 temi di lettura, controllo tipografico totale (font, interlinea, layout) e modalità a pagina singola, doppia o scorrimento.</li>
+      <li><strong>Annotazione professionale</strong>: evidenziazione a 3 colori (giallo, verde, rosa), segnalibri persistenti (CFI) e lookup immediato su dizionari integrati.</li>
+      <li><strong>Sommario gerarchico</strong>: TOC espandibile fino a 3 livelli con navigazione diretta al capitolo.</li>
+      <li><strong>Save State</strong>: salva posizione, tema e impostazioni per ogni libro.</li>
+    </ul>
+
+    <hr />
+
+    <h2 id="dall-epub-al-documento">4. Dall'EPUB al Documento in un Click ⚡</h2>
+    <div class="cards cards-2" style="margin-top:16px;">
+      <div class="card accent">
+        <span class="card-icon">🗂️</span>
+        <h3>Estrazione Intelligente</h3>
+        <p>Estrae il capitolo corrente o l'intero ramo della gerarchia (capitolo + tutti i sottolivelli) in un documento HTML standalone con immagini base64 inline.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">📸</span>
+        <h3>Sistema Snapshot</h3>
+        <p>Salva versioni del tuo lavoro (clean + annot) direttamente su filesystem. Il versioning è nelle tue mani — file HTML reali, portabili, archiviabili in Git o cloud.</p>
+      </div>
+    </div>
+
+    <hr />
+
+    <h2 id="editor-integrato">5. Editor Professionale Integrato ( ✍️</h2>
+    <p>Un potente editor WYSIWYG (Summernote) che comunica direttamente con la tua libreria:</p>
+    <ul>
+      <li><strong>Raccolta Chunk</strong>: inserisci passaggi e immagini dal libro direttamente nel tuo scritto tramite Inspect Panel.</li>
+      <li><strong>Esportazione universale</strong>: TXT, MD, MD+ZIP, JSON, DOCX, PDF. Le immagini base64 garantiscono documenti sempre autocontenuti.</li>
+      <li><strong>Export Collezione</strong>: JSON, HTML, MD, MD+ZIP per i chunk raccolti.</li>
+    </ul>
+
+    <hr />
+
+    <h2 id="excalidraw">6. Excalidraw Integrato 🖊️ <span class="badge badge-violet" style="font-size:10px;vertical-align:middle;">Nuovo v810</span></h2>
+    <p>Direttamente dalla toolbar dell'editor, accedi a <strong>Noesis Excalidraw</strong> — un fork dedicato per creare:</p>
+    <div class="cards" style="margin-top:16px;">
+      <div class="card"><span class="card-icon">📊</span><h3>Diagrammi</h3><p>Flowchart, diagrammi entità-relazione, architetture di sistema.</p></div>
+      <div class="card"><span class="card-icon">🗺️</span><h3>Mappe mentali</h3><p>Schemi concettuali, mappe di concetti, brainstorming visivo.</p></div>
+      <div class="card"><span class="card-icon">✏️</span><h3>Schizzi visivi</h3><p>Annotazioni grafiche, timeline, grafi. Esporta come SVG o PNG inline nel documento.</p></div>
+    </div>
+
+    <hr />
+
+    <h2 id="workflow-perfetto">🛠️ Il Workflow Perfetto</h2>
+    <ul class="promo-workflow-steps">
+      <li>
+        <span class="wf-step-label">IMPORTA</span>
+        <span>Carica il tuo <code>.epub</code> straniero nella Library con un click su <strong>Add Book</strong>.</span>
+      </li>
+      <li>
+        <span class="wf-step-label">LEGGI &amp; TRADUCI</span>
+        <span>Attiva la traduzione streaming del browser per una comprensione fluida. Evidenzia i passaggi chiave a 3 colori.</span>
+      </li>
+      <li>
+        <span class="wf-step-label">ESTRAI</span>
+        <span>Trasforma il capitolo d'interesse (o l'intero ramo) in un documento HTML standalone pronto per lo studio.</span>
+      </li>
+      <li>
+        <span class="wf-step-label">EDITA &amp; CONVERTI</span>
+        <span>Usa l'editor per rielaborare i contenuti, crea diagrammi con Excalidraw e applica la traduzione one-shot per finalizzare il tuo testo.</span>
+      </li>
+      <li>
+        <span class="wf-step-label">ESPORTA</span>
+        <span>Ottieni il tuo documento finale (PDF, Word, Markdown o JSON) pronto per l'uso. Salva snapshot sul filesystem per ogni versione importante.</span>
+      </li>
+    </ul>
+
+    <hr />
+
+    <h2 id="filosofia">💎 La Filosofia Noesis</h2>
+    <p>Noesis è costruito per chi legge per studiare, creare e ricercare. È lo strumento ideale per:</p>
+    <div class="cards" style="margin-top:16px;">
+      <div class="card"><span class="card-icon">🎓</span><h3>Studenti</h3><p>Estrai capitoli, studia con gli highlight, versiona il lavoro, genera PDF per la consegna.</p></div>
+      <div class="card"><span class="card-icon">🔬</span><h3>Accademici</h3><p>Raccolta chunk sistematica, export DOCX, versioning a snapshot, nessun dato su cloud.</p></div>
+      <div class="card"><span class="card-icon">🌍</span><h3>Traduttori &amp; Multilingue</h3><p>Traduzione browser integrata, highlight vocabolario a 3 colori, one-shot per finalizzare testi in qualsiasi lingua.</p></div>
+    </div>
+
+    <div class="promo-finale">
+      <blockquote>"Un solo file. Zero barriere. Tutta la tua conoscenza, in ogni lingua."</blockquote>
+      <a href="index.html#download" class="btn-primary" style="display:inline-flex;margin:0 auto;">⬇ Scarica noesis810.zip — Gratis</a>
+      <p class="promo-specs">Vanilla JS · Licenza MIT · Supporto Chrome, Edge, Firefox, Safari · Zero server · Zero account</p>
+    </div>
+
+    <h2 id="inizia-ora">🚀 Inizia Ora</h2>
+    <p>Scarica <code>noesis810.zip</code>, decomprimilo e apri <code>noesis810.html</code> nel browser. Nessuna installazione. Nessun account.</p>
+    <div class="callout callout-tip">
+      <span class="callout-icon">💡</span>
+      <div><strong>Server locale consigliato</strong> Per la migliore esperienza con EPUB complessi, avvia <code>python -m http.server 8000</code> nella cartella decompressa e apri <code>http://localhost:8000/noesis810.html</code>.</div>
+    </div>
+
+    <div style="margin-top:56px; padding-top:32px; border-top:1px solid var(--border); display:flex; gap:16px; flex-wrap:wrap;">
+      <a href="approfondimenti.html" class="doc-back" style="margin-bottom:0;">← Tutti gli approfondimenti</a>
+      <a href="index.html" class="doc-back" style="margin-bottom:0;">🏠 Home</a>
+      <a href="guida.html" class="doc-back" style="margin-bottom:0;">📖 Guida rapida →</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p data-i18n="footer.license">MIT License · Vanilla JS · No Server · <strong>Noesis — Reading-to-Knowledge System</strong> · v810</p>
+  <p style="margin-top:8px;"><a href="index.html">Home</a> · <a href="guida.html">Guida</a> · <a href="approfondimenti.html">Approfondimenti</a> · <a href="faq.html">FAQ</a> · <a href="note.html">Note</a></p>
+</footer>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

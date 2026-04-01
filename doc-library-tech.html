@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentazione Tecnica — Ambiente Library — Noesis</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="approfondimenti.css">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">📚 <span>Noesis</span></a>
+    <button class="lang-toggle-btn" id="lang-toggle" onclick="window.noesisI18n.toggleLang()" title="Switch to Italian">🇮🇹 IT</button>
+    <button class="nav-toggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links">
+      <a href="index.html" data-i18n="nav.home">Home</a><a href="guida.html" data-i18n="nav.guide">Quick Guide</a><a href="library.html" data-i18n="nav.library">Library</a><a href="navigation.html" data-i18n="nav.reading">Reading</a><a href="htmleditor.html" data-i18n="nav.editor">Editor</a><a href="snapshot.html" data-i18n="nav.snapshot">Snapshot</a><a href="collezioni.html" data-i18n="nav.collections">Collections</a><a href="helpers.html" data-i18n="nav.helpers">Helpers</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="note.html" data-i18n="nav.notes">Notes</a>
+      <div class="nav-dropdown">
+        <a href="approfondimenti.html" data-i18n="nav.deepdives">Deep Dives</a>
+        <div class="nav-dropdown-menu">
+          <span class="dm-label" data-i18n="nav.dm.docs">Documentation</span>
+          <a href="doc-readme.html" data-i18n="nav.dm.readme">📚 README — Overview</a>
+          <a href="doc-ui.html" data-i18n="nav.dm.ui">🖥️ UI — Button Reference</a>
+          <a href="doc-workflow.html" data-i18n="nav.dm.workflow">🔄 Workflow — Usage Flows</a>
+          <a href="doc-tech.html" data-i18n="nav.dm.tech">⚙️ Technical Architecture</a>
+          <a href="doc-library-tech.html" data-i18n="nav.dm.libtech">📚 Technical Doc — Library</a>
+          <a href="doc-reader-tech.html" data-i18n="nav.dm.readtech">📖 Technical Doc — Reader</a>
+          <a href="doc-editor-tech.html" data-i18n="nav.dm.edtech">✏️ Technical Doc — Editor</a>
+          <a href="doc-full-embedding.html" data-i18n="nav.dm.fullembedding">📦 Full Version — Embedding</a>
+          <span class="dm-label" data-i18n="nav.dm.project">Project</span>
+          <a href="doc-adv.html" data-i18n="nav.dm.adv">🌟 Positioning</a>
+          <a href="doc-legal.html" data-i18n="nav.dm.legal">⚖️ Legal Analysis</a>
+          <a href="promo.html" data-i18n="nav.dm.promo">🚀 Presentation</a>
+        </div>
+      </div>
+      <a href="index.html#download" class="nav-cta" data-i18n="nav.download">⬇ Download</a>
+    </div>
+  </div>
+</nav>
+<div class="callout callout-info deepdive-translation-callout" style="margin:0;border-radius:0;background:#1e3a5f;color:#e0eeff;border:none;border-bottom:2px solid #3b82f6;">
+  <span class="callout-icon">🌐</span>
+  <div data-i18n="deepdive.callout">🌐 This page is written in Italian. Use your browser's <strong>Translate</strong> feature to read it in your language.</div>
+</div>
+
+<section class="hero-doc">
+  <div class="doc-tag" style="color:#10b981;background:rgba(16,185,129,0.15);border:1px solid #10b98144;">📚 Tecnico</div>
+  <h1>Documentazione Tecnica — Ambiente Library</h1>
+  <p class="doc-subtitle">Architettura DOM, sistema temi, toolbar, workflow, gestione libri/capitoli/snapshot e IndexedDB.</p>
+</section>
+
+<div class="doc-layout">
+  <div class="doc-toc" id="doc-toc"><h4>In questa pagina</h4><ul>
+<li><a href="#panoramica-generale" class="">Panoramica generale</a></li>
+<li><a href="#architettura-dom-e-struttura-visiva" class="">Architettura DOM e struttura visiva</a></li>
+<li><a href="#sistema-di-temi-light-e-dark" class="">Sistema di temi: light e dark</a></li>
+<li><a href="#mappa-completa-della-toolbar-header" class="">Mappa completa della toolbar (header)</a></li>
+<li><a href="#la-griglia-dei-libri-book-row" class="">La griglia dei libri — book-row</a></li>
+<li><a href="#la-sezione-capitoli-estratti-chapters-section" class="">La sezione capitoli estratti — chapters-section</a></li>
+<li><a href="#la-lista-degli-snapshot-per-capitolo" class="">La lista degli snapshot per capitolo</a></li>
+<li><a href="#workflow-aggiunta-di-un-libro" class="">Workflow: aggiunta di un libro</a></li>
+<li><a href="#workflow-apertura-di-un-libro-nel-reader" class="">Workflow: apertura di un libro nel Reader</a></li>
+<li><a href="#workflow-apertura-di-un-capitolo-nelleditor" class="">Workflow: apertura di un capitolo nell'Editor</a></li>
+<li><a href="#workflow-eliminazione-di-libri-capitoli-e-snapshot" class="">Workflow: eliminazione di libri, capitoli e snapshot</a></li>
+<li><a href="#import-snapshots-da-disco" class="">Import Snapshots da disco</a></li>
+<li><a href="#sistema-help-banner-overlay-pulsante" class="">Sistema Help — banner, overlay, pulsante ?</a></li>
+<li><a href="#loading-overlay" class="">Loading overlay</a></li>
+<li><a href="#switch-tra-library-e-reader" class="">Switch tra Library e Reader</a></li>
+<li><a href="#strutture-di-memorizzazione" class="">Strutture di memorizzazione</a></li>
+<li><a href="#variabili-e-costanti-globali-rilevanti" class="">Variabili e costanti globali rilevanti</a></li>
+<li><a href="#responsive-e-adattamento-mobile" class="">Responsive e adattamento mobile</a></li>
+</ul></div>
+  <div class="doc-content">
+    <a href="approfondimenti.html" class="doc-back">← Tutti gli approfondimenti</a>
+    <h1 id="panoramica-generale">📚 Noesis Library — Documentazione Tecnica Completa</h1>
+<blockquote>
+<p><strong>Versione di riferimento:</strong> noesis810.html<br />
+<strong>Data documento:</strong> 2026-03-28</p>
+</blockquote>
+<hr />
+<h2 id="panoramica-generale">1. Panoramica generale</h2>
+<p>La <strong>Noesis Library</strong> è la schermata principale (home) di <code>noesis810.html</code>. È il punto di ingresso dell'applicazione: la prima vista mostrata all'avvio, il luogo da cui si accede a tutte le altre funzionalità, e il registro centrale di tutto il lavoro di lettura e annotazione.</p>
+<p>La Library è progettata come un <strong>archivio editoriale gerarchico</strong> con tre livelli di profondità:</p>
+<pre><code>Libro (EpubLibraryDB)
+  └── Capitolo estratto (noesisDB)
+        └── Snapshot (embedded in chapterRecord)</code></pre>
+<p>Caratteristiche fondamentali:</p>
+<ul>
+<li><strong>Zero-server</strong>: tutto è locale. Nessun file viene caricato su server. I libri EPUB sono memorizzati come <code>ArrayBuffer</code> in IndexedDB, le copertine come base64, le annotazioni come HTML in <code>noesisDB</code>.</li>
+<li><strong>Dual-theme CSS</strong>: tema light editoriale (sfondo <code>#f7f6f3</code>, ispirato alla carta) e tema dark gray (<code>#1a1a20</code>), entrambi governati da CSS custom properties. Il tema scelto persiste in <code>localStorage</code>.</li>
+<li><strong>Rendering gerarchico dinamico</strong>: <code>loadLibraryBooks()</code> interroga entrambi i database in parallelo (<code>Promise.all</code>), aggrega i capitoli per libro (case-insensitive), e costruisce l'intera struttura DOM a runtime.</li>
+<li><strong>Font editoriale</strong>: l'interfaccia Library usa <code>Georgia, 'Times New Roman', serif</code> per titoli e etichette, differenziandosi dal Reader e dall'Editor.</li>
+</ul>
+<hr />
+<h2 id="architettura-dom-e-struttura-visiva">2. Architettura DOM e struttura visiva</h2>
+<pre><code>#library-view
+├── .library-header                  ← sticky, backdrop-blur, z-index 10
+│   ├── .library-header-left
+│   │   ├── .library-title           ← "Noesis" (italic, serif, 22px)
+│   │   └── .library-subtitle        ← "Your reading archive…"
+│   └── .library-header-right        ← flex row, gap 10px
+│       ├── #libraryInput            ← &lt;input file hidden&gt; (accept .epub)
+│       ├── #importLabel             ← "Add Book" (label → libraryInput)
+│       ├── #importSnapshotsInput    ← &lt;input file hidden, multiple&gt; (.html,.htm)
+│       ├── #importSnapshotsBtn      ← icona bi-cloud-arrow-up
+│       ├── #libOpenEditorBtn        ← icona bi-pencil-square
+│       ├── #libThemeToggle          ← icona bi-moon / bi-sun
+│       ├── .lib-tools-dropdown
+│       │   ├── #libToolsBtn         ← "Tools" con bi-wrench
+│       │   └── #libToolsMenu        ← dropdown con 3 link esterni
+│       └── #libHelpBtn              ← "?"
+│
+├── #bookGrid (.library-grid)        ← contenitore libri (max-width 1100px)
+│   ├── .book-row                    ← per ogni libro
+│   │   ├── .book-header
+│   │   │   ├── .book-cover-thumb    ← 64×88px, cliccabile → Reader
+│   │   │   ├── .book-meta
+│   │   │   │   ├── .book-meta-title
+│   │   │   │   ├── .book-meta-author
+│   │   │   │   └── .book-meta-stats ← badges (N chapters, N snapshots)
+│   │   │   └── .book-actions
+│   │   │       └── .book-delete-btn ← trash icon
+│   │   └── .chapters-section        ← rientrata 82px da sinistra
+│   │       ├── .no-chapters-note    ← se nessun capitolo estratto
+│   │       └── .chapter-entry       ← per ogni capitolo
+│   │           ├── .chapter-entry-header
+│   │           │   ├── .chapter-name-btn   ← cliccabile → Editor
+│   │           │   ├── .chapter-snap-count ← "N snapshots"
+│   │           │   └── .chapter-delete-btn ← appare su hover
+│   │           └── .snapshots-list
+│   │               └── .snapshot-item      ← per ogni snapshot
+│   │                   ├── .snapshot-item-dot    ← punto colorato
+│   │                   ├── .snapshot-item-desc   ← descrizione
+│   │                   ├── .snapshot-item-date   ← data/ora
+│   │                   └── .snapshot-delete-btn  ← appare su hover
+│   └── .empty-state                 ← se libreria vuota
+│
+├── #libHelpBanner                   ← banner primo avvio (nascosto dopo)
+└── #libHelpOverlay                  ← overlay guida pulsanti</code></pre>
+<h3 id="caratteristiche-dellheader">2.1 Caratteristiche dell'header</h3>
+<p>L'header <code>.library-header</code> è <strong>sticky</strong> (<code>position: sticky; top: 0</code>) con <code>backdrop-filter: blur(12px)</code> e sfondo semi-trasparente (<code>rgba(247,246,243,0.92)</code> in light, <code>rgba(26,26,32,0.92)</code> in dark). <code>z-index: 10</code> garantisce che rimanga sopra il testo dei libri durante lo scroll.</p>
+<h3 id="griglia-libri">2.2 Griglia libri</h3>
+<p><code>.library-grid</code> è un flex container verticale (<code>flex-direction: column</code>), con padding <code>28px 28px 48px</code>, larghezza massima <code>1100px</code> centrata con <code>margin: 0 auto</code>. I libri sono separati da bordi orizzontali.</p>
+<h3 id="stato-vuoto">2.3 Stato vuoto</h3>
+<p>Se <code>EpubLibraryDB</code> non contiene libri, <code>#bookGrid</code> mostra un empty state con icona e messaggio.</p>
+<hr />
+<h2 id="sistema-di-temi-light-e-dark">3. Sistema di temi: light e dark</h2>
+<p>La Library implementa un sistema di temi basato interamente su <strong>CSS custom properties</strong>. Il toggle di tema aggiunge/rimuove la classe <code>.lib-dark</code> su <code>#library-view</code>.</p>
+<h3 id="variabili-css-confronto-light-vs-dark">3.1 Variabili CSS — confronto light vs dark</h3>
+<table>
+<thead>
+<tr>
+<th>Variabile</th>
+<th>Light</th>
+<th>Dark</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--lib-bg</code></td>
+<td><code>#f7f6f3</code></td>
+<td><code>#1a1a20</code></td>
+</tr>
+<tr>
+<td><code>--lib-header-bg</code></td>
+<td><code>rgba(247,246,243,0.92)</code></td>
+<td><code>rgba(26,26,32,0.92)</code></td>
+</tr>
+<tr>
+<td><code>--lib-title-color</code></td>
+<td><code>#000000</code></td>
+<td><code>#e8e4dc</code></td>
+</tr>
+<tr>
+<td><code>--lib-snap-dot-latest</code></td>
+<td><code>#10b981</code></td>
+<td><code>#10b981</code> (identico)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="logica-del-toggle-tema">3.2 Logica del toggle tema</h3>
+<p>Il toggle tema usa <code>localStorage</code> per persistere la preferenza. La transizione <code>background 0.25s</code> rende il cambio visivamente fluido.</p>
+<hr />
+<h2 id="mappa-completa-della-toolbar-header">4. Mappa completa della toolbar (header)</h2>
+<h3 id="importlabel--libraryinput--add-book">4.1 #importLabel / #libraryInput — Add Book</h3>
+<table>
+<thead>
+<tr>
+<th>Proprietà</th>
+<th>Valore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Elemento</td>
+<td><code>&lt;label for="libraryInput"&gt;</code> (styled as button)</td>
+</tr>
+<tr>
+<td>File input</td>
+<td><code>#libraryInput</code> (hidden, <code>accept=".epub"</code>)</td>
+</tr>
+<tr>
+<td>Icona</td>
+<td><code>bi-plus-lg</code></td>
+</tr>
+<tr>
+<td>Etichetta</td>
+<td>"Add Book"</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comportamento al clic:</strong> Apre file picker → <code>saveBookToDB(file)</code> → <code>loadLibraryBooks()</code></p>
+<h3 id="importsnapshotsbtn--import-snapshots">4.2 #importSnapshotsBtn — Import Snapshots</h3>
+<p>Apre il flusso di import snapshot da disco. Supporta folder picker (Chrome/Edge) o file picker standard.</p>
+<h3 id="libopeneditorbtn--open-editor">4.3 #libOpenEditorBtn — Open Editor</h3>
+<table>
+<thead>
+<tr>
+<th>Proprietà</th>
+<th>Valore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Icona</td>
+<td><code>bi-pencil-square</code></td>
+<tr>
+<td>Azione</td>
+<td><code>_openSn56(null)</code></td>
+</tr>
+</tbody>
+</table>
+<p>Apre sn56.x in modalità <strong>standalone</strong> (editor vuoto, senza contesto libro/capitolo).</p>
+<h3 id="libthemetoggle--toggle-tema">4.4 #libThemeToggle — Toggle tema</h3>
+<p>Icona: <code>bi-moon</code> (light) / <code>bi-sun</code> (dark). Persistenza in <code>localStorage</code> → chiave <code>'noesis-lib-theme'</code>.</p>
+<h3 id="libtoolsbtn--libtoolsmenu--tools-dropdown">4.5 #libToolsBtn / #libToolsMenu — Tools dropdown</h3>
+<p>Dropdown con link esterni (<code>target="_blank"</code>):</p>
+<ul>
+<li><strong>noesis-epub-tools</strong> — Web app per editing e gestione di file EPUB</li>
+<li><strong>Pandoc Online</strong> — Convertitore universale di formati documento</li>
+<li><strong>Mozilla PDF Viewer</strong> — PDF.js browser-based</li>
+</ul>
+<h3 id="libhelpbtn--guida-rapida">4.6 #libHelpBtn — Guida rapida</h3>
+<p>Apre l'overlay di guida completa che descrive tutti i controlli della Library.</p>
+<hr />
+<h2 id="la-griglia-dei-libri-book-row">5. La griglia dei libri — book-row</h2>
+<h3 id="struttura-di-una-book-row">5.1 Struttura di una .book-row</h3>
+<p>Ogni libro in biblioteca genera un <code>.book-row</code> costruito dinamicamente da <code>loadLibraryBooks()</code>.</p>
+<h3 id="copertina-del-libro">5.2 Copertina del libro</h3>
+<p>Se <code>book.cover</code> è valorizzato (base64): immagine con <code>object-fit: cover</code>. Se non c'è copertina: icona <code>bi-book</code>.</p>
+<h3 id="badges-statistiche">5.3 Badges statistiche</h3>
+<table>
+<thead>
+<tr>
+<th>Condizione</th>
+<th>Badge</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0 capitoli estratti</td>
+<td>"no extractions"</td>
+</tr>
+<tr>
+<td>N > 0 capitoli</td>
+<td>"N chapter" / "N chapters"</td>
+</tr>
+<tr>
+<td>N > 0 snapshot totali</td>
+<td>"N snapshot" / "N snapshots"</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ordinamento-libri">5.4 Ordinamento libri</h3>
+<p>I libri sono ordinati per <strong>data di aggiunta decrescente</strong> (<code>addedAt</code> desc).</p>
+<h3 id="associazione-libri-capitoli">5.5 Associazione libri↔capitoli</h3>
+<p>L'associazione tra libri (<code>EpubLibraryDB</code>) e capitoli estratti (<code>noesisDB</code>) avviene per <strong>corrispondenza del titolo del libro</strong> (case-insensitive, trimmed).</p>
+<hr />
+<h2 id="la-sezione-capitoli-estratti-chapters-section">6. La sezione capitoli estratti — chapters-section</h2>
+<p><code>.chapters-section</code> è rientrata di <code>82px</code> da sinistra. Crea visivamente una gerarchia chiara: i capitoli appaiono "sotto" il loro libro.</p>
+<h3 id="header-del-capitolo-chapter-entry-header">6.2 Header del capitolo — .chapter-entry-header</h3>
+<p><code>.chapter-name-btn</code>: clic → <code>_openExtractedEnv(ch, null)</code> → apre snapshot più recente nell'Editor.</p>
+<p><code>.chapter-snap-count</code>: badge inline con "N snapshots" o "no snapshots".</p>
+<h3 id="ordinamento-snapshot-per-capitolo">6.3 Ordinamento snapshot per capitolo</h3>
+<p>Snapshot <code>isOrigin: true</code> → sempre <strong>in fondo</strong> alla lista. Tutti gli altri snapshot → <strong>dal più recente al più vecchio</strong>.</p>
+<hr />
+<h2 id="la-lista-degli-snapshot-per-capitolo">7. La lista degli snapshot per capitolo</h2>
+<h3 id="struttura-di-uno-snapshot-item">7.1 Struttura di uno snapshot-item</h3>
+<pre><code>.snapshot-item [classe "latest" se il primo della lista]
+├── .snapshot-item-dot   (cerchietto 5×5px)
+├── .snapshot-item-desc  (descrizione testuale, ellipsis)
+├── .snapshot-item-date  (data breve "Mar 27 14:25")
+└── .snapshot-delete-btn (🗑, appare su hover)</code></pre>
+<h3 id="indicatore-latest">7.2 Indicatore "latest"</h3>
+<p>Il primo elemento dell'array ordinato riceve la classe <code>.latest</code> con punto verde <code>#10b981</code>.</p>
+<h3 id="clic-su-uno-snapshot">7.5 Clic su uno snapshot</h3>
+<p><code>btn.onclick = () => _openExtractedEnv(ch, snap.snapshotId)</code></p>
+<h3 id="delete-dello-snapshot">7.6 Delete dello snapshot</h3>
+<p>Elimina lo snapshot da <code>noesisDB</code> e ricarica la lista.</p>
+<hr />
+<h2 id="workflow-aggiunta-di-un-libro">8. Workflow: aggiunta di un libro</h2>
+<pre><code>Utente clicca "Add Book"
+      ↓
+File picker si apre (accept .epub)
+      ↓
+Utente seleziona file .epub
+      ↓
+saveBookToDB(file):
+  1. file.arrayBuffer()          ← legge il file come ArrayBuffer
+  2. ePub(arrayBuffer)           ← crea istanza epub.js temporanea
+  3. await book.ready
+  4. book.loaded.metadata        ← estrae title, creator (author)
+  5. book.coverUrl()             ← ottiene blob URL copertina
+  6. fetch(coverUrl) → blob → FileReader → base64
+  7. Costruisce bookRecord:
+     { id, title, author, data: ArrayBuffer, cover: base64, addedAt }
+  8. store.add(bookRecord)       ← scrive in EpubLibraryDB
+      ↓
+loadLibraryBooks()              ← ricarica la griglia</code></pre>
+<hr />
+<h2 id="workflow-apertura-di-un-libro-nel-reader">9. Workflow: apertura di un libro nel Reader</h2>
+<p>Clic sul <code>.book-cover-thumb</code> (copertina miniatura) di qualsiasi libro nella griglia: <code>openBookFromLibrary(book)</code>.</p>
+<p>Il libro non viene "riaperto" ma "ricostruito": l'<code>ArrayBuffer</code> memorizzato in IDB viene passato direttamente a <code>ePub()</code> che lo elabora in memoria.</p>
+<hr />
+<h2 id="workflow-apertura-di-un-capitolo-nelleditor">10. Workflow: apertura di un capitolo nell'Editor</h2>
+<h3 id="funzione-openextractedenv">10.3 Funzione _openExtractedEnv(chapterRecord, snapshotId)</h3>
+<pre><code>function _openExtractedEnv(chapterRecord, snapshotId) {
+  // Ordina: isOrigin in fondo, gli altri dal più recente
+  const snaps = (chapterRecord.snapshots || []).slice().sort(...);
+  const targetSnap = snapshotId
+    ? snaps.find(s => s.snapshotId === snapshotId)
+    : snaps[0] || null;
+  const htmlContent = targetSnap ? targetSnap.content : '&lt;p&gt;&lt;em&gt;No snapshots yet.&lt;/em&gt;&lt;/p&gt;';
+  _openSn56({
+    mode:        'chapter',
+    htmlContent: htmlContent,
+    bookName:    chapterRecord.bookName    || '',
+    chapterName: chapterRecord.chapterName || '',
+    chapterId:   chapterRecord.chapterId   || ''
+  });
+}</code></pre>
+<h3 id="funzione-opensn56">10.4 Funzione _openSn56(payload)</h3>
+<p>L'editor sn56.x viene aperto in una nuova scheda come Blob URL, con il payload del capitolo/snapshot embedded in un data island JSON.</p>
+<hr />
+<h2 id="workflow-eliminazione-di-libri-capitoli-e-snapshot">11. Workflow: eliminazione di libri, capitoli e snapshot</h2>
+<h3 id="eliminazione-libro">11.1 Eliminazione libro</h3>
+<p><strong>Trigger:</strong> clic su <code>.book-delete-btn</code> nella <code>.book-actions</code>.</p>
+<p><strong>Importante:</strong> l'eliminazione del libro <strong>non</strong> elimina i capitoli estratti in <code>noesisDB</code>.</p>
+<h3 id="eliminazione-capitolo">11.2 Eliminazione capitolo (con tutti i suoi snapshot)</h3>
+<p><strong>Trigger:</strong> clic su <code>.chapter-delete-btn</code> (visibile solo su hover).</p>
+<h3 id="eliminazione-snapshot-singolo">11.3 Eliminazione snapshot singolo</h3>
+<p><strong>Trigger:</strong> clic su <code>.snapshot-delete-btn</code> (visibile solo su hover).</p>
+<hr />
+<h2 id="import-snapshots-da-disco">12. Import Snapshots da disco</h2>
+<p>La funzione <strong>Import Snapshots</strong> permette di reimportare in <code>noesisDB</code> i file HTML di snapshot precedentemente salvati dall'editor.</p>
+<h3 id="file-accettati">12.3 File accettati</h3>
+<p>Il filtro regex: <code>/^noesis-(clean|annot|origin)-.*\.html?$/i</code></p>
+<ul>
+<li><code>noesis-clean-…html</code></li>
+<li><code>noesis-annot-…html</code></li>
+<li><code>noesis-origin-…html</code></li>
+</ul>
+<h3 id="metodi-di-selezione-file">12.2 Metodi di selezione file</h3>
+<ul>
+<li><strong>Desktop Chrome/Edge</strong>: <code>window.showDirectoryPicker</code> — folder picker</li>
+<li><strong>Android / Safari</strong>: file picker standard con <code>multiple</code></li>
+</ul>
+<h3 id="meccanismo-di-deduplicazione">12.5 Meccanismo di deduplicazione</h3>
+<p>La deduplicazione avviene per <strong>corrispondenza esatta della <code>description</code></strong> dello snapshot.</p>
+<hr />
+<h2 id="sistema-help-banner-overlay-pulsante">13. Sistema Help — banner, overlay, pulsante ?</h2>
+<h3 id="banner-primo-avvio---libhelpbanner">13.1 Banner primo avvio — #libHelpBanner</h3>
+<p>Il banner mostra all'utente le azioni chiave della Library. Viene mostrato la <strong>prima volta</strong> che l'utente accede alla Library (verifica via <code>localStorage</code>).</p>
+<h3 id="overlay-guida-completa---libhelpoverlay">13.2 Overlay guida completa — #libHelpOverlay</h3>
+<p><strong>Apertura:</strong> clic su <code>#libHelpBtn</code> → <code>openOverlay('libHelpOverlay')</code></p>
+<hr />
+<h2 id="loading-overlay">14. Loading overlay</h2>
+<p>Il <code>#loading-overlay</code> è un overlay fisso che copre l'intera viewport durante le operazioni asincrone.</p>
+<p><strong>Messaggi usati:</strong></p>
+<ul>
+<li><code>'Adding book to library...'</code> — durante import EPUB</li>
+<li><code>'Opening Book...'</code> — durante apertura dal click sulla copertina</li>
+</ul>
+<hr />
+<h2 id="switch-tra-library-e-reader">15. Switch tra Library e Reader</h2>
+<p>La Library e il Reader condividono lo stesso documento HTML. La visibilità alternata è gestita con la classe <code>.hidden</code>.</p>
+<h3 id="showlibrary">15.1 showLibrary()</h3>
+<p>Distrugge le istanze epub.js, pulisce DOM residuo del Reader, resetta stato globale, ricarica la griglia libri.</p>
+<h3 id="showreader">15.2 showReader()</h3>
+<p>Minima — solo switch visivo senza reset. Tutta la logica di inizializzazione Reader è in <code>openBookFromLibrary()</code>.</p>
+<hr />
+<h2 id="strutture-di-memorizzazione">16. Strutture di memorizzazione</h2>
+<h3 id="database-epublibrarydb">16.1 Database EpubLibraryDB</h3>
+<table>
+<thead>
+<tr>
+<th>Proprietà</th>
+<th>Valore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nome</td>
+<td><code>EpubLibraryDB</code></td>
+</tr>
+<tr>
+<td>Versione</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Object Store</td>
+<td><code>books</code></td>
+</tr>
+<tr>
+<td>keyPath</td>
+<td><code>id</code> (timestamp string)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="database-noesisdb">16.2 Database noesisDB</h3>
+<table>
+<thead>
+<tr>
+<th>Proprietà</th>
+<th>Valore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nome</td>
+<td><code>noesisDB</code></td>
+</tr>
+<tr>
+<td>Versione</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Object Store</td>
+<td><code>extractedChapters</code></td>
+</tr>
+<tr>
+<td>keyPath</td>
+<td><code>chapterId</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="localstorage">16.3 localStorage</h3>
+<table>
+<thead>
+<tr>
+<th>Chiave</th>
+<th>Tipo</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>'noesis-lib-theme'</code></td>
+<td><code>'dark'</code> / <code>'light'</code></td>
+<td>Tema corrente della Library</td>
+</tr>
+<tr>
+<td><code>'noesis-help-seen-library'</code></td>
+<td><code>'1'</code></td>
+<td>Flag: banner Library già mostrato</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="variabili-e-costanti-globali-rilevanti">17. Variabili e costanti globali rilevanti</h2>
+<pre><code>// EpubLibraryDB
+const DB_NAME    = 'EpubLibraryDB';
+const DB_VERSION = 1;
+const STORE_NAME = 'books';
+
+// noesisDB
+const NOESIS_DB_NAME    = 'noesisDB';
+const NOESIS_DB_VERSION = 1;
+const NOESIS_STORE      = 'extractedChapters';</code></pre>
+<h3 id="variabili-di-stato-globali-usate-dalla-library">17.2 Variabili di stato globali usate dalla Library</h3>
+<pre><code>// Riferimenti DOM
+const libraryView    = document.getElementById('library-view');
+const readerView     = document.getElementById('reader-view');
+const bookGrid       = document.getElementById('bookGrid');
+const loadingOverlay = document.getElementById('loading-overlay');
+
+// Stato Reader (resettati da showLibrary)
+let book = null;               // istanza epub.js
+let rendition = null;          // istanza rendition
+let currentBookId = null;      // id libro in EpubLibraryDB
+let currentBookTitle = '';     // titolo per estrazione capitoli
+
+// Highlights (resettati da showLibrary)
+let readerHighlights = [];
+let currentReaderHighlightColor = 'yellow';
+
+// Bookmarks (resettati da showLibrary)
+let userBookmarks = [];</code></pre>
+<hr />
+<h2 id="responsive-e-adattamento-mobile">18. Responsive e adattamento mobile</h2>
+<h3 id="breakpoint-mobile">18.1 Breakpoint mobile</h3>
+<pre><code>@media (max-width: 600px) {
+  .library-header    { padding: 14px 16px 12px; }
+  .library-grid      { padding: 16px 16px 40px; }
+  .book-header       { gap: 12px; }
+  .book-cover-thumb  { width: 52px; height: 72px; }
+  .chapters-section  { padding-left: 64px; }
+}</code></pre>
+<h3 id="compatibilita-android---import-snapshots">18.4 Compatibilità Android — Import Snapshots</h3>
+<p>Il sistema rileva automaticamente la disponibilità di <code>window.showDirectoryPicker</code> e fa fallback al file picker standard.</p>
+    <div style="margin-top:56px; padding-top:32px; border-top:1px solid var(--border); display:flex; gap:16px; flex-wrap:wrap;">
+      <a href="approfondimenti.html" class="doc-back" style="margin-bottom:0;">← Tutti gli approfondimenti</a>
+      <a href="index.html" class="doc-back" style="margin-bottom:0;">🏠 Home</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>MIT License · Vanilla JS · No Server · <strong>Noesis</strong> · v810</p>
+  <p style="margin-top:8px;"><a href="index.html">Home</a> · <a href="guida.html">Guida</a> · <a href="approfondimenti.html">Approfondimenti</a> · <a href="faq.html">FAQ</a> · <a href="note.html">Note</a></p>
+</footer>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="site.js"></script>
+<script>
+// Highlight TOC item on scroll
+(function(){
+  const links = document.querySelectorAll('.doc-toc a');
+  if (!links.length) return;
+  const headings = Array.from(document.querySelectorAll('.doc-content h2, .doc-content h3'));
+  function onScroll() {
+    const scrollY = window.scrollY + 100;
+    let active = null;
+    headings.forEach(h => { if (h.offsetTop <= scrollY) active = h; });
+    links.forEach(l => l.style.color = '');
+    if (active) {
+      const id = active.getAttribute('id');
+      const link = document.querySelector('.doc-toc a[href="#' + id + '"]');
+      if (link) link.style.color = 'var(--violet)';
+    }
+  }
+  window.addEventListener('scroll', onScroll, {passive: true});
+})();
+</script>
+</body>
+</html>

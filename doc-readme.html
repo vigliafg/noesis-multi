@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>README — Panoramica Completa — Noesis</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="approfondimenti.css">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">📚 <span>Noesis</span></a>
+    <button class="lang-toggle-btn" id="lang-toggle" onclick="window.noesisI18n.toggleLang()" title="Switch to Italian">🇮🇹 IT</button>
+    <button class="nav-toggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links">
+      <a href="index.html" data-i18n="nav.home">Home</a><a href="guida.html" data-i18n="nav.guide">Quick Guide</a><a href="library.html" data-i18n="nav.library">Library</a><a href="navigation.html" data-i18n="nav.reading">Reading</a><a href="htmleditor.html" data-i18n="nav.editor">Editor</a><a href="snapshot.html" data-i18n="nav.snapshot">Snapshot</a><a href="collezioni.html" data-i18n="nav.collections">Collections</a><a href="helpers.html" data-i18n="nav.helpers">Helpers</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="note.html" data-i18n="nav.notes">Notes</a>
+      <div class="nav-dropdown">
+        <a href="approfondimenti.html" data-i18n="nav.deepdives">Deep Dives</a>
+        <div class="nav-dropdown-menu">
+          <span class="dm-label" data-i18n="nav.dm.docs">Documentation</span>
+          <a href="doc-readme.html" data-i18n="nav.dm.readme">📚 README — Overview</a>
+          <a href="doc-ui.html" data-i18n="nav.dm.ui">🖥️ UI — Button Reference</a>
+          <a href="doc-workflow.html" data-i18n="nav.dm.workflow">🔄 Workflow — Usage Flows</a>
+          <a href="doc-tech.html" data-i18n="nav.dm.tech">⚙️ Technical Architecture</a>
+          <a href="doc-library-tech.html" data-i18n="nav.dm.libtech">📚 Technical Doc — Library</a>
+          <a href="doc-reader-tech.html" data-i18n="nav.dm.readtech">📖 Technical Doc — Reader</a>
+          <a href="doc-editor-tech.html" data-i18n="nav.dm.edtech">✏️ Technical Doc — Editor</a>
+          <a href="doc-full-embedding.html" data-i18n="nav.dm.fullembedding">📦 Full Version — Embedding</a>
+          <span class="dm-label" data-i18n="nav.dm.project">Project</span>
+          <a href="doc-adv.html" data-i18n="nav.dm.adv">🌟 Positioning</a>
+          <a href="doc-legal.html" data-i18n="nav.dm.legal">⚖️ Legal Analysis</a>
+          <a href="promo.html" data-i18n="nav.dm.promo">🚀 Presentation</a>
+        </div>
+      </div>
+      <a href="index.html#download" class="nav-cta" data-i18n="nav.download">⬇ Download</a>
+    </div>
+  </div>
+</nav>
+<div class="callout callout-info deepdive-translation-callout" style="margin:0;border-radius:0;background:#1e3a5f;color:#e0eeff;border:none;border-bottom:2px solid #3b82f6;">
+  <span class="callout-icon">🌐</span>
+  <div data-i18n="deepdive.callout">🌐 This page is written in Italian. Use your browser's <strong>Translate</strong> feature to read it in your language.</div>
+</div>
+
+<section class="hero-doc">
+  <div class="doc-tag" style="color:#7c3aed;background:rgba(124,58,237,0.15);border:1px solid #7c3aed44;">📚 Documentazione</div>
+  <h1>README — Panoramica Completa</h1>
+  <p class="doc-subtitle">Cos'è Noesis, funzionalità principali, installazione, utilizzo e toolbar di riferimento.</p>
+</section>
+
+<div class="doc-layout">
+  <div class="doc-toc" id="doc-toc"><h4>In questa pagina</h4><ul>
+<li><a href="#indice" class="">Indice</a></li>
+<li><a href="#cose-noesis" class="">Cos'è Noesis</a></li>
+<li><a href="#screenshot" class="">Screenshot</a></li>
+<li><a href="#funzionalita-principali" class="">Funzionalità principali</a></li>
+<li><a href="#lettura-epub-completa" class="toc-h3">📖 Lettura EPUB completa</a></li>
+<li><a href="#lettura-multilingue" class="toc-h3">🌍 Lettura multilingue</a></li>
+<li><a href="#highlighting-a-tre-colori" class="toc-h3">🎨 Highlighting a tre colori</a></li>
+<li><a href="#raccolta-chunk-e-collezioni" class="toc-h3">📦 Raccolta chunk e collezioni</a></li>
+<li><a href="#estrazione-capitoli-intelligente" class="toc-h3">🗂️ Estrazione capitoli intelligente</a></li>
+<li><a href="#sistema-di-versioning-a-snapshot" class="toc-h3">📸 Sistema di versioning a Snapshot</a></li>
+<li><a href="#libreria-gerarchica" class="toc-h3">📚 Libreria gerarchica</a></li>
+<li><a href="#editor-wysiwyg-integrato" class="toc-h3">✏️ Editor WYSIWYG integrato</a></li>
+<li><a href="#export-multiplo" class="toc-h3">📄 Export multiplo</a></li>
+<li><a href="#segnalibri-personali" class="toc-h3">🔖 Segnalibri personali</a></li>
+<li><a href="#15-temi-di-lettura" class="toc-h3">🎨 15 temi di lettura</a></li>
+<li><a href="#personalizzazione-interfaccia" class="toc-h3">⚙️ Personalizzazione interfaccia</a></li>
+<li><a href="#installazione-e-avvio" class="">Installazione e avvio</a></li>
+<li><a href="#metodo-1-apertura-diretta-piu-semplice" class="toc-h3">Metodo 1 — Apertura diretta (più semplice)</a></li>
+<li><a href="#metodo-2-server-locale-consigliato" class="toc-h3">Metodo 2 — Server locale (consigliato)</a></li>
+<li><a href="#requisiti" class="toc-h3">Requisiti</a></li>
+<li><a href="#utilizzo" class="">Utilizzo</a></li>
+<li><a href="#importare-il-primo-libro" class="toc-h3">Importare il primo libro</a></li>
+<li><a href="#leggere-un-libro" class="toc-h3">Leggere un libro</a></li>
+<li><a href="#evidenziare-e-raccogliere" class="toc-h3">Evidenziare e raccogliere</a></li>
+<li><a href="#estrarre-e-studiare" class="toc-h3">Estrarre e studiare</a></li>
+
+<li><a href="#accedere-ai-capitoli-dalla-libreria" class="toc-h3">Accedere ai capitoli dalla libreria</a></li>
+<li><a href="#creare-un-report" class="toc-h3">Creare un report</a></li>
+<li><a href="#toolbar-riferimento-completo" class="">Toolbar — Riferimento completo</a></li>
+<li><a href="#library-toolbar" class="toc-h3">Library (toolbar header)</a></li>
+<li><a href="#reader-toolbar-principale" class="toc-h3">Reader (toolbar principale)</a></li>
+
+<li><a href="#editor-wysiwyg" class="toc-h3">Editor WYSIWYG</a></li>
+<li><a href="#editor-chapter-section" class="toc-h3">Editor — Sezione Chapter</a></li>
+<li><a href="#editor-collection-section" class="toc-h3">Editor — Sezione Collection</a></li>
+<li><a href="#editor-tools" class="toc-h3">Editor — Tools</a></li>
+<li><a href="#temi-di-lettura" class="">Temi di lettura</a></li>
+<li><a href="#privacy-e-dati" class="">Privacy e dati</a></li>
+<li><a href="#stack-tecnico" class="">Stack tecnico</a></li>
+<li><a href="#chi-lo-usa" class="">Chi lo usa</a></li>
+<li><a href="#licenza" class="">Licenza</a></li>
+</ul></div>
+  <div class="doc-content">
+    <a href="approfondimenti.html" class="doc-back">← Tutti gli approfondimenti</a>
+    <h1 id="noesis-reading-to-knowledge-system">📚 Noesis — Reading-to-Knowledge System</h1>
+<blockquote>
+<p><strong>Leggi in qualsiasi lingua. Trasforma i libri in conoscenza.</strong></p>
+</blockquote>
+<p><br />
+<a href="#privacy"></a><br />
+<a href="#stack-tecnico"></a><br />
+<a href="#privacy"></a><br />
+<a href="#privacy"></a></p>
+<hr />
+<p>Noesis è un <strong>EPUB reader poliglotta</strong> e un <strong>ambiente di studio integrato</strong> che gira interamente nel browser, senza server, senza account e senza installazioni. Non è solo un lettore: è un sistema per trasformare la lettura in produzione attiva di conoscenza.</p>
+<hr />
+<h2 id="indice">Indice</h2>
+<ul>
+<li><a href="#cosè-noesis">Cos'è Noesis</a></li>
+<li><a href="#screenshot">Screenshot</a></li>
+<li><a href="#funzionalità-principali">Funzionalità principali</a></li>
+<li><a href="#installazione-e-avvio">Installazione e avvio</a></li>
+<li><a href="#utilizzo">Utilizzo</a></li>
+<li><a href="#toolbar--riferimento-completo">Toolbar — Riferimento completo</a></li>
+<li><a href="#temi-di-lettura">Temi di lettura</a></li>
+<li><a href="#privacy-e-dati">Privacy e dati</a></li>
+<li><a href="#stack-tecnico">Stack tecnico</a></li>
+<li><a href="#chi-lo-usa">Chi lo usa</a></li>
+<li><a href="#licenza">Licenza</a></li>
+</ul>
+<hr />
+<h2 id="cose-noesis">Cos'è Noesis</h2>
+<p>Noesis nasce come risposta a una domanda precisa: perché il lettore digitale e gli strumenti di studio devono essere applicazioni separate?</p>
+<p>L'applicazione unisce in un unico file HTML autocontenuto:</p>
+<ul>
+<li>un <strong>reader EPUB completo</strong> con navigazione gerarchica dell'indice</li>
+<li>un sistema di <strong>traduzione nativa</strong> via browser per leggere in qualsiasi lingua</li>
+<li>un motore di <strong>evidenziazione e annotazione</strong> con raccolta chunk</li>
+<li>un <strong>estrattore di capitoli</strong> intelligente che rispetta la gerarchia del libro</li>
+<li>un sistema di <strong>versioning a snapshot</strong> per conservare lo stato dei capitoli estratti nel tempo</li>
+<li>un <strong>editor WYSIWYG</strong> per produrre report, dispense e documenti</li>
+<li>un sistema di <strong>export multiplo</strong> (PDF, DOCX, HTML, PDF viewer)</li>
+<li>un sistema di <strong>segnalibri</strong>, collezioni e gestione della posizione di lettura</li>
+<li>una <strong>libreria gerarchica</strong> che mostra libri, capitoli estratti e snapshot in un'unica vista</li>
+</ul>
+<p>Tutto funziona offline, nel browser, senza mai inviare un byte a server esterni.</p>
+<hr />
+<h2 id="screenshot">Screenshot</h2>
+<table>
+<thead>
+<tr>
+<th>My Library</th>
+<th>Lettura (Reader)</th>
+<th>Estrazione → Editor</th>
+<th>Noesis Editor (sn56.x)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Libreria gerarchica con snapshot</td>
+<td>Sidebar espandibile con indice</td>
+<td>Estrazione apre direttamente in Editor</td>
+<td>Toolbar, chunk, snapshot, export</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="funzionalita-principali">Funzionalità principali</h2>
+<h3 id="lettura-epub-completa">📖 Lettura EPUB completa</h3>
+<ul>
+<li>Rendering di file <code>.epub</code> direttamente nel browser tramite <strong>ePub.js</strong></li>
+<li>Navigazione con <strong>TOC gerarchico espandibile</strong> in sidebar</li>
+<li>Modalità <strong>scorrimento continuo</strong> o <strong>navigazione paginata</strong></li>
+<li>Supporto a libri con struttura annidata multilivello</li>
+</ul>
+<h3 id="lettura-multilingue">🌍 Lettura multilingue</h3>
+<ul>
+<li>Traduzione istantanea tramite la funzione di <strong>traduzione nativa del browser</strong></li>
+<li>Nessuna API esterna richiesta, nessun costo per carattere tradotto</li>
+<li>Lettura fluida di qualsiasi lingua: ideale per leggere bestseller stranieri prima della traduzione ufficiale</li>
+</ul>
+<h3 id="highlighting-a-tre-colori">🎨 Highlighting a tre colori</h3>
+<ul>
+<li>Evidenziazione in <strong>giallo</strong>, <strong>verde</strong> e <strong>rosa</strong></li>
+<li>Rimozione selettiva delle evidenziazioni</li>
+</ul>
+<h3 id="raccolta-chunk-e-collezioni">📦 Raccolta chunk e collezioni</h3>
+<ul>
+<li>Selezione di testo e immagini durante la lettura → aggiunti alla <strong>collezione</strong></li>
+<li>Collezioni importabili/esportabili come file <strong>JSON</strong></li>
+<li>I chunk raccolti alimentano l'editor report</li>
+</ul>
+<h3 id="estrazione-capitoli-intelligente">🗂️ Estrazione capitoli intelligente</h3>
+<ul>
+<li><strong>Solo il capitolo corrente</strong>: documento HTML standalone focalizzato</li>
+<li><strong>Capitolo corrente + tutti i sottolivelli</strong>: assemblaggio automatico dell'intera sezione con gerarchia preservata</li>
+<li>Ogni documento estratto include toolbar completa, evidenziazioni e opzioni di export già attive</li>
+<li>Il capitolo estratto viene <strong>salvato automaticamente in IndexedDB</strong> (<code>noesisDB</code>) con un ID univoco</li>
+</ul>
+<h3 id="sistema-di-versioning-a-snapshot">📸 Sistema di versioning a Snapshot</h3>
+<ul>
+<li><strong>Save Snapshot</strong>: salva lo stato HTML completo del capitolo estratto con una descrizione libera</li>
+<li><strong>Snapshot History</strong>: elenco cronologico inverso di tutti gli snapshot salvati per quel capitolo</li>
+<li>Ogni snapshot è <strong>ricaricabile</strong> con un click (il contenuto del capitolo viene ripristinato allo stato salvato)</li>
+<li>Ogni snapshot è <strong>cancellabile</strong> individualmente</li>
+<li>Gli snapshot vengono salvati come <strong>file HTML su filesystem locale</strong> (File System Access API) — i metadati in <code>noesisDB</code>, i file su disco</li>
+</ul>
+<h3 id="libreria-gerarchica">📚 Libreria gerarchica</h3>
+<ul>
+<li>Vista libreria completamente rinnovata con <strong>tema scuro editoriale</strong></li>
+<li>Per ogni libro: copertina, titolo, autore e badge con contatori di capitoli estratti e snapshot totali</li>
+<li>Sotto ogni libro: <strong>elenco dei capitoli estratti</strong> con i relativi snapshot (dal più recente)</li>
+<li><strong>Tre punti di accesso rapido</strong>:</li>
+<li>Click sulla <strong>copertina</strong> → apre il libro nel Reader con lo stato memorizzato</li>
+<li>Click sul <strong>nome del capitolo</strong> → apre il capitolo estratto con lo snapshot più recente</li>
+<li>Click sul <strong>nome dello snapshot</strong> → apre il capitolo estratto con quello snapshot specifico</li>
+</ul>
+<h3 id="editor-wysiwyg-integrato">✏️ Editor WYSIWYG integrato —</h3>
+<ul>
+<li>Editor Summernote 0.9.1 embedded, aperto in nuovo tab via Blob URL</li>
+<li>Formattazione: <strong>grassetto, corsivo, sottolineato, barrato</strong></li>
+<li>Intestazioni: <strong>H1, H2, H3</strong>, paragrafo, liste puntate e numerate</li>
+<li>Inserimento immagini da file locale (salvate <strong>inline come base64</strong>, documento autocontenuto)</li>
+<li>Font size regolabile (8–28px)</li>
+<li>Plugin tabelle con toolbar contestuale flottante: inserisci/elimina righe e colonne</li>
+<li>Raccolta Chunk: seleziona testo, immagini e tabelle dal documento</li>
+<li>Inspect Panel flottante per gestire e iniettare chunk nel documento</li>
+<li><strong>Excalidraw integrato</strong> (v810): diagrammi, flowchart e mappe mentali in tab dedicata; esporta SVG/PNG</li>
+<li>Save Snapshot: scarica su disco file HTML <code>clean</code> + <code>annot</code></li>
+</ul>
+<h3 id="export-multiplo">📄 Export multiplo</h3>
+<ul>
+<li><strong>Documento</strong>: TXT, MD, MD+ZIP, JSON, DOCX, PDF</li>
+<li><strong>Collezione chunk</strong>: JSON, HTML, MD, MD+ZIP</li>
+<li>Le immagini sono sempre inline (base64) — nessun path rotto</li>
+</ul>
+<h3 id="segnalibri-personali">🔖 Segnalibri personali</h3>
+<ul>
+<li>Cassetto segnalibri con badge contatore</li>
+<li>Salvataggio manuale della posizione di lettura e delle preferenze per ogni libro</li>
+</ul>
+<h3 id="15-temi-di-lettura">🎨 15 temi di lettura</h3>
+<ul>
+<li>5 gruppi tematici per ogni condizione di luce: chiari, caldi, grigi, scuri, notturni</li>
+<li>Anteprima visiva con swatches colorati</li>
+</ul>
+<h3 id="personalizzazione-interfaccia">⚙️ Personalizzazione interfaccia</h3>
+<ul>
+<li>Font size e interlinea configurabili</li>
+<li>Pagina singola o doppia</li>
+<li>Colori toolbar, sidebar e pulsanti di navigazione personalizzabili</li>
+<li>Opacità dei controlli regolabile</li>
+<li>Zoom toolbar (90%–130%)</li>
+</ul>
+<hr />
+<h2 id="installazione-e-avvio">Installazione e avvio</h2>
+<p>Noesis non richiede installazione. È un singolo file HTML con tutte le dipendenze già incluse.</p>
+<h3 id="metodo-1-apertura-diretta-piu-semplice">Metodo 1 — Apertura diretta (più semplice)</h3>
+<pre><code class="language-bash"># 1. Scarica il file zip dal sito
+#    https://noesis.vigliafg.workers.dev/#download
+
+# 2. Decomprimi
+# Windows: tasto destro → Estrai tutto…
+# macOS:   doppio click sullo zip
+# Linux:
+unzip noesis810.zip
+
+# 3. Apri nel browser
+# Doppio click su noesis810.html
+# oppure trascinalo in Chrome, Firefox o Edge
+</code></pre>
+<h3 id="metodo-2-server-locale-consigliato">Metodo 2 — Server locale (consigliato)</h3>
+<p>Alcuni file EPUB applicano restrizioni CORS che impediscono il rendering corretto se il file HTML viene aperto con <code>file://</code>. Per evitare questo problema:</p>
+<pre><code class="language-bash"># Python 3 (consigliato)
+cd cartella-noesis
+python -m http.server 8000
+# Apri: http://localhost:8000/noesis810.html
+
+# Python 2
+python -m SimpleHTTPServer 8000
+
+# Node.js (se disponibile)
+npx serve .
+# oppure
+npx http-server . -p 8000
+</code></pre>
+<h3 id="requisiti">Requisiti</h3>
+<table>
+<thead>
+<tr>
+<th>Requisito</th>
+<th>Dettaglio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Browser</td>
+<td>Chrome, Firefox, Edge (versioni recenti)</td>
+</tr>
+<tr>
+<td>Server</td>
+<td>Nessuno (opzionale: server locale per EPUB con CORS)</td>
+</tr>
+<tr>
+<td>Account</td>
+<td>Non richiesto</td>
+</tr>
+<tr>
+<td>Connessione internet</td>
+<td>Solo per il primo caricamento (CDN dipendenze)</td>
+</tr>
+<tr>
+<td>Spazio disco</td>
+<td>Dipende dai file EPUB importati</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>⚠️ <strong>Nota</strong>: Noesis funziona interamente nel browser. I libri sono salvati in <strong>IndexedDB</strong> (<code>EpubLibraryDB</code>), i metadati dei capitoli estratti in <strong>IndexedDB</strong> (<code>noesisDB</code>), gli snapshot come <strong>file HTML su filesystem locale</strong>, le preferenze in <strong>localStorage</strong>. Nessun dato lascia il dispositivo.</p>
+</blockquote>
+<hr />
+<h2 id="utilizzo">Utilizzo</h2>
+<h3 id="importare-il-primo-libro">Importare il primo libro</h3>
+<ol>
+<li>Apri <code>noesis810.html</code> nel browser</li>
+<li>Clicca <strong>+ Add Book</strong> nella schermata libreria</li>
+<li>Seleziona un file <code>.epub</code> dal tuo dispositivo</li>
+<li>Il libro appare nella libreria e si apre automaticamente</li>
+</ol>
+<h3 id="leggere-un-libro">Leggere un libro</h3>
+<ol>
+<li>Clicca sulla <strong>copertina</strong> del libro in libreria</li>
+<li>Usa la <strong>sidebar TOC</strong> per navigare tra i capitoli</li>
+<li>Attiva la <strong>traduzione del browser</strong> per leggere in altre lingue</li>
+<li>Usa i <strong>controlli tipografia</strong> per personalizzare la visualizzazione</li>
+</ol>
+<h3 id="evidenziare-e-raccogliere">Evidenziare e raccogliere</h3>
+<ol>
+<li>Seleziona il testo che vuoi evidenziare</li>
+<li>Scegli il colore dall'apposito dropdown nella toolbar</li>
+<li>Per raccogliere nella collezione: seleziona → <strong>Add Selection</strong></li>
+</ol>
+<h3 id="estrarre-e-studiare">Estrarre e studiare</h3>
+<ol>
+<li>Naviga al capitolo desiderato</li>
+<li>Clicca <strong>Extract Chapter</strong> → scegli tra <em>solo corrente</em> o <em>corrente + sottolivelli</em></li>
+<li>Il documento estratto si apre in una nuova vista con toolbar completa</li>
+<li>Highlights, chunk e opzioni di export sono già disponibili</li>
+</ol>
+
+<h3 id="accedere-ai-capitoli-dalla-libreria">Accedere ai capitoli dalla libreria</h3>
+<ol>
+<li>Nella libreria, espandi un libro per vedere i suoi capitoli estratti</li>
+<li>Clicca sul <strong>nome del capitolo</strong> per aprirlo con lo snapshot più recente</li>
+<li>Clicca sul <strong>nome di uno snapshot specifico</strong> per aprirlo direttamente</li>
+<li>Clicca sulla <strong>copertina</strong> per aprire il libro nel reader</li>
+</ol>
+<h3 id="creare-un-report">Creare un report</h3>
+<ol>
+<li>Estrai un capitolo dal Reader — si apre direttamente in <strong>Noesis Editor (sn56.x)</strong></li>
+<li>Lavora nell'editor WYSIWYG: formatta, inserisci tabelle, aggiungi immagini</li>
+<li>Raccogli chunk dalla collezione se necessario</li>
+<li>Salva snapshot per versionare il lavoro</li>
+<li>Esporta in PDF, DOCX, MD, oppure copia l'HTML per il CMS</li>
+</ol>
+<hr />
+<h2 id="toolbar-riferimento-completo">Toolbar — Riferimento completo</h2>
+<h3 id="library-toolbar">Library (toolbar header)</h3>
+<table>
+<thead>
+<tr>
+<th>Pulsante</th>
+<th>ID</th>
+<th>Funzione</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Add Book</td>
+<td><code>#importLabel</code> / <code>#libraryInput</code></td>
+<td>Apre il file picker per importare file EPUB. Salva in <code>EpubLibraryDB</code>.</td>
+</tr>
+<tr>
+<td>Import Snapshots</td>
+<td><code>#importSnapshotsBtn</code></td>
+<td>Reimporta file snapshot HTML da disco in <code>noesisDB</code>. Supporta folder picker (Chrome/Edge) o file picker standard.</td>
+</tr>
+<tr>
+<td>Open Editor</td>
+<td><code>#libOpenEditorBtn</code></td>
+<td>Apre Noesis Editor (sn56.x) in modalità <em>standalone</em> — editor vuoto senza contesto libro.</td>
+</tr>
+<tr>
+<td>Toggle Theme</td>
+<td><code>#libThemeToggle</code></td>
+<td>Alterna tema chiaro/scuro. Preferenza salvata in <code>localStorage</code>.</td>
+</tr>
+<tr>
+<td>Tools ▾</td>
+<td><code>#libToolsBtn</code> / <code>#libToolsMenu</code></td>
+<td>Dropdown con strumenti esterni: noesis-epub-tools, Pandoc Online, Mozilla PDF Viewer.</td>
+</tr>
+<tr>
+<td>Help</td>
+<td><code>#libHelpBtn</code></td>
+<td>Apre l'overlay di aiuto contestuale con guida ai controlli della Library.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="reader-toolbar-principale">Reader (toolbar principale)</h3>
+<table>
+<thead>
+<tr>
+<th>Pulsante</th>
+<th>Funzione</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Toggle Sidebar</td>
+<td>Mostra/nasconde il TOC con indice gerarchico espandibile</td>
+</tr>
+<tr>
+<td>User Bookmarks</td>
+<td>Apre il cassetto segnalibri con badge contatore</td>
+</tr>
+<tr>
+<td>Highlight ▾</td>
+<td>Dropdown colori: Giallo, Verde, Rosa, Nessuno/Rimuovi</td>
+</tr>
+<tr>
+<td>Display Settings</td>
+<td>Pannello accordion unificato: tipografia (font size, interlinea, layout), 15 temi di lettura, colori interfaccia e opacità</td>
+</tr>
+<tr>
+<td>Scroll Mode</td>
+<td>Toggle scorrimento continuo ↔ navigazione paginata</td>
+</tr>
+<tr>
+<td>% Zoom</td>
+<td>Scala la dimensione dei pulsanti toolbar: 90%–130%</td>
+</tr>
+<tr>
+<td>Save State</td>
+<td>Salva manualmente posizione e preferenze del libro</td>
+</tr>
+<tr>
+<td>Extract Chapter</td>
+<td>Dropdown: solo corrente / corrente + sottolivelli</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Nota:</strong> L'ambiente "Capitolo estratto" è ora <strong>unificato</strong> con il <strong>Noesis Editor (sn56.x)</strong>. Quando estrai un capitolo dal Reader, si apre direttamente nell'Editor con toolbar completa.</p>
+</blockquote>
+<h3 id="editor-wysiwyg">Editor WYSIWYG</h3>
+<table>
+<thead>
+<tr>
+<th>Pulsante</th>
+<th>Funzione</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>B I U S</td>
+<td>Grassetto, corsivo, sottolineato, barrato</td>
+</tr>
+<tr>
+<td>H1 H2 H3</td>
+<td>Intestazioni e paragrafo</td>
+</tr>
+<tr>
+<td>• L 1.L</td>
+<td>Lista puntata e lista numerata</td>
+</tr>
+<tr>
+<td>🖼️</td>
+<td>Inserimento immagine da file locale (base64 inline)</td>
+</tr>
+<tr>
+<td>A− A+</td>
+<td>Font size (8–28px)</td>
+</tr>
+<tr>
+<td>⚙️</td>
+<td>Plugin tabelle: toolbar contestuale flottante</td>
+</tr>
+<tr>
+<td>Print / PDF</td>
+<td>Stampa nativa con @media print ottimizzato</td>
+</tr>
+<tr>
+<td>&lt;/&gt;</td>
+<td>Copia HTML negli appunti</td>
+</tr>
+</tbody>
+</table>
+<h3 id="editor-chapter-section">Editor — Sezione Chapter (bordo giallo)</h3>
+<table>
+<thead>
+<tr>
+<th>Pulsante</th>
+<th>ID</th>
+<th>Funzione</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>New</td>
+<td><code>#chNewBtn</code></td>
+<td>Crea nuovo documento. Chiede conferma se contenuto corrente da salvare.</td>
+</tr>
+<tr>
+<td>Import</td>
+<td><code>#chImportBtn</code></td>
+<td>Apre dialog per importare da IDB (snapshot esistenti) o da file HTML.</td>
+</tr>
+<tr>
+<td>Save</td>
+<td><code>#chExportMainBtn</code></td>
+<td>Salva doppio snapshot (clean + annotated) + in IndexedDB. Download automatico di due file HTML.</td>
+</tr>
+<tr>
+<td>More formats</td>
+<td><code>#chMoreBtn</code></td>
+<td>Export: TXT, MD, MD+ZIP, JSON, PDF, DOCX.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="editor-collection-section">Editor — Sezione Collection (bordo azzurro)</h3>
+<table>
+<thead>
+<tr>
+<th>Pulsante</th>
+<th>ID</th>
+<th>Funzione</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Add [+N]</td>
+<td><code>#addChunkBtn</code></td>
+<td>Aggiunge selezione (testo/immagine/tabella) alla collezione. Badge mostra numero chunk.</td>
+</tr>
+<tr>
+<td>Import JSON</td>
+<td>—</td>
+<td>Importa collezione da file JSON. Aggiunge ai chunk esistenti.</td>
+</tr>
+<tr>
+<td>Export JSON</td>
+<td>—</td>
+<td>Esporta collezione come JSON con metadati.</td>
+</tr>
+<tr>
+<td>More formats</td>
+<td><code>#colMoreBtn</code></td>
+<td>Export: MD, MD+ZIP, HTML standalone.</td>
+</tr>
+<tr>
+<td>Inspect</td>
+<td><code>#inspectPanel</code></td>
+<td>Apre pannello flottante per gestione avanzata chunk (drag, inject, delete).</td>
+</tr>
+<tr>
+<td>Clear</td>
+<td>—</td>
+<td>Svuota la collezione. Richiede conferma.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="editor-tools">Editor — Tools</h3>
+<table>
+<thead>
+<tr>
+<th>Strumento</th>
+<th>Funzione</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Excalidraw</td>
+<td>Apre Noesis Excalidraw in nuovo tab — diagrammi, flowchart, mappe mentali. Esporta SVG/PNG.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="temi-di-lettura">Temi di lettura</h2>
+<p>Noesis include <strong>15 temi</strong> suddivisi in <strong>5 gruppi</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Gruppo</th>
+<th>Temi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>☀️ Chiari</td>
+<td>White, Soft White, Cream</td>
+</tr>
+<tr>
+<td>🌅 Caldi</td>
+<td>Sepia, Parchment</td>
+</tr>
+<tr>
+<td>☁️ Grigi chiari</td>
+<td>Light Gray, Cool Gray, Warm Gray</td>
+</tr>
+<tr>
+<td>🌆 Grigi scuri</td>
+<td>Mid Gray, Slate, Dark Gray</td>
+</tr>
+<tr>
+<td>🌙 Notturni</td>
+<td>Charcoal, Dark, Midnight, True Black</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="privacy-e-dati">Privacy e dati</h2>
+<p>Noesis è progettato con una filosofia <strong>zero server, zero tracking</strong>:</p>
+<ul>
+<li>✅ Tutti i libri salvati in <strong>IndexedDB</strong> (<code>EpubLibraryDB</code>) nel browser (locale)</li>
+<li>✅ Metadati capitoli estratti in <strong>IndexedDB</strong> (<code>noesisDB</code>), snapshot come file HTML su filesystem locale</li>
+<li>✅ Preferenze in <strong>localStorage</strong> (locale)</li>
+<li>✅ Nessuna comunicazione con server esterni</li>
+<li>✅ Funziona <strong>offline</strong> dopo il primo caricamento</li>
+<li>✅ Nessun account, nessun abbonamento</li>
+<li>✅ File singolo HTML — tutto autocontenuto</li>
+</ul>
+<p>L'unica connessione esterna avviene al primo caricamento per scaricare le dipendenze da CDN (ePub.js, JSZip, Bootstrap Icons, jQuery, Summernote, Mozilla PDF.js). Dopo di che, l'app funziona completamente offline.</p>
+<hr />
+<h2 id="stack-tecnico">Stack tecnico</h2>
+<p>Noesis usa esclusivamente <strong>Vanilla JS</strong> senza framework. Le dipendenze sono limitate a librerie specifiche caricate da CDN:</p>
+<table>
+<thead>
+<tr>
+<th>Libreria</th>
+<th>Scopo</th>
+<th>Caricamento</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ePub.js</strong></td>
+<td>Rendering EPUB nel browser</td>
+<td>CDN</td>
+</tr>
+<tr>
+<td><strong>JSZip</strong></td>
+<td>Decompressione file EPUB</td>
+<td>CDN</td>
+</tr>
+<tr>
+<td><strong>Bootstrap Icons</strong></td>
+<td>Iconografia dell'interfaccia</td>
+<td>CDN</td>
+</tr>
+<tr>
+<td><strong>jQuery</strong></td>
+<td>Dipendenza di Summernote</td>
+<td>CDN</td>
+</tr>
+<tr>
+<td><strong>Summernote</strong></td>
+<td>Editor WYSIWYG (Noesis Editor, Noesis fork)</td>
+<td>Built-in</td>
+</tr>
+<tr>
+<td><strong>Excalidraw</strong></td>
+<td>Diagrammi e mindmap (Noesis fork)</td>
+<td>Built-in</td>
+</tr>
+<tr>
+<td><strong>Mozilla PDF.js</strong></td>
+<td>Viewer PDF integrato</td>
+<td>CDN</td>
+</tr>
+<tr>
+<td><strong>pandoc.wasm</strong></td>
+<td>Conversioni documento (Pandoc Online)</td>
+<td>Esterno (no upload)</td>
+</tr>
+</tbody>
+</table>
+<p>Lo storage è gestito con <strong>due database IndexedDB separati</strong>: <code>EpubLibraryDB</code> per i libri e <code>noesisDB</code> per i capitoli estratti e gli snapshot.</p>
+<hr />
+<h2 id="chi-lo-usa">Chi lo usa</h2>
+<table>
+<thead>
+<tr>
+<th>Profilo</th>
+<th>Caso d'uso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>📖 Lettore comune</td>
+<td>Legge bestseller stranieri tradotti al volo dal browser</td>
+</tr>
+<tr>
+<td>🎓 Studente universitario</td>
+<td>Estrae capitoli, evidenzia, salva snapshot delle versioni di studio, genera PDF</td>
+</tr>
+<tr>
+<td>🔬 Ricercatore</td>
+<td>Assembla report con immagini base64, tabelle e note da paper; versiona le revisioni con snapshot</td>
+</tr>
+<tr>
+<td>🌍 Lettore multilingue</td>
+<td>Studia lingue straniere con highlight a 3 colori e traduzione browser nativa</td>
+</tr>
+<tr>
+<td>📝 Blogger/Creator</td>
+<td>Crea review in WYSIWYG, esporta HTML per CMS</td>
+</tr>
+<tr>
+<td>🎓 Insegnante</td>
+<td>Prepara dispense da manuali, highlight per argomenti, PDF per la classe</td>
+</tr>
+<tr>
+<td>🧳 Viaggiatore</td>
+<td>Estrae sezioni da guide turistiche, esporta PDF offline</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="licenza">Licenza</h2>
+<p>Noesis è rilasciato sotto licenza <strong>MIT</strong>.</p>
+<pre><code>MIT License — Vanilla JS · No Server · Noesis — Reading-to-Knowledge System
+</code></pre>
+<hr />
+<p><em>Noesis è un progetto indipendente. Sviluppato con l'obiettivo di rendere la lettura digitale uno strumento reale di produzione della conoscenza.</em></p>
+    <div style="margin-top:56px; padding-top:32px; border-top:1px solid var(--border); display:flex; gap:16px; flex-wrap:wrap;">
+      <a href="approfondimenti.html" class="doc-back" style="margin-bottom:0;">← Tutti gli approfondimenti</a>
+      <a href="index.html" class="doc-back" style="margin-bottom:0;">🏠 Home</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>MIT License · Vanilla JS · No Server · <strong>Noesis</strong> · v810</p>
+  <p style="margin-top:8px;"><a href="index.html">Home</a> · <a href="guida.html">Guida</a> · <a href="approfondimenti.html">Approfondimenti</a> · <a href="faq.html">FAQ</a> · <a href="note.html">Note</a></p>
+</footer>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="site.js"></script>
+<script>
+// Highlight TOC item on scroll
+(function(){
+  const links = document.querySelectorAll('.doc-toc a');
+  if (!links.length) return;
+  const headings = Array.from(document.querySelectorAll('.doc-content h2, .doc-content h3'));
+  function onScroll() {
+    const scrollY = window.scrollY + 100;
+    let active = null;
+    headings.forEach(h => { if (h.offsetTop <= scrollY) active = h; });
+    links.forEach(l => l.style.color = '');
+    if (active) {
+      const id = active.getAttribute('id');
+      const link = document.querySelector('.doc-toc a[href="#' + id + '"]');
+      if (link) link.style.color = 'var(--violet)';
+    }
+  }
+  window.addEventListener('scroll', onScroll, {passive: true});
+})();
+</script>
+</body>
+</html>

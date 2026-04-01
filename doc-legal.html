@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analisi Legale — Privacy e Copyright — Noesis</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="approfondimenti.css">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">📚 <span>Noesis</span></a>
+    <button class="lang-toggle-btn" id="lang-toggle" onclick="window.noesisI18n.toggleLang()" title="Switch to Italian">🇮🇹 IT</button>
+    <button class="nav-toggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links">
+      <a href="index.html" data-i18n="nav.home">Home</a><a href="guida.html" data-i18n="nav.guide">Quick Guide</a><a href="library.html" data-i18n="nav.library">Library</a><a href="navigation.html" data-i18n="nav.reading">Reading</a><a href="htmleditor.html" data-i18n="nav.editor">Editor</a><a href="snapshot.html" data-i18n="nav.snapshot">Snapshot</a><a href="collezioni.html" data-i18n="nav.collections">Collections</a><a href="helpers.html" data-i18n="nav.helpers">Helpers</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="note.html" data-i18n="nav.notes">Notes</a>
+      <div class="nav-dropdown">
+        <a href="approfondimenti.html" data-i18n="nav.deepdives">Deep Dives</a>
+        <div class="nav-dropdown-menu">
+          <span class="dm-label" data-i18n="nav.dm.docs">Documentation</span>
+          <a href="doc-readme.html" data-i18n="nav.dm.readme">📚 README — Overview</a>
+          <a href="doc-ui.html" data-i18n="nav.dm.ui">🖥️ UI — Button Reference</a>
+          <a href="doc-workflow.html" data-i18n="nav.dm.workflow">🔄 Workflow — Usage Flows</a>
+          <a href="doc-tech.html" data-i18n="nav.dm.tech">⚙️ Technical Architecture</a>
+          <a href="doc-library-tech.html" data-i18n="nav.dm.libtech">📚 Technical Doc — Library</a>
+          <a href="doc-reader-tech.html" data-i18n="nav.dm.readtech">📖 Technical Doc — Reader</a>
+          <a href="doc-editor-tech.html" data-i18n="nav.dm.edtech">✏️ Technical Doc — Editor</a>
+          <a href="doc-full-embedding.html" data-i18n="nav.dm.fullembedding">📦 Full Version — Embedding</a>
+          <span class="dm-label" data-i18n="nav.dm.project">Project</span>
+          <a href="doc-adv.html" data-i18n="nav.dm.adv">🌟 Positioning</a>
+          <a href="doc-legal.html" data-i18n="nav.dm.legal">⚖️ Legal Analysis</a>
+          <a href="promo.html" data-i18n="nav.dm.promo">🚀 Presentation</a>
+        </div>
+      </div>
+      <a href="index.html#download" class="nav-cta" data-i18n="nav.download">⬇ Download</a>
+    </div>
+  </div>
+</nav>
+<div class="callout callout-info deepdive-translation-callout" style="margin:0;border-radius:0;background:#1e3a5f;color:#e0eeff;border:none;border-bottom:2px solid #3b82f6;">
+  <span class="callout-icon">🌐</span>
+  <div data-i18n="deepdive.callout">🌐 This page is written in Italian. Use your browser's <strong>Translate</strong> feature to read it in your language.</div>
+</div>
+
+<section class="hero-doc">
+  <div class="doc-tag" style="color:#ef4444;background:rgba(239,68,68,0.15);border:1px solid #ef444444;">⚖️ Legale</div>
+  <h1>Analisi Legale — Privacy e Copyright</h1>
+  <p class="doc-subtitle">Diritto alla copia privata, GDPR, uso legale dei contenuti EPUB, traduzione browser e licenza MIT.</p>
+</section>
+
+<div class="doc-layout">
+  <div class="doc-toc" id="doc-toc"><h4>In questa pagina</h4><ul>
+<li><a href="#premessa-un-programma-progettato-per-la-legalita" class="">Premessa: un programma progettato per la legalità</a></li>
+<li><a href="#1-copyright-e-diritto-alla-copia-privata" class="">1. Copyright e diritto alla copia privata</a></li>
+<li><a href="#11-il-principio-della-copia-privata" class="toc-h3">1.1 Il principio della copia privata</a></li>
+<li><a href="#12-noesis-non-copia-distribuisce-o-condivide-contenuti-protetti" class="toc-h3">1.2 Noesis non copia, distribuisce o condivide contenuti protetti</a></li>
+<li><a href="#13-le-annotazioni-gli-estratti-e-gli-snapshot-come-uso-trasformativo" class="toc-h3">1.3 Le annotazioni, gli estratti e gli snapshot come uso trasformativo</a></li>
+<li><a href="#2-traduzione-nel-browser-legalita-e-neutralita-tecnica" class="">2. Traduzione nel browser: legalità e neutralità tecnica</a></li>
+<li><a href="#21-come-funziona-la-traduzione-in-noesis" class="toc-h3">2.1 Come funziona la traduzione in Noesis</a></li>
+<li><a href="#22-la-traduzione-personale-di-testi-e-legale" class="toc-h3">2.2 La traduzione personale di testi è legale</a></li>
+<li><a href="#23-nessuna-violazione-del-diritto-di-traduzione-dellautore" class="toc-h3">2.3 Nessuna violazione del diritto di traduzione dell'autore</a></li>
+<li><a href="#3-produzione-locale-di-documentazione-e-versioning-legalita-dellelaborazione-personale" class="">3. Produzione locale di documentazione e versioning: legalità dell'elaborazione personale</a></li>
+<li><a href="#31-il-documento-prodotto-e-dellutente" class="toc-h3">3.1 Il documento prodotto è dell'utente</a></li>
+<li><a href="#32-gli-snapshot-versioning-del-lavoro-di-studio-non-dellopera" class="toc-h3">3.2 Gli snapshot: versioning del lavoro di studio, non dell'opera</a></li>
+<li><a href="#33-lexport-non-e-distribuzione" class="toc-h3">3.3 L'export non è distribuzione</a></li>
+<li><a href="#34-le-immagini-inline-base64-e-il-diritto-di-riproduzione-privata" class="toc-h3">3.4 Le immagini inline (base64) e il diritto di riproduzione privata</a></li>
+<li><a href="#4-privacy-e-protezione-dei-dati-personali" class="">4. Privacy e protezione dei dati personali</a></li>
+<li><a href="#41-zero-raccolta-di-dati-conformita-by-design" class="toc-h3">4.1 Zero raccolta di dati — conformità by design</a></li>
+<li><a href="#42-conformita-gdpr" class="toc-h3">4.2 Conformità GDPR</a></li>
+<li><a href="#43-i-dati-di-lettura-e-studio-restano-privati" class="toc-h3">4.3 I dati di lettura e studio restano privati</a></li>
+<li><a href="#44-storage-locale-dati-sotto-controllo-dellutente" class="toc-h3">4.4 Storage locale — dati sotto controllo dell'utente</a></li>
+<li><a href="#5-nessuna-violazione-di-termini-di-servizio-di-piattaforme-terze" class="">5. Nessuna violazione di termini di servizio di piattaforme terze</a></li>
+<li><a href="#51-noesis-non-si-connette-a-piattaforme-terze" class="toc-h3">5.1 Noesis non si connette a piattaforme terze</a></li>
+<li><a href="#52-le-librerie-cdn-uso-nei-termini-di-licenza" class="toc-h3">5.2 Le librerie CDN: uso nei termini di licenza</a></li>
+<li><a href="#6-licenza-mit-di-noesis-diritti-dellutente" class="">6. Licenza MIT di Noesis: diritti dell'utente</a></li>
+<li><a href="#7-sintesi-perche-noesis-e-legale-per-uso-personale" class="">7. Sintesi: perché Noesis è legale per uso personale</a></li>
+<li><a href="#8-cosa-lutente-deve-tenere-presente" class="">8. Cosa l'utente deve tenere presente</a></li>
+<li><a href="#conclusione" class="">Conclusione</a></li>
+</ul></div>
+  <div class="doc-content">
+    <a href="approfondimenti.html" class="doc-back">← Tutti gli approfondimenti</a>
+    <h1 id="noesis-analisi-legale-copyright-privacy-e-uso-personale">⚖️ Noesis — Analisi Legale: Copyright, Privacy e Uso Personale</h1>
+<blockquote>
+<p><em>Questo documento ha scopo informativo e non costituisce consulenza legale professionale. Le considerazioni qui esposte si basano su principi giuridici ampiamente consolidati nelle principali giurisdizioni internazionali.</em></p>
+</blockquote>
+<hr />
+<h2 id="premessa-un-programma-progettato-per-la-legalita">Premessa: un programma progettato per la legalità</h2>
+<p>Noesis è un'applicazione costruita attorno a un principio fondamentale: <strong>tutto avviene localmente, sul dispositivo dell'utente</strong>. Questa scelta architettonica, che potrebbe sembrare una semplice preferenza tecnica, è in realtà la base di una posizione legale solida sotto molteplici profili: diritto d'autore, privacy, protezione dei dati personali e uso personale dei contenuti.</p>
+<p>Nessuna funzionalità di Noesis richiede — né incentiva — la violazione di norme di legge. Al contrario, l'intera architettura dell'applicazione è strutturalmente allineata con i diritti che la legge riconosce agli utenti: il diritto alla copia privata, il diritto alla rielaborazione personale, il diritto alla privacy della lettura.</p>
+<hr />
+<h2 id="1-copyright-e-diritto-alla-copia-privata">1. Copyright e diritto alla copia privata</h2>
+<h3 id="11-il-principio-della-copia-privata">1.1 Il principio della copia privata</h3>
+<p>In quasi tutte le giurisdizioni moderne, la legge sul diritto d'autore riconosce all'utente il diritto di fare <strong>copie private</strong> di opere protette per uso personale, senza necessità di autorizzazione del titolare dei diritti.</p>
+<ul>
+<li><strong>Italia (L. 633/1941, art. 71-sexies)</strong>: è consentita la riproduzione privata di fonogrammi e videogrammi su qualsiasi supporto, effettuata da una persona fisica per uso esclusivamente personale, senza scopo di lucro.</li>
+<li><strong>Unione Europea (Direttiva 2001/29/CE, art. 5.2.b)</strong>: gli Stati membri possono prevedere eccezioni per riproduzioni su qualsiasi supporto effettuate da una persona fisica per uso privato e senza fini commerciali.</li>
+<li><strong>USA (17 U.S.C. § 107 — Fair Use)</strong>: l'uso personale, non commerciale, a scopo di studio o commento è tra i criteri principali del fair use.</li>
+<li><strong>UK (CDPA 1988, s. 28B)</strong>: la copia privata per uso personale è esplicitamente ammessa.</li>
+</ul>
+<p><strong>Come si applica a Noesis</strong>: quando un utente importa un file EPUB che possiede legittimamente e lo legge, lo annota, ne estrae sezioni o ne salva versioni di studio tramite snapshot per uso personale, sta esercitando un diritto riconosciuto dalla legge. Noesis non fa nulla che l'utente non potrebbe fare anche stampando il libro o copiando a mano un passaggio su un quaderno.</p>
+<h3 id="12-noesis-non-copia-distribuisce-o-condivide-contenuti-protetti">1.2 Noesis non copia, distribuisce o condivide contenuti protetti</h3>
+<p>Un elemento centrale della legalità di Noesis è che l'applicazione:</p>
+<ul>
+<li><strong>Non trasmette mai il contenuto dei libri a server esterni</strong>: il file EPUB rimane sul dispositivo dell'utente, nell'IndexedDB del browser (<code>EpubLibraryDB</code>).</li>
+<li><strong>Non trasmette mai i capitoli estratti o gli snapshot</strong>: il database <code>noesisDB</code> con tutti i capitoli estratti e le versioni snapshot è anch'esso interamente locale, nell'IndexedDB del browser.</li>
+<li><strong>Non ha funzionalità di condivisione peer-to-peer</strong>: non esiste alcun meccanismo per inviare libri, capitoli o snapshot ad altri utenti attraverso l'app.</li>
+<li><strong>Non duplica i file su piattaforme terze</strong>: nessun cloud, nessun backup remoto, nessuna sincronizzazione con servizi di archiviazione online.</li>
+<li><strong>Non aggira sistemi DRM</strong>: Noesis legge file EPUB liberi da DRM. Non include, non promuove e non fornisce strumenti per rimuovere protezioni digitali (DRM). Un file EPUB protetto da DRM non è compatibile con l'applicazione, e questo è deliberato.</li>
+</ul>
+<p>La riproduzione privata è lecita; la distribuzione non autorizzata non lo è. Noesis supporta la prima e rende strutturalmente impossibile la seconda.</p>
+<h3 id="13-le-annotazioni-gli-estratti-e-gli-snapshot-come-uso-trasformativo">1.3 Le annotazioni, gli estratti e gli snapshot come uso trasformativo</h3>
+<p>Quando un utente evidenzia un passaggio, lo raccoglie nella collezione chunk, lo incorpora in un documento di studio personale, o salva una versione del proprio lavoro di annotazione tramite snapshot, sta compiendo un atto di <strong>rielaborazione trasformativa</strong> riconosciuto in molti ordinamenti come uso lecito:</p>
+<ul>
+<li>L'estratto non sostituisce l'opera originale.</li>
+<li>È inserito in un contesto di studio personale.</li>
+<li>Non viene distribuito pubblicamente.</li>
+<li>Ha finalità di apprendimento, non commerciali.</li>
+<li>Gli snapshot conservano il lavoro intellettuale dell'utente (evidenziazioni, note, organizzazione) — non sono repliche distribuite dell'opera originale.</li>
+</ul>
+<p>La raccolta di citazioni per uso di studio è una pratica accademica e intellettuale millenaria, esplicitamente tutelata in molti sistemi giuridici (diritto di citazione, fair use, eccezione didattica).</p>
+<hr />
+<h2 id="2-traduzione-nel-browser-legalita-e-neutralita-tecnica">2. Traduzione nel browser: legalità e neutralità tecnica</h2>
+<h3 id="21-come-funziona-la-traduzione-in-noesis">2.1 Come funziona la traduzione in Noesis</h3>
+<p>Noesis non integra alcun motore di traduzione proprietario. Non chiama API di traduzione esterne. Non invia il testo del libro a nessun server. La traduzione avviene attraverso la <strong>funzione di traduzione nativa del browser</strong> (Chrome Translate, Firefox Translation, Edge Translator), che è una funzionalità del browser dell'utente, non di Noesis.</p>
+<p>Tecnicamente, Noesis si limita a <strong>rendere il contenuto del capitolo leggibile nel browser</strong>. È il browser — un'applicazione che l'utente ha installato e controlla — a offrire la traduzione, esattamente come fa con qualsiasi altra pagina web.</p>
+<h3 id="22-la-traduzione-personale-di-testi-e-legale">2.2 La traduzione personale di testi è legale</h3>
+<p>Il diritto di tradurre un'opera per uso strettamente personale è distinto dal diritto di pubblicare una traduzione. Quest'ultimo richiede autorizzazione; il primo no.</p>
+<ul>
+<li>Leggere un libro in inglese con l'aiuto di un dizionario è legale.</li>
+<li>Leggere un libro in inglese con l'aiuto di Google Translate su carta è legale.</li>
+<li>Leggere un libro in inglese con la traduzione automatica del browser è ugualmente legale.</li>
+</ul>
+<p>La traduzione automatica del browser è funzionalmente equivalente a questi strumenti tradizionali di ausilio alla lettura. Noesis non produce né conserva traduzioni: la traduzione visualizzata è temporanea, non viene mai salvata, non viene mai esportata e non sostituisce l'opera originale.</p>
+<h3 id="23-nessuna-violazione-del-diritto-di-traduzione-dellautore">2.3 Nessuna violazione del diritto di traduzione dell'autore</h3>
+<p>Il diritto esclusivo di traduzione dell'autore (art. 4 L. 633/1941; Convenzione di Berna, art. 8) riguarda la <strong>pubblicazione e distribuzione</strong> di traduzioni. L'uso privato e non distribuito non configura violazione di questo diritto.</p>
+<hr />
+<h2 id="3-produzione-locale-di-documentazione-e-versioning-legalita-dellelaborazione-personale">3. Produzione locale di documentazione e versioning: legalità dell'elaborazione personale</h2>
+<h3 id="31-il-documento-prodotto-e-dellutente">3.1 Il documento prodotto è dell'utente</h3>
+<p>Tutto ciò che viene prodotto con Noesis — appunti nell'editor, PDF esportati, file DOCX, collezioni JSON, snapshot di capitoli estratti — è un <strong>documento creato dall'utente</strong>, non una copia dell'opera originale.</p>
+<p>Il documento di studio contiene:<br />
+- Le evidenziazioni dell'utente (lavoro intellettuale dell'utente)<br />
+- Le selezioni dell'utente (scelta editoriale dell'utente)<br />
+- La struttura e l'organizzazione dell'utente (opera derivata personale)<br />
+- Eventualmente citazioni brevi in un contesto di analisi o studio</p>
+<p>Le citazioni brevi a scopo di studio, commento o critica sono esplicitamente ammesse in tutte le principali giurisdizioni (diritto di citazione, art. 70 L. 633/1941; fair use; fair dealing).</p>
+<h3 id="32-gli-snapshot-versioning-del-lavoro-di-studio-non-dellopera">3.2 Gli snapshot: versioning del lavoro di studio, non dell'opera</h3>
+<p>Il sistema <strong>Snapshot</strong> di Noesis (introdotto nella versione 703) permette di salvare versioni successive del capitolo estratto. Da un punto di vista legale, ogni snapshot è:</p>
+<ul>
+<li>Una <strong>istantanea del lavoro personale di studio</strong> dell'utente su quel capitolo (highlights, annotazioni, chunk organizzati).</li>
+<li>Un documento privato che non viene mai trasmesso, distribuito o condiviso tramite l'applicazione.</li>
+<li>Funzionalmente equivalente a salvare più versioni di un file di appunti personali su un disco locale.</li>
+</ul>
+<p>Il fatto che uno snapshot contenga il testo del capitolo estratto è irrilevante ai fini della legalità, nella misura in cui rientra nelle stesse condizioni della copia privata e dell'uso trasformativo già descritte sopra. La destinazione è esclusivamente personale; la distribuzione è tecnicamente impossibile tramite l'app.</p>
+<h3 id="33-lexport-non-e-distribuzione">3.3 L'export non è distribuzione</h3>
+<p>Esportare un PDF di appunti personali da un libro non è diverso da:<br />
+- Fotocopiare alcune pagine di un libro universitario per uso personale di studio<br />
+- Trascrivere citazioni su un quaderno<br />
+- Preparare dispense personali da un manuale</p>
+<p>Tutte queste pratiche sono legali nell'uso personale. L'export di Noesis produce documenti destinati all'utente, non a terzi, e Noesis non offre alcun meccanismo di distribuzione automatica.</p>
+<h3 id="34-le-immagini-inline-base64-e-il-diritto-di-riproduzione-privata">3.4 Le immagini inline (base64) e il diritto di riproduzione privata</h3>
+<p>Le immagini estratte dai libri e incorporate nei documenti o negli snapshot come base64 rientrano nella stessa logica della copia privata: sono riprodotte dall'utente, per l'utente, su un dispositivo dell'utente, senza distribuzione.</p>
+<hr />
+<h2 id="4-privacy-e-protezione-dei-dati-personali">4. Privacy e protezione dei dati personali</h2>
+<h3 id="41-zero-raccolta-di-dati-conformita-by-design">4.1 Zero raccolta di dati — conformità by design</h3>
+<p>Noesis non raccoglie, non elabora e non trasmette <strong>dati personali di alcun tipo</strong>. Questo non è il risultato di una politica sulla privacy particolarmente virtuosa: è una conseguenza diretta dell'architettura.</p>
+<p>Non esiste un server Noesis che riceva dati. Non esiste un database remoto. Non esiste un sistema di analytics. Non esiste un meccanismo di login. Se non c'è trasmissione di dati, non ci sono dati da proteggere lato server, perché i dati non arrivano mai fuori dal dispositivo dell'utente.</p>
+<p>Questo approccio è denominato <strong>privacy by design</strong> nelle normative sulla protezione dei dati, ed è il modello più alto di tutela riconosciuto dal GDPR (Regolamento UE 2016/679, art. 25).</p>
+<h3 id="42-conformita-gdpr">4.2 Conformità GDPR</h3>
+<table>
+<thead>
+<tr>
+<th>Requisito GDPR</th>
+<th>Situazione Noesis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Base giuridica del trattamento</td>
+<td>Non applicabile — nessun trattamento</td>
+</tr>
+<tr>
+<td>Consenso informato</td>
+<td>Non richiesto — nessun dato raccolto</td>
+</tr>
+<tr>
+<td>Diritto all'oblio</td>
+<td>Automatico — l'utente cancella i dati dal browser</td>
+</tr>
+<tr>
+<td>Portabilità dei dati</td>
+<td>N/A — i dati non escono mai dal dispositivo</td>
+</tr>
+<tr>
+<td>Trasferimento dati extra-UE</td>
+<td>Non applicabile — nessun trasferimento</td>
+</tr>
+<tr>
+<td>DPO (Data Protection Officer)</td>
+<td>Non applicabile</td>
+</tr>
+</tbody>
+</table>
+<p>L'utente è l'unico titolare dei propri dati e li controlla completamente tramite il proprio browser.</p>
+<h3 id="43-i-dati-di-lettura-e-studio-restano-privati">4.3 I dati di lettura e studio restano privati</h3>
+<p>Il fatto che un individuo stia leggendo un determinato libro, o che stia studiando un certo argomento e abbia salvato diverse versioni dei propri appunti, è un'informazione potenzialmente sensibile. Cronologie di lettura, annotazioni, snap­shot e preferenze letterarie possono rivelare orientamenti politici, religiosi, sessuali o di salute.</p>
+<p>Con Noesis:<br />
+- <strong>Nessuna piattaforma sa cosa stai leggendo</strong><br />
+- <strong>Nessuna piattaforma sa cosa stai studiando o come stai evolvendo nel tuo lavoro di studio</strong><br />
+- <strong>Nessun algoritmo costruisce un profilo delle tue abitudini di lettura</strong><br />
+- <strong>Nessun dato viene venduto ad advertiser</strong><br />
+- <strong>Nessuna autorità può richiedere a Noesis i tuoi dati di lettura o studio</strong> (perché Noesis non li ha)</p>
+<p>Questa è una tutela concreta della <strong>libertà intellettuale</strong> dell'utente, un valore fondamentale riconosciuto sia dalla Dichiarazione Universale dei Diritti Umani (art. 19) sia dalla Carta dei Diritti Fondamentali dell'UE (art. 11).</p>
+<h3 id="44-storage-locale-dati-sotto-controllo-dellutente">4.4 Storage locale — dati sotto controllo dell'utente</h3>
+<p>I dati salvati da Noesis risiedono in tre aree di storage del browser, tutte strettamente locali:</p>
+<ul>
+<li><strong>IndexedDB (<code>EpubLibraryDB</code>)</strong>: file .epub completi, posizioni di lettura, segnalibri. Accessibile solo dallo stesso dominio/file. Non sincronizzato in rete.</li>
+<li><strong>IndexedDB (<code>noesisDB</code>)</strong>: capitoli estratti e snapshot con il loro contenuto HTML. Anch'esso completamente locale e isolato.</li>
+<li><strong>localStorage</strong>: preferenze tipografiche, tema, impostazioni interfaccia.</li>
+</ul>
+<p>L'utente può cancellare questi dati in qualsiasi momento tramite le impostazioni del browser (Cancella dati di navigazione). Ha il controllo completo sulla propria "libreria" Noesis e su tutto il proprio archivio di studio.</p>
+<hr />
+<h2 id="5-nessuna-violazione-di-termini-di-servizio-di-piattaforme-terze">5. Nessuna violazione di termini di servizio di piattaforme terze</h2>
+<h3 id="51-noesis-non-si-connette-a-piattaforme-terze">5.1 Noesis non si connette a piattaforme terze</h3>
+<p>Applicazioni come Kindle Cloud Reader o Kobo Web hanno termini di servizio che vietano il download, la copia o l'estrazione del contenuto dei libri dalla loro piattaforma. Noesis non interagisce con nessuna di queste piattaforme.</p>
+<p>Noesis lavora con file <code>.epub</code> che l'utente possiede e gestisce in modo indipendente. Non esiste nessuna piattaforma i cui termini di servizio vengano violati.</p>
+<h3 id="52-le-librerie-cdn-uso-nei-termini-di-licenza">5.2 Le librerie CDN: uso nei termini di licenza</h3>
+<table>
+<thead>
+<tr>
+<th>Libreria</th>
+<th>Licenza</th>
+<th>Uso consentito</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ePub.js</td>
+<td>BSD 2-Clause</td>
+<td>✅ Uso libero, commerciale e personale</td>
+</tr>
+<tr>
+<td>JSZip</td>
+<td>MIT / GPLv3</td>
+<td>✅ Uso libero, commerciale e personale</td>
+</tr>
+<tr>
+<td>Bootstrap Icons</td>
+<td>MIT</td>
+<td>✅ Uso libero, commerciale e personale</td>
+</tr>
+<tr>
+<td>jQuery</td>
+<td>MIT</td>
+<td>✅ Uso libero, commerciale e personale</td>
+</tr>
+<tr>
+<td>Noesis Summernote Editor</td>
+<td>MIT</td>
+<td>✅ Uso libero, commerciale e personale</td>
+</tr>
+<tr>
+<td>Excalidraw (fork Noesis)</td>
+<td>MIT</td>
+<td>✅ Uso libero, commerciale e personale</td>
+</tr>
+<tr>
+<td>Mozilla PDF.js</td>
+<td>Apache 2.0</td>
+<td>✅ Uso libero, commerciale e personale</td>
+</tr>
+</tbody>
+</table>
+<p>Tutte le dipendenze hanno licenze permissive che consentono l'uso in un'applicazione distribuita sotto licenza MIT come Noesis.</p>
+<hr />
+<h2 id="6-licenza-mit-di-noesis-diritti-dellutente">6. Licenza MIT di Noesis: diritti dell'utente</h2>
+<p>Noesis è distribuito sotto <strong>licenza MIT</strong>, una delle licenze open source più permissive esistenti. Cosa significa per l'utente:</p>
+<ul>
+<li>✅ <strong>Libertà di uso</strong>: puoi usare Noesis per qualsiasi scopo, personale o commerciale</li>
+<li>✅ <strong>Libertà di copia</strong>: puoi copiare il file HTML quante volte vuoi</li>
+<li>✅ <strong>Libertà di modifica</strong>: puoi modificare il codice sorgente</li>
+<li>✅ <strong>Libertà di distribuzione</strong>: puoi distribuire Noesis (con la nota di copyright)</li>
+<li>✅ <strong>Nessun obbligo di pagamento</strong>: nessun canone, nessun abbonamento, nessuna scadenza</li>
+<li>✅ <strong>Nessun obbligo di account</strong>: nessuna registrazione richiesta</li>
+</ul>
+<p>L'unico requisito della licenza MIT è mantenere la nota di copyright originale nelle copie o distribuzioni sostanziali del software. Per l'uso personale, non si applica nemmeno questo vincolo.</p>
+<hr />
+<h2 id="7-sintesi-perche-noesis-e-legale-per-uso-personale">7. Sintesi: perché Noesis è legale per uso personale</h2>
+<table>
+<thead>
+<tr>
+<th>Aspetto</th>
+<th>Situazione legale</th>
+<th>Motivo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lettura di EPUB posseduti legittimamente</td>
+<td>✅ Pienamente legale</td>
+<td>Esercizio del diritto di proprietà sul file acquistato</td>
+</tr>
+<tr>
+<td>Traduzione per uso personale</td>
+<td>✅ Pienamente legale</td>
+<td>Distinzione tra traduzione privata e pubblicazione</td>
+</tr>
+<tr>
+<td>Evidenziazione e annotazione</td>
+<td>✅ Pienamente legale</td>
+<td>Pratica di studio tradizionale, equivalente alla matita sul libro</td>
+</tr>
+<tr>
+<td>Estrazione di capitoli per uso personale</td>
+<td>✅ Pienamente legale</td>
+<td>Copia privata per uso personale (art. 71-sexies L. 633/1941)</td>
+</tr>
+<tr>
+<td>Salvataggio di snapshot del lavoro di studio</td>
+<td>✅ Pienamente legale</td>
+<td>Copia privata locale; non è distribuzione; è conservazione del lavoro intellettuale dell'utente</td>
+</tr>
+<tr>
+<td>Raccolta di citazioni per studio</td>
+<td>✅ Pienamente legale</td>
+<td>Diritto di citazione e uso trasformativo</td>
+</tr>
+<tr>
+<td>Produzione di documenti di studio</td>
+<td>✅ Pienamente legale</td>
+<td>Opera derivata personale, non distribuita</td>
+</tr>
+<tr>
+<td>Export PDF/DOCX per uso personale</td>
+<td>✅ Pienamente legale</td>
+<td>Copia privata su supporto diverso</td>
+</tr>
+<tr>
+<td>Assenza di DRM bypass</td>
+<td>✅ Nessun rischio</td>
+<td>Noesis non supporta file con DRM</td>
+</tr>
+<tr>
+<td>Privacy dei dati (libri + snapshot)</td>
+<td>✅ Massima tutela</td>
+<td>Nessun dato trasmesso, privacy by design</td>
+</tr>
+<tr>
+<td>Conformità GDPR</td>
+<td>✅ Automatica</td>
+<td>Nessun trattamento di dati personali</td>
+</tr>
+<tr>
+<td>Licenza del software</td>
+<td>✅ MIT</td>
+<td>Uso libero senza restrizioni</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-cosa-lutente-deve-tenere-presente">8. Cosa l'utente deve tenere presente</h2>
+<p>Noesis è uno strumento legale. Il rispetto della legge, come sempre, dipende dall'uso che ne fa l'utente. Alcune considerazioni pratiche:</p>
+<p><strong>L'utente dovrebbe</strong>:<br />
+- Usare Noesis con file EPUB che possiede o ha il diritto di usare (acquistati, open access, dominio pubblico, Creative Commons)<br />
+- Tenere i documenti prodotti (inclusi gli snapshot) per uso personale o, se condivisi, verificare che le citazioni rientrino nei limiti del diritto di citazione<br />
+- Non usare Noesis per aggirare protezioni DRM (cosa che Noesis non supporta tecnicamente)</p>
+<p><strong>L'utente non deve preoccuparsi di</strong>:<br />
+- Leggere libri in lingue straniere con la traduzione del browser<br />
+- Evidenziare, annotare e raccogliere passaggi per i propri studi<br />
+- Estrarre capitoli per i propri appunti personali<br />
+- Salvare snapshot successivi del proprio lavoro di studio per poterci tornare<br />
+- Esportare documenti di studio per uso proprio<br />
+- Condividere i propri appunti (non il libro) con colleghi o studenti nel rispetto del diritto di citazione</p>
+<hr />
+<h2 id="conclusione">Conclusione</h2>
+<p>Noesis è progettato, architetturalmente e funzionalmente, per rispettare il quadro legale esistente a tutela sia dei titolari dei diritti d'autore sia degli utenti. La scelta di un'architettura completamente locale — estesa nella versione 703 a includere anche il versioning degli appunti di studio tramite snapshot — non è solo una scelta tecnica: è una scelta etica e giuridica che posiziona Noesis dalla parte del lettore, nel rispetto delle leggi.</p>
+<p>Il diritto di leggere, comprendere, annotare, studiare e conservare la storia del proprio lavoro intellettuale — senza sorveglianza, senza data mining, senza dipendenza da piattaforme commerciali — è un diritto fondamentale. Noesis lo esercita concretamente.</p>
+<hr />
+<p><em>Noesis — Reading-to-Knowledge System. MIT License. No server. No tracking. No account.</em></p>
+<hr />
+<blockquote>
+<p><strong>Nota legale</strong>: le considerazioni contenute in questo documento sono di carattere generale e informativo. Per valutazioni specifiche relative a casi concreti, si raccomanda di consultare un professionista legale qualificato nella propria giurisdizione.</p>
+</blockquote>
+    <div style="margin-top:56px; padding-top:32px; border-top:1px solid var(--border); display:flex; gap:16px; flex-wrap:wrap;">
+      <a href="approfondimenti.html" class="doc-back" style="margin-bottom:0;">← Tutti gli approfondimenti</a>
+      <a href="index.html" class="doc-back" style="margin-bottom:0;">🏠 Home</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>MIT License · Vanilla JS · No Server · <strong>Noesis</strong> · v810</p>
+  <p style="margin-top:8px;"><a href="index.html">Home</a> · <a href="guida.html">Guida</a> · <a href="approfondimenti.html">Approfondimenti</a> · <a href="faq.html">FAQ</a> · <a href="note.html">Note</a></p>
+</footer>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="site.js"></script>
+<script>
+// Highlight TOC item on scroll
+(function(){
+  const links = document.querySelectorAll('.doc-toc a');
+  if (!links.length) return;
+  const headings = Array.from(document.querySelectorAll('.doc-content h2, .doc-content h3'));
+  function onScroll() {
+    const scrollY = window.scrollY + 100;
+    let active = null;
+    headings.forEach(h => { if (h.offsetTop <= scrollY) active = h; });
+    links.forEach(l => l.style.color = '');
+    if (active) {
+      const id = active.getAttribute('id');
+      const link = document.querySelector('.doc-toc a[href="#' + id + '"]');
+      if (link) link.style.color = 'var(--violet)';
+    }
+  }
+  window.addEventListener('scroll', onScroll, {passive: true});
+})();
+</script>
+</body>
+</html>

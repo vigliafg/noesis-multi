@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Approfondimenti — Noesis</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="approfondimenti.css">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">📚 <span>Noesis</span></a>
+    <button class="lang-toggle-btn" id="lang-toggle" onclick="window.noesisI18n.toggleLang()" title="Switch to Italian">🇮🇹 IT</button>
+    <button class="nav-toggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links">
+      <a href="index.html" data-i18n="nav.home">Home</a><a href="guida.html" data-i18n="nav.guide">Quick Guide</a><a href="library.html" data-i18n="nav.library">Library</a><a href="navigation.html" data-i18n="nav.reading">Reading</a><a href="htmleditor.html" data-i18n="nav.editor">Editor</a><a href="snapshot.html" data-i18n="nav.snapshot">Snapshot</a><a href="collezioni.html" data-i18n="nav.collections">Collections</a><a href="helpers.html" data-i18n="nav.helpers">Helpers</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="note.html" data-i18n="nav.notes">Notes</a>
+      <div class="nav-dropdown">
+        <a href="approfondimenti.html" data-i18n="nav.deepdives">Deep Dives</a>
+        <div class="nav-dropdown-menu">
+          <span class="dm-label" data-i18n="nav.dm.docs">Documentation</span>
+          <a href="doc-readme.html" data-i18n="nav.dm.readme">📚 README — Overview</a>
+          <a href="doc-ui.html" data-i18n="nav.dm.ui">🖥️ UI — Button Reference</a>
+          <a href="doc-workflow.html" data-i18n="nav.dm.workflow">🔄 Workflow — Usage Flows</a>
+          <a href="doc-tech.html" data-i18n="nav.dm.tech">⚙️ Technical Architecture</a>
+          <a href="doc-library-tech.html" data-i18n="nav.dm.libtech">📚 Technical Doc — Library</a>
+          <a href="doc-reader-tech.html" data-i18n="nav.dm.readtech">📖 Technical Doc — Reader</a>
+          <a href="doc-editor-tech.html" data-i18n="nav.dm.edtech">✏️ Technical Doc — Editor</a>
+          <a href="doc-full-embedding.html" data-i18n="nav.dm.fullembedding">📦 Full Version — Embedding</a>
+          <span class="dm-label" data-i18n="nav.dm.project">Project</span>
+          <a href="doc-adv.html" data-i18n="nav.dm.adv">🌟 Positioning</a>
+          <a href="doc-legal.html" data-i18n="nav.dm.legal">⚖️ Legal Analysis</a>
+          <a href="promo.html" data-i18n="nav.dm.promo">🚀 Presentation</a>
+        </div>
+      </div>
+      <a href="index.html#download" class="nav-cta" data-i18n="nav.download">⬇ Download</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge" data-i18n="appro.hero.badge">Technical documentation and project</div>
+  <h1 data-i18n="appro.hero.h1">Deep Dives <em>Noesis</em></h1>
+  <p data-i18n="appro.hero.p">Complete documentation: architecture, interface, workflow, positioning and legal analysis. Full text of project files.</p>
+</section>
+
+<div class="container">
+
+  <div class="section-label" style="margin-bottom:8px;" data-i18n="appro.docs.label">Documentation</div>
+  <h2 class="section-title" data-i18n="appro.docs.h2"><em>Technical</em> documents</h2>
+  <p class="section-sub" data-i18n="appro.docs.p">Complete references for the interface, architecture and usage flows of Noesis.</p>
+
+  <div class="cards" style="margin-top:24px;">
+    <a href="doc-readme.html" style="text-decoration:none;color:inherit;">
+      <div class="card accent" style="border-left-color:#7c3aed;">
+        <span class="card-icon">📚</span>
+        <h3>README — Panoramica completa</h3>
+        <p>Cos'è Noesis, funzionalità principali, installazione, utilizzo dettagliato e toolbar di riferimento. Il documento di partenza per chi vuole capire tutto il progetto.</p>
+        <span class="badge badge-violet" style="margin-top:12px;">366 righe</span>
+      </div>
+    </a>
+    <a href="doc-ui.html" style="text-decoration:none;color:inherit;">
+      <div class="card" style="border-left:3px solid #3b82f6;">
+        <span class="card-icon">🖥️</span>
+        <h3>UI — Riferimento pulsanti</h3>
+        <p>Mappa completa di tutti i controlli dell'interfaccia organizzata per ambiente: Library, Reader, Noesis Editor. Ogni pulsante documentato con icona, funzione e trigger.</p>
+        <span class="badge" style="background:rgba(59,130,246,0.1);color:#3b82f6;margin-top:12px;">523 righe</span>
+      </div>
+    </a>
+    <a href="doc-workflow.html" style="text-decoration:none;color:inherit;">
+      <div class="card" style="border-left:3px solid #10b981;">
+        <span class="card-icon">🔄</span>
+        <h3>Workflow — Flussi d'uso</h3>
+        <p>Workflow completi per ogni profilo utente: studente universitario, ricercatore, blogger/creator, lettore multilingue. Include mappe di flusso e scenari pratici.</p>
+        <span class="badge" style="background:rgba(16,185,129,0.1);color:#10b981;margin-top:12px;">429 righe</span>
+      </div>
+    </a>
+    <a href="doc-tech.html" style="text-decoration:none;color:inherit;">
+      <div class="card" style="border-left:3px solid #f59e0b;">
+        <span class="card-icon">⚙️</span>
+        <h3>Architettura tecnica</h3>
+        <p>Struttura interna, schema noesisDB, sistema Snapshot, rendering ePub.js, editor WYSIWYG, helper tools e tutte le scelte architetturali con motivazioni.</p>
+        <span class="badge" style="background:rgba(245,158,11,0.1);color:#f59e0b;margin-top:12px;">624 righe</span>
+      </div>
+    </a>
+    <a href="doc-library-tech.html" style="text-decoration:none;color:inherit;">
+      <div class="card" style="border-left:3px solid #10b981;">
+        <span class="card-icon">📚</span>
+        <h3>Doc. Tecnica — Library</h3>
+        <p>Architettura DOM, sistema temi light/dark, toolbar, workflow, gestione libri/capitoli/snapshot e IndexedDB. La schermata home di Noesis.</p>
+        <span class="badge" style="background:rgba(16,185,129,0.1);color:#10b981;margin-top:12px;">537 righe</span>
+      </div>
+    </a>
+    <a href="doc-reader-tech.html" style="text-decoration:none;color:inherit;">
+      <div class="card" style="border-left:3px solid #3b82f6;">
+        <span class="card-icon">📖</span>
+        <h3>Doc. Tecnica — Reader</h3>
+        <p>Rendering EPUB via epub.js, toolbar completa, evidenziazioni, 15 temi di lettura, estrazione capitoli e sistema di salvataggio stato. L'ambiente di lettura.</p>
+        <span class="badge" style="background:rgba(59,130,246,0.1);color:#3b82f6;margin-top:12px;">1225 righe</span>
+      </div>
+    </a>
+    <a href="doc-editor-tech.html" style="text-decoration:none;color:inherit;">
+      <div class="card" style="border-left:3px solid #f59e0b;">
+        <span class="card-icon">✏️</span>
+        <h3>Doc. Tecnica — Editor</h3>
+        <p>Editor WYSIWYG sn56.x, raccolta chunks, doppio snapshot (clean/annotated), IDB bridge e workflow di annotazione. L'ambiente di studio.</p>
+        <span class="badge" style="background:rgba(245,158,11,0.1);color:#f59e0b;margin-top:12px;">1115 righe</span>
+      </div>
+    </a>
+    <a href="doc-full-embedding.html" style="text-decoration:none;color:inherit;">
+      <div class="card" style="border-left:3px solid #10b981;">
+        <span class="card-icon">📦</span>
+        <h3>Versione Full — Sistema di Embedding</h3>
+        <p>Come tutte le dipendenze esterne (Bootstrap Icons, JSZip, epub.js, Summernote, Turndown, html-docx-js) vengono incorporate nel file HTML per il funzionamento offline totale.</p>
+        <span class="badge" style="background:rgba(16,185,129,0.1);color:#10b981;margin-top:12px;">Serverless · Offline</span>
+      </div>
+    </a>
+  </div>
+
+  <div class="section-label" data-i18n="appro.project.label">Project</div>
+  <h2 class="section-title" data-i18n="appro.project.h2">Project <em>documents</em></h2>
+  <p class="section-sub">Posizionamento nel mercato e quadro legale per l'uso di Noesis.</p>
+
+  <div class="cards" style="margin-top:24px;">
+    <a href="doc-adv.html" style="text-decoration:none;color:inherit;">
+      <div class="card" style="border-left:3px solid #8b5cf6;">
+        <span class="card-icon">🌟</span>
+        <h3>Posizionamento e punti di forza</h3>
+        <p>Noesis nel panorama dei reader EPUB — confronto con Calibre, Adobe Digital Editions, reader mobile e web reader. Value points, pubblico ideale e differenziatori competitivi.</p>
+        <span class="badge" style="background:rgba(139,92,246,0.1);color:#8b5cf6;margin-top:12px;">Analisi strategica</span>
+      </div>
+    </a>
+    <a href="doc-legal.html" style="text-decoration:none;color:inherit;">
+      <div class="card" style="border-left:3px solid #ef4444;">
+        <span class="card-icon">⚖️</span>
+        <h3>Analisi legale — Privacy e Copyright</h3>
+        <p>Diritto alla copia privata, GDPR e privacy by design, uso legale dei contenuti EPUB, traduzione browser, sistema Snapshot e licenza MIT. Analisi giuridica completa.</p>
+        <span class="badge" style="background:rgba(239,68,68,0.1);color:#ef4444;margin-top:12px;">Analisi legale</span>
+      </div>
+    </a>
+    <a href="promo.html" style="text-decoration:none;color:inherit;">
+      <div class="card" style="border-left:3px solid #10b981;">
+        <span class="card-icon">🚀</span>
+        <h3>Presentazione — Noesis v810</h3>
+        <p>Testo di presentazione completo: funzionalità principali, traduzione streaming, privacy by design, Excalidraw integrato, workflow dalla lettura all'esportazione e filosofia del progetto.</p>
+        <span class="badge" style="background:rgba(16,185,129,0.1);color:#10b981;margin-top:12px;">Presentazione</span>
+      </div>
+    </a>
+  </div>
+
+  <div class="section" style="margin-top:40px;">
+    <div class="callout callout-info">
+      <span class="callout-icon">ℹ️</span>
+      <div><strong>Testo integrale</strong>Queste pagine riproducono il testo completo dei file di documentazione del progetto Noesis. Sono pensate come riferimento tecnico approfondito, complementare al manuale d'uso delle pagine principali.</div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <a href="note.html">← Note e Changelog</a>
+    <a href="index.html" class="next">Home →</a>
+  </div>
+</div>
+
+<footer>
+  <p>MIT License · Vanilla JS · No Server · <strong>Noesis</strong> · v810</p>
+  <p style="margin-top:8px;"><a href="index.html">Home</a> · <a href="guida.html">Guida</a> · <a href="approfondimenti.html">Approfondimenti</a> · <a href="faq.html">FAQ</a> · <a href="note.html">Note</a></p>
+</footer>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

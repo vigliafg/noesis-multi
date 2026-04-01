@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snapshot — Noesis</title>
+  <meta name="description" data-i18n-content="snapshot.meta.desc" content="The Noesis v810 snapshot versioning system — save, reload and delete versions of the extracted chapter.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="approfondimenti.css">
+  <style>
+    .snapshot-flow { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin: 24px 0; }
+    .snap-card { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 20px; text-align: center; box-shadow: var(--shadow); }
+    .snap-card .snap-icon { font-size: 36px; display: block; margin-bottom: 10px; }
+    .snap-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+    .snap-card p { font-size: 13px; color: var(--text-muted); }
+    .snap-arrow { display: flex; align-items: center; justify-content: center; color: var(--text-light); font-size: 24px; }
+    .snap-list { background: #1f2937; border-radius: 10px; padding: 20px; margin: 20px 0; }
+    .snap-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .snap-item:last-child { border-bottom: none; }
+    .snap-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--violet); flex-shrink: 0; }
+    .snap-info { flex: 1; }
+    .snap-desc { font-size: 14px; font-weight: 600; color: #f0ece4; }
+    .snap-meta { font-size: 12px; color: #6b7280; margin-top: 2px; }
+    .snap-actions { display: flex; gap: 8px; }
+    .snap-btn { padding: 5px 12px; border-radius: 5px; font-size: 12px; font-weight: 600; cursor: default; }
+    .snap-btn-load { background: rgba(124,58,237,0.2); color: #a78bfa; border: 1px solid rgba(124,58,237,0.3); }
+    .snap-btn-del { background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+    .db-schema { background: #0f172a; color: #a78bfa; font-family: monospace; font-size: 13px; line-height: 1.8; padding: 20px 24px; border-radius: 10px; margin: 20px 0; overflow-x: auto; }
+    .db-schema .key { color: #38bdf8; }
+    .db-schema .val { color: #86efac; }
+    .db-schema .comment { color: #475569; }
+    @media (max-width: 600px) { .snapshot-flow { grid-template-columns: 1fr; } .snap-arrow { transform: rotate(90deg); } }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">📚 <span>Noesis</span></a>
+    <button class="lang-toggle-btn" id="lang-toggle" onclick="window.noesisI18n.toggleLang()" title="Switch to Italian">🇮🇹 IT</button>
+    <button class="nav-toggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links">
+      <a href="index.html" data-i18n="nav.home">Home</a><a href="guida.html" data-i18n="nav.guide">Quick Guide</a><a href="library.html" data-i18n="nav.library">Library</a><a href="navigation.html" data-i18n="nav.reading">Reading</a><a href="htmleditor.html" data-i18n="nav.editor">Editor</a><a href="snapshot.html" data-i18n="nav.snapshot">Snapshot</a><a href="collezioni.html" data-i18n="nav.collections">Collections</a><a href="helpers.html" data-i18n="nav.helpers">Helpers</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="note.html" data-i18n="nav.notes">Notes</a>
+      <div class="nav-dropdown">
+        <a href="approfondimenti.html" data-i18n="nav.deepdives">Deep Dives</a>
+        <div class="nav-dropdown-menu">
+          <span class="dm-label" data-i18n="nav.dm.docs">Documentation</span>
+          <a href="doc-readme.html" data-i18n="nav.dm.readme">📚 README — Overview</a>
+          <a href="doc-ui.html" data-i18n="nav.dm.ui">🖥️ UI — Button Reference</a>
+          <a href="doc-workflow.html" data-i18n="nav.dm.workflow">🔄 Workflow — Usage Flows</a>
+          <a href="doc-tech.html" data-i18n="nav.dm.tech">⚙️ Technical Architecture</a>
+          <a href="doc-library-tech.html" data-i18n="nav.dm.libtech">📚 Technical Doc — Library</a>
+          <a href="doc-reader-tech.html" data-i18n="nav.dm.readtech">📖 Technical Doc — Reader</a>
+          <a href="doc-editor-tech.html" data-i18n="nav.dm.edtech">✏️ Technical Doc — Editor</a>
+          <a href="doc-full-embedding.html" data-i18n="nav.dm.fullembedding">📦 Full Version — Embedding</a>
+          <span class="dm-label" data-i18n="nav.dm.project">Project</span>
+          <a href="doc-adv.html" data-i18n="nav.dm.adv">🌟 Positioning</a>
+          <a href="doc-legal.html" data-i18n="nav.dm.legal">⚖️ Legal Analysis</a>
+          <a href="promo.html" data-i18n="nav.dm.promo">🚀 Presentation</a>
+        </div>
+      </div>
+      <a href="index.html#download" class="nav-cta" data-i18n="nav.download">⬇ Download</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge" data-i18n="snapshot.hero.badge">v810 · Snapshot System</div>
+  <h1 data-i18n="snapshot.hero.h1">Versioning your <em>study work</em></h1>
+  <p data-i18n="snapshot.hero.p">Save the state of the extracted chapter at any time. Reload any previous version with one click. HTML files on local filesystem, no cloud.</p>
+</section>
+
+<div class="container">
+
+  <!-- INTRO -->
+  <div class="section" style="border-top:none;padding-top:0;">
+    <div class="section-label" data-i18n="snapshot.intro.label">What it is</div>
+    <h2 class="section-title" data-i18n="snapshot.intro.h2"><em>Local</em> versioning for your notes</h2>
+    <p class="section-sub" data-i18n="snapshot.intro.p">The problem: when working on an extracted chapter — adding highlights, notes and chunks — you cannot revert to a previous version. A wrong action is irreversible. The Snapshot system solves this.</p>
+
+    <div class="callout callout-new">
+      <span class="callout-icon">✨</span>
+      <div data-i18n="snapshot.callout.new"><strong>v810 — Filesystem Snapshots</strong> No EPUB reader or offline study tool offers persistent versioning of annotation work directly integrated into the reading flow, without cloud and without account.</div>
+    </div>
+
+    <div class="snapshot-flow" style="grid-template-columns: repeat(5,1fr); gap: 12px; align-items: center; margin-top: 32px;">
+      <div class="snap-card">
+        <span class="snap-icon">📄</span>
+        <h4 data-i18n="snapshot.flow.extract.h">Extract chapter</h4>
+        <p data-i18n="snapshot.flow.extract.p">Chapter opens in a new tab with a unique ID</p>
+      </div>
+      <div class="snap-arrow">→</div>
+      <div class="snap-card">
+        <span class="snap-icon">✏️</span>
+        <h4 data-i18n="snapshot.flow.study.h">Study</h4>
+        <p data-i18n="snapshot.flow.study.p">Highlights, annotations, collect chunks</p>
+      </div>
+      <div class="snap-arrow">→</div>
+      <div class="snap-card" style="border-color: var(--violet);">
+        <span class="snap-icon">📸</span>
+        <h4 data-i18n="snapshot.flow.save.h">Save snapshot</h4>
+        <p data-i18n="snapshot.flow.save.p">Frozen version with description</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SAVE A SNAPSHOT -->
+  <div class="section">
+    <div class="section-label" data-i18n="snapshot.save.label">Save a snapshot</div>
+    <h2 class="section-title" data-i18n="snapshot.save.h2">Photograph your <em>work</em></h2>
+    <p class="section-sub" data-i18n="snapshot.save.p">Snapshots are created directly from Noesis Editor, not from the Library. When working on an extracted chapter, you can save a version at any time with one click.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h4 data-i18n="snapshot.save.step1.h">Open the chapter in the Editor</h4>
+          <p data-i18n="snapshot.save.step1.p">From the Library, click on the chapter name (opens the latest snapshot) or on a specific snapshot. The Editor opens in a new tab.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h4 data-i18n="snapshot.save.step2.h">Click the Save button in the Chapter toolbar</h4>
+          <p data-i18n="snapshot.save.step2.p">The green <strong>Save</strong> button (<code>bi-file-earmark-arrow-down</code>) in the lower Chapter toolbar section. A prompt shows the proposed filename.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h4 data-i18n="snapshot.save.step3.h">Optional: add a label</h4>
+          <p data-i18n="snapshot.save.step3.p">The prompt lets you add a custom label to the filename. Examples: <em>"firstRead"</em>, <em>"afterChunks"</em>, <em>"finalVersion"</em>. Leave empty to use timestamp only.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h4 data-i18n="snapshot.save.step4.h">Confirm to save</h4>
+          <p data-i18n="snapshot.save.step4.p">Noesis produces <strong>two HTML files</strong> simultaneously: <em>clean</em> version (without highlight colours) and <em>annotated</em> version (with all colours). Both are downloaded and also saved in IndexedDB. A confirmation toast appears.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-new">
+      <span class="callout-icon">💡</span>
+      <div data-i18n="snapshot.callout.backup"><strong>Double backup</strong> — Each snapshot is saved both as an HTML file in the Download folder (portable, archivable to cloud) and in IndexedDB (immediate access from the Library). If you clear browser data, you can reimport the HTML files via <strong>Import Snapshots</strong> in the Library.</div>
+    </div>
+  </div>
+
+  <!-- HISTORY MANAGEMENT -->
+  <div class="section">
+    <div class="section-label" data-i18n="snapshot.history.label">History management</div>
+    <h2 class="section-title" data-i18n="snapshot.history.h2">Manage the <em>history</em> from the Library</h2>
+    <p class="section-sub" data-i18n="snapshot.history.p">Snapshot history is managed from the Library, not the Editor. Each extracted chapter shows the list of saved snapshots. From here you can load or delete any version.</p>
+
+    <div class="screenshot-block mt-24">
+      <img src="new-library-chapters-snapshot.png" data-i18n-alt="snapshot.img.library" alt="Hierarchical Library with extracted chapters and snapshots">
+      <div class="screenshot-caption" data-i18n="snapshot.img.library.caption">📚 Library — extracted chapters with their snapshots in chronological order</div>
+    </div>
+
+    <div class="cards mt-24">
+      <div class="card accent">
+        <span class="card-icon">↩</span>
+        <h3 data-i18n="snapshot.history.load.h">Load a snapshot</h3>
+        <p data-i18n="snapshot.history.load.p">Click <strong>Load</strong> next to a snapshot to restore that version in the editor. The current content is replaced. <strong>Save a snapshot before loading</strong> if you want to keep the current version.</p>
+      </div>
+      <div class="card accent">
+        <span class="card-icon">🗑️</span>
+        <h3 data-i18n="snapshot.history.delete.h">Delete a snapshot</h3>
+        <p data-i18n="snapshot.history.delete.p">Click the red delete button to remove a snapshot from IndexedDB. The HTML file on the filesystem is <strong>not</strong> deleted — it remains available for future reimport.</p>
+      </div>
+    </div>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">⚠️</span>
+      <div data-i18n="snapshot.history.callout"><strong>Load overwrites the current content</strong> — Restoring a snapshot completely replaces the visible text in the chapter. If you have unsaved changes, save a snapshot before loading.</div>
+    </div>
+  </div>
+
+  <!-- ACCESS FROM LIBRARY -->
+  <div class="section">
+    <div class="section-label" data-i18n="snapshot.access.label">Hierarchical Library</div>
+    <h2 class="section-title" data-i18n="snapshot.access.h2">Access snapshots <em>from the library</em></h2>
+    <p class="section-sub" data-i18n="snapshot.access.p">The hierarchical library (v810) shows all extracted chapters with their snapshots. From here you can <strong>open</strong> any version in the Editor, but snapshots are created from the Editor (see previous section). The Library is used to navigate and manage saved versions.</p>
+
+    <div class="cards">
+      <div class="card">
+        <span class="card-icon">📚</span>
+        <h3 data-i18n="snapshot.access.cover.h">Click on the cover</h3>
+        <p data-i18n="snapshot.access.cover.p">Opens the book in the reader. Navigate normally and extract new chapters.</p>
+      </div>
+      <div class="card">
+        <span class="card-icon">📄</span>
+        <h3 data-i18n="snapshot.access.chapter.h">Click on the chapter name</h3>
+        <p data-i18n="snapshot.access.chapter.p">Opens Noesis Editor with the <strong>most recent</strong> snapshot. Quick access to the latest version of your work.</p>
+      </div>
+      <div class="card" style="border-color: var(--violet);">
+        <span class="card-icon">📸</span>
+        <h3 data-i18n="snapshot.access.snapshot.h">Click on the snapshot name</h3>
+        <p data-i18n="snapshot.access.snapshot.p">Opens Noesis Editor with that specific snapshot. Direct access to any historical version.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TECHNICAL ARCHITECTURE -->
+  <div class="section">
+    <div class="section-label" data-i18n="snapshot.schema.label">Technical schema</div>
+    <h2 class="section-title" data-i18n="snapshot.schema.h2">The <em>noesisDB</em> structure</h2>
+    <p class="section-sub" data-i18n="snapshot.schema.p">The noesisDB database (IndexedDB) stores only lightweight metadata — the HTML content of snapshots lives on the filesystem.</p>
+
+    <div class="db-schema">
+<span class="comment">// Files downloaded to disk (naming schema)</span>
+noesis-clean-{BOOKNAME}__{CHAPTERNAME}__{YYYYMMDD_HHMMSS}_{CUSTOM}.html
+noesis-annot-{BOOKNAME}__{CHAPTERNAME}__{YYYYMMDD_HHMMSS}_{CUSTOM}.html
+
+<span class="comment">// First snapshot → origin file with reimportable meta tags</span>
+noesis-origin-{BOOKNAME}__{CHAPTERNAME}__{YYYYMMDD_HHMMSS}.html
+
+<span class="comment">// Record in noesisDB (includes full HTML content)</span>
+{
+  <span class="key">chapterId</span>:   <span class="val">"ch_1741260120000_482910"</span>,
+  <span class="key">bookName</span>:    <span class="val">"Book title"</span>,
+  <span class="key">chapterName</span>: <span class="val">"Chapter 3 — Analysis"</span>,
+  <span class="key">snapshots</span>: [
+    {
+      <span class="key">snapshotId</span>:  <span class="val">"snap_..."</span>,
+      <span class="key">description</span>: <span class="val">"Before highlights"</span>,
+      <span class="key">createdAt</span>:   <span class="val">"2026-03-06T14:25:00.000Z"</span>,
+      <span class="key">content</span>:     <span class="val">"&lt;p&gt;Full chapter HTML...&lt;/p&gt;"</span>
+    }
+  ]
+}
+    </div>
+
+    <div class="cards cards-2 mt-24">
+      <div class="card">
+        <h3 data-i18n="snapshot.schema.files.h">Real HTML files</h3>
+        <p data-i18n="snapshot.schema.files.p">Each snapshot is a standalone HTML file — visible in the filesystem, portable, archivable in Git or cloud storage of the user's choice.</p>
+      </div>
+      <div class="card">
+        <h3 data-i18n="snapshot.schema.manual.h">Manual versioning</h3>
+        <p data-i18n="snapshot.schema.manual.p">The user explicitly controls when to save. There is no auto-save for snapshots — only the work you choose to photograph is preserved.</p>
+      </div>
+      <div class="card">
+        <h3 data-i18n="snapshot.schema.reimport.h">Reimportation</h3>
+        <p data-i18n="snapshot.schema.reimport.p">Snapshot files can be reimported at any time via <strong>Import Snapshots</strong> in the Library — Noesis recognises them via <code>noesis-*</code> meta tags.</p>
+      </div>
+      <div class="card">
+        <h3 data-i18n="snapshot.schema.cleanup.h">Filesystem cleanup</h3>
+        <p data-i18n="snapshot.schema.cleanup.p">Manage snapshots like normal files: rename them, move them, archive old ones. No database to clear.</p>
+      </div>
+    </div>
+
+    <div class="screenshot-block mt-24">
+      <img src="new-editor-import-snapshots.png" data-i18n-alt="snapshot.img.import" alt="Import Snapshots dialog — file selection from disk">
+      <div class="screenshot-caption" data-i18n="snapshot.img.import.caption">⬆️ Import Snapshots — select the snapshot HTML files to reimport to the Library</div>
+    </div>
+  </div>
+
+  <!-- USE CASES -->
+  <div class="section">
+    <div class="section-label" data-i18n="snapshot.scenarios.label">Use cases</div>
+    <h2 class="section-title" data-i18n="snapshot.scenarios.h2">Three ways to use <em>snapshots</em></h2>
+
+    <div class="accordion">
+      <div class="accordion-item">
+        <button class="accordion-btn"><span data-i18n="snapshot.scenarios.study.btn">📚 Progressive study — successive versions</span><span class="icon">+</span></button>
+        <div class="accordion-body"><div data-i18n="snapshot.scenarios.study.body"></div></div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-btn"><span data-i18n="snapshot.scenarios.research.btn">🔬 Research — parallel variants</span><span class="icon">+</span></button>
+        <div class="accordion-body"><div data-i18n="snapshot.scenarios.research.body"></div></div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-btn"><span data-i18n="snapshot.scenarios.backup.btn">💼 Safety — backup before risky operations</span><span class="icon">+</span></button>
+        <div class="accordion-body"><div data-i18n="snapshot.scenarios.backup.body"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <a href="htmleditor.html" data-i18n="snapshot.pagenav.prev">← Noesis Editor</a>
+    <a href="collezioni.html" class="next" data-i18n="snapshot.pagenav.next">Collections →</a>
+  </div>
+</div>
+
+<footer>
+  <p data-i18n="footer.license">MIT License · Vanilla JS · No Server · <strong>Noesis — Reading-to-Knowledge System</strong> · v810</p>
+  <p style="margin-top:8px;"><a href="index.html" data-i18n="footer.home">Home</a> · <a href="guida.html" data-i18n="footer.guide">Guide</a> · <a href="faq.html" data-i18n="footer.faq">FAQ</a> · <a href="note.html" data-i18n="footer.notes">Notes</a></p>
+</footer>
+<script src="translations.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

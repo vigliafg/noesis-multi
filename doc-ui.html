@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UI — Riferimento Completo Pulsanti — Noesis</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="approfondimenti.css">
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">📚 <span>Noesis</span></a>
+    <button class="lang-toggle-btn" id="lang-toggle" onclick="window.noesisI18n.toggleLang()" title="Switch to Italian">🇮🇹 IT</button>
+    <button class="nav-toggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links">
+      <a href="index.html" data-i18n="nav.home">Home</a><a href="guida.html" data-i18n="nav.guide">Quick Guide</a><a href="library.html" data-i18n="nav.library">Library</a><a href="navigation.html" data-i18n="nav.reading">Reading</a><a href="htmleditor.html" data-i18n="nav.editor">Editor</a><a href="snapshot.html" data-i18n="nav.snapshot">Snapshot</a><a href="collezioni.html" data-i18n="nav.collections">Collections</a><a href="helpers.html" data-i18n="nav.helpers">Helpers</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="note.html" data-i18n="nav.notes">Notes</a>
+      <div class="nav-dropdown">
+        <a href="approfondimenti.html" data-i18n="nav.deepdives">Deep Dives</a>
+        <div class="nav-dropdown-menu">
+          <span class="dm-label" data-i18n="nav.dm.docs">Documentation</span>
+          <a href="doc-readme.html" data-i18n="nav.dm.readme">📚 README — Overview</a>
+          <a href="doc-ui.html" data-i18n="nav.dm.ui">🖥️ UI — Button Reference</a>
+          <a href="doc-workflow.html" data-i18n="nav.dm.workflow">🔄 Workflow — Usage Flows</a>
+          <a href="doc-tech.html" data-i18n="nav.dm.tech">⚙️ Technical Architecture</a>
+          <a href="doc-library-tech.html" data-i18n="nav.dm.libtech">📚 Technical Doc — Library</a>
+          <a href="doc-reader-tech.html" data-i18n="nav.dm.readtech">📖 Technical Doc — Reader</a>
+          <a href="doc-editor-tech.html" data-i18n="nav.dm.edtech">✏️ Technical Doc — Editor</a>
+          <a href="doc-full-embedding.html" data-i18n="nav.dm.fullembedding">📦 Full Version — Embedding</a>
+          <span class="dm-label" data-i18n="nav.dm.project">Project</span>
+          <a href="doc-adv.html" data-i18n="nav.dm.adv">🌟 Positioning</a>
+          <a href="doc-legal.html" data-i18n="nav.dm.legal">⚖️ Legal Analysis</a>
+          <a href="promo.html" data-i18n="nav.dm.promo">🚀 Presentation</a>
+        </div>
+      </div>
+      <a href="index.html#download" class="nav-cta" data-i18n="nav.download">⬇ Download</a>
+    </div>
+  </div>
+</nav>
+<div class="callout callout-info deepdive-translation-callout" style="margin:0;border-radius:0;background:#1e3a5f;color:#e0eeff;border:none;border-bottom:2px solid #3b82f6;">
+  <span class="callout-icon">🌐</span>
+  <div data-i18n="deepdive.callout">🌐 This page is written in Italian. Use your browser's <strong>Translate</strong> feature to read it in your language.</div>
+</div>
+
+<section class="hero-doc">
+  <div class="doc-tag" style="color:#3b82f6;background:rgba(59,130,246,0.15);border:1px solid #3b82f644;">🖥️ Interfaccia</div>
+  <h1>UI — Riferimento Completo Pulsanti</h1>
+  <p class="doc-subtitle">Mappa completa di tutti i controlli dell'interfaccia, organizzata per ambiente e area funzionale.</p>
+</section>
+
+<div class="doc-layout">
+  <div class="doc-toc" id="doc-toc"><h4>In questa pagina</h4><ul>
+<li><a href="#mappa-degli-ambienti" class="">Mappa degli Ambienti</a></li>
+<li><a href="#library-libreria-gerarchica" class="">📚 LIBRARY — Libreria Gerarchica</a></li>
+<li><a href="#reader-ambiente-di-lettura" class="">📖 READER — Ambiente di Lettura</a></li>
+<li><a href="#noesis-editor" class="">✏️ NOESIS EDITOR — Editor WYSIWYG (sn56.x)</a></li>
+<li><a href="#layout-interfaccia" class="toc-h3">Layout interfaccia</a></li>
+<li><a href="#tre-percorsi-di-accesso" class="toc-h3">Tre percorsi di accesso</a></li>
+<li><a href="#modalita-operative" class="toc-h3">Modalità operative</a></li>
+<li><a href="#header-editor" class="toc-h3">Header</a></li>
+<li><a href="#toolbar-chapter" class="toc-h3">Toolbar Chapter</a></li>
+<li><a href="#toolbar-collection" class="toc-h3">Toolbar Collection</a></li>
+<li><a href="#toolbar-tools" class="toc-h3">Toolbar Tools</a></li>
+<li><a href="#toolbar-wysiwyg-summernote" class="toc-h3">Toolbar WYSIWYG</a></li>
+<li><a href="#inspect-panel" class="toc-h3">Inspect Panel</a></li>
+<li><a href="#sistema-snapshot" class="toc-h3">Sistema Snapshot</a></li>
+<li><a href="#export-documento" class="toc-h3">Export Documento</a></li>
+<li><a href="#riepilogo-icone-bootstrap-icons-per-ambiente" class="">Riepilogo icone Bootstrap Icons</a></li>
+</ul></div>
+  <div class="doc-content">
+    <a href="approfondimenti.html" class="doc-back">← Tutti gli approfondimenti</a>
+    <h1 id="noesis-riferimento-ui-ambienti-e-pulsanti">🖥️ Noesis — Riferimento UI: Ambienti e Pulsanti</h1>
+<blockquote>
+<p>Mappa completa di tutti i controlli dell'interfaccia, organizzata per ambiente e area funzionale.<br />
+Per ogni pulsante: icona, nome, funzione e comportamento.</p>
+</blockquote>
+<hr />
+<h2 id="mappa-degli-ambienti">Mappa degli Ambienti</h2>
+<pre><code>NOESIS
+│
+├── 📚  LIBRARY          — Libreria gerarchica: libri → capitoli estratti → snapshot
+│
+├── 📖  READER           — Lettura del libro con TOC sidebar
+│     ├── Navigation
+│     ├── Sidebar &amp; TOC
+│     ├── Highlight
+│     ├── Display Settings (Tipografia + Temi + Interfaccia)
+│     ├── Scroll Mode
+│     ├── % Zoom
+│     ├── Bookmarks
+│     ├── Save State
+│     └── Extract Chapter → apre NOESIS EDITOR (sn56.x)
+│
+└── ✏️  NOESIS EDITOR    — Editor WYSIWYG unificato (sn56.x / Summernote)
+      │                   Noto anche come: sn56.x, Summernote Editor
+      │
+      ├── Tre percorsi di accesso:
+      │   ├── Library → Open Editor (standalone)
+      │   ├── Library → click capitolo/snapshot (chapter mode)
+      │   └── Reader → Extract (chapter mode immediato)
+      │
+      ├── Toolbar Principale: CHAPTER · COLLECTION · TOOLS
+      │   ├── Chapter: New · Import · Save · More formats
+      │   ├── Collection: Add · Import JSON · Export JSON · Inspect · Clear
+      │   └── Tools: Excalidraw
+      │
+      ├── Toolbar Summernote: formattazione completa (H1-H6, bold, italic, liste, tabelle)
+      ├── Snapshot: doppio file (clean + annotated) + IDB
+      ├── Chunk Collection: Inspect Panel flottante
+      └── Export: TXT · MD · MD+ZIP · JSON · DOCX · PDF
+</code></pre>
+<hr />
+<h2 id="library-libreria-gerarchica">📚 LIBRARY — Libreria Gerarchica</h2>
+<p>L'ambiente di ingresso. Mostra tutti i libri importati con la loro gerarchia completa di capitoli estratti e snapshot. Il tema dell'interfaccia è scuro con tipografia editoriale.</p>
+<pre><code>LIBRARY
+│
+├── ── HEADER ──────────────────────────────────────────────
+│
+├── [☀/🌙]  Toggle Tema
+│         Icona:    bi-sun / bi-moon
+│         Funzione: Alterna modalità light/dark della Library.
+│                   Preferenza salvata in localStorage.
+│         Trigger:  Click → toggle class + localStorage
+│
+├── [+]  Add Book
+│         Icona:    bi-plus-lg
+│         Funzione: Apre il file picker del sistema operativo.
+│                   Accetta file .epub. Il libro viene letto
+│                   come ArrayBuffer e salvato in IndexedDB
+│                   (EpubLibraryDB). Appare immediatamente
+│                   nella lista libreria.
+│         Trigger:  Click → dialog di selezione file → conferma
+│
+├── [↑]  Import Snapshots
+│         Icona:    bi-cloud-upload
+│         Funzione: Reimporta file snapshot HTML precedentemente
+│                   salvati su disco in noesisDB.
+│                   Su Chrome/Edge: showDirectoryPicker().
+│                   Su Safari/Android: file picker multi-file.
+│                   Riconosce i file tramite meta tag noesis-*.
+│         Trigger:  Click → selezione file/cartella → parsing meta tag
+│
+├── [✏️]  Open Editor
+│         Funzione: Apre in modalità standalone (editor vuoto,
+│                   nessun libro associato).
+│         Trigger:  Click → Blob URL → nuovo tab Editor
+│
+├── [🛠️]  Tools ▾
+│         Funzione: Dropdown con strumenti esterni:
+│         ├── noesis-epub-tools  — Editor e gestione avanzata EPUB
+│         ├── Pandoc Online      — Convertitore formati via pandoc.wasm
+│         │                        nel browser (MD, DOCX, HTML, LaTeX,
+│         │                        EPUB, ODT). Nessun upload di file.
+│         └── Mozilla PDF Viewer — Visualizzatore PDF basato su PDF.js
+│
+│
+├── ── STRUTTURA GERARCHICA ─────────────────────────────────
+│
+│   Per ogni libro viene visualizzata una riga espansa:
+│
+├── BOOK ROW
+│   │
+│   ├── [📖]  Copertina libro  (click → apre Reader)
+│   │         Icona:    Immagine di copertina o bi-book
+│   │         Funzione: Carica il file EPUB dall'IndexedDB,
+│   │                   ripristina l'ultima posizione di lettura
+│   │                   salvata e apre l'ambiente Reader.
+│   │         Trigger:  Click sulla copertina → transizione a Reader
+│   │
+│   ├── [testo]  Titolo libro
+│   │             Stile:    Corsivo, colore chiaro su sfondo scuro
+│   │             Funzione: Visualizzazione. Non è cliccabile
+│   │                       (usare la copertina per aprire).
+│   │
+│   ├── [badge]  Contatori
+│   │             Funzione: Mostra il numero di capitoli estratti
+│   │                       e il numero totale di snapshot salvati
+│   │                       per quel libro.
+│   │             Es.:  &quot;2 chapters&quot;  &quot;5 snapshots&quot;
+│   │
+│   ├── [🗑️]  Delete Book
+│   │         Icona:    bi-trash
+│   │         Funzione: Rimuove il libro dall'IndexedDB del browser.
+│   │         Trigger:  Click → conferma dialog
+│   │
+│   └── CAPITOLI ESTRATTI (sotto ogni libro)
+│       │
+│       │   Se non ci sono capitoli estratti:
+│       │   └── &quot;No extracted chapters yet.&quot; (nota grigia)
+│       │
+│       ├── CHAPTER ENTRY  (uno per ogni capitolo estratto)
+│       │   │
+│       │   ├── [testo]  Nome capitolo  (click → apre snapshot più recente)
+│       │   │             Funzione: Apre il capitolo estratto nell'ambiente
+│       │   │                       Extract Chapter, caricando automaticamente
+│       │   │                       lo snapshot più recente disponibile.
+│       │   │             Trigger:  Click → window.open() con contenuto snapshot
+│       │   │
+│       │   ├── [badge]  Contatore snapshot
+│       │   │             Es.: &quot;3 snapshots&quot; (viola) oppure &quot;no snapshots&quot; (grigio)
+│       │   │
+│       │   └── SNAPSHOT LIST (sotto ogni capitolo, dal più recente)
+│       │       │
+│       │       ├── [●]  Snapshot item  (click → apre quello snapshot)
+│       │       │         Icona:    Dot colorato (verde per il più recente,
+│       │       │                   viola per i precedenti)
+│       │       │         Funzione: Apre il capitolo estratto nell'ambiente
+│       │       │                   Extract Chapter, ripristinando esattamente
+│       │       │                   il contenuto HTML di quello snapshot.
+│       │       │         Info:     Descrizione snapshot + data/ora
+│       │       │         Trigger:  Click → window.open() con contenuto snapshot
+│       │       │
+│       │       └── [ordinamento]  Dal più recente al meno recente
+</code></pre>
+<hr />
+<h2 id="reader-ambiente-di-lettura">📖 READER — Ambiente di Lettura</h2>
+<p>Toolbar principale del reader, sempre visibile durante la lettura.</p>
+<pre><code>READER TOOLBAR
+│
+├── ── NAVIGATION ──────────────────────────────────────────
+│
+├── [◀]  Previous Page / Previous Chapter
+│         Icona:    chevron-left / arrow-left
+│         Funzione: In modalità paginata: va alla pagina precedente.
+│                   In modalità scroll: va al capitolo precedente
+│                   nella spine del libro.
+│         Trigger:  Click → rendition.prev()
+│         Visibile: Sempre (disabilitato al primo capitolo)
+│
+├── [▶]  Next Page / Next Chapter
+│         Icona:    chevron-right / arrow-right
+│         Funzione: In modalità paginata: va alla pagina successiva.
+│                   In modalità scroll: va al capitolo successivo.
+│         Trigger:  Click → rendition.next()
+│         Visibile: Sempre (disabilitato all'ultimo capitolo)
+│
+├── [↕]  Scroll Mode Toggle
+│         Icona:    arrows-expand / list (scroll) ↔ file-earmark (paginated)
+│         Funzione: Alterna tra due modalità di lettura:
+│                   • Scroll continuo: scorrimento verticale fluido,
+│                     tutto il capitolo in un'unica colonna.
+│                   • Paginato: testo diviso in pagine con dimensione
+│                     fissa, navigazione con frecce o tastiera.
+│                   La preferenza viene salvata in localStorage.
+│         Trigger:  Click → toggle flow → rendition re-render
+│
+│
+├── ── SIDEBAR &amp; TOC ────────────────────────────────────────
+│
+├── [☰]  Toggle Sidebar (TOC)
+│         Icona:    list / layout-sidebar
+│         Funzione: Mostra o nasconde la sidebar laterale che contiene
+│                   l'indice gerarchico del libro (Table of Contents).
+│                   La sidebar mostra tutti i capitoli e sottolivelli
+│                   come lista ad albero espandibile/collassabile.
+│                   Cliccando una voce dell'indice si naviga
+│                   direttamente a quel capitolo.
+│         Trigger:  Click → CSS class toggle → sidebar slide in/out
+│
+│   Controlli interni alla Sidebar TOC:
+│   ├── [▶/▼]  Espandi/Comprimi nodo
+│   │           Icona: triangle-right / triangle-down (per nodi con figli)
+│   │           Funzione: Mostra o nasconde i sottolivelli del capitolo.
+│   │
+│   └── [testo]  Link capitolo
+│                 Funzione: Naviga direttamente al capitolo cliccato
+│                 tramite rendition.display(href).
+│
+│
+├── ── DISPLAY SETTINGS ─────────────────────────────────────
+│
+├── [👁]  Display Settings  (pannello accordion unificato)
+│         Icona:    bi-eye
+│         Funzione: Pannello che unifica tipografia, temi di lettura
+│                   e impostazioni interfaccia in un'unica vista accordion.
+│         Trigger:  Click → pannello si apre/chiude
+│
+│   Sezione TIPOGRAFIA:
+│   │
+│   ├── [A-]  Decrease Font Size
+│   │         Funzione: Riduce la dimensione del testo del reader.
+│   │
+│   ├── [A+]  Increase Font Size
+│   │         Funzione: Aumenta la dimensione del testo del reader.
+│   │
+│   ├── [≡-]  Decrease Line Height
+│   │         Funzione: Riduce l'interlinea del testo.
+│   │
+│   ├── [≡+]  Increase Line Height
+│   │         Funzione: Aumenta l'interlinea del testo.
+│   │
+│   ├── [▭]   Single Page Layout
+│   │         Funzione: Imposta la visualizzazione a colonna singola.
+│   │
+│   └── [▭▭]  Double Page Layout
+│             Funzione: Imposta la visualizzazione a due colonne affiancate.
+│
+│   Sezione TEMI DI LETTURA (15 temi in 5 gruppi):
+│   │
+│   ├── ☀️  CHIARI: White · Soft White · Cream
+│   ├── 🌅  CALDI: Sepia · Parchment
+│   ├── ☁️  GRIGI CHIARI: Light Gray · Cool Gray · Warm Gray
+│   ├── 🌆  GRIGI SCURI: Mid Gray · Slate · Dark Gray
+│   └── 🌙  NOTTURNI: Charcoal · Dark · Midnight · True Black
+│
+│   Sezione INTERFACCIA:
+│   ├── [🎨]  Toolbar Color     — color picker per la toolbar principale
+│   ├── [🎨]  Sidebar Color     — color picker per la sidebar TOC
+│   ├── [🎨]  Nav Buttons Color — color picker per i pulsanti ◀ ▶
+│   └── [▓]   Opacity Slider    — opacità toolbar (0%–100%)
+│
+│
+├── ── BOOKMARKS ────────────────────────────────────────────
+│
+├── [🔖]  Bookmarks Drawer
+│         Badge:    Contatore numerico segnalibri attivi
+│         Funzione: Cassetto laterale con elenco segnalibri personali.
+│
+│   Controlli interni:
+│   ├── [+]      Add Bookmark    — salva posizione corrente con CFI
+│   ├── [testo]  Bookmark item   — click per navigare alla posizione
+│   └── [🗑️]    Delete Bookmark — rimuove il segnalibro
+│
+│
+├── ── SAVE STATE ───────────────────────────────────────────
+│
+├── [💾]  Save State
+│         Funzione: Salva manualmente posizione + preferenze del libro.
+│         Trigger:  Click → toast &quot;State saved&quot;
+│
+│
+└── ── EXTRACT CHAPTER ──────────────────────────────────────
+
+    [📥]  Extract Chapter  (dropdown button)
+          Funzione: Estrae il capitolo come documento HTML standalone
+                    e lo salva in IndexedDB (noesisDB) con un chapterId
+                    univoco per il sistema di snapshot.
+
+      Opzioni del dropdown:
+      │
+      ├── [📄]  Solo capitolo corrente
+      │         Funzione: Estrae solo il capitolo attualmente visualizzato.
+      │                   Produce un documento HTML standalone con toolbar
+      │                   completa inclusi i pulsanti Snapshot.
+      │                   Salva il chapterRecord in noesisDB.
+      │
+      └── [🌿]  Corrente + tutti i sottolivelli
+                Funzione: Estrae il capitolo corrente e ricorsivamente
+                          tutti i suoi sottolivelli. Assembla tutto in un
+                          unico documento HTML standalone.
+                          Salva il chapterRecord in noesisDB.
+</code></pre>
+<hr />
+<h2 id="noesis-editor">✏️ NOESIS EDITOR — Editor WYSIWYG (sn56.x / Summernote Editor)</h2>
+<p>L'editor <strong>Noesis Editor</strong> (codename <strong>sn56.x</strong>, talvolta chiamato "Summernote Editor") è l'ambiente di annotazione e studio di Noesis. È un editor WYSIWYG HTML completo basato su <strong>Summernote-lite 0.9.1</strong> che opera in una finestra separata (contesto <code>blob:null</code>).</p>
+<blockquote>
+<p><strong>Nota:</strong> L'ambiente Extract Chapter è stato <strong>unificato</strong> con Noesis Editor. Quando estrai un capitolo dal Reader, si apre direttamente nell'Editor con il contenuto del capitolo caricato.</p>
+</blockquote>
+<h3 id="layout-interfaccia">Layout interfaccia</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│ HEADER (#0a84ff blu)                                        │
+│ "Nome capitolo / Noesis Editor"              [?] Help      │
+├─────────────────────────────────────────────────────────────┤
+│ SUMMERNOTE TOOLBAR (generata da Summernote)                │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│ AREA EDITOR WYSIWYG (.note-editable)                       │
+│ (altezza dinamica, occupa tutto lo spazio disponibile)     │
+│                                                             │
+├─────────────────────────────────────────────────────────────┤
+│ BOTTOM TOOLBAR (#111 nero)                                 │
+│ [CHAPTER] [COLLECTION] [TOOLS]                              │
+└─────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="tre-percorsi-di-accesso">Tre percorsi di accesso</h3>
+<table>
+<thead>
+<tr>
+<th>Percorso</th>
+<th>Trigger</th>
+<th>Modalità</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Library → Open Editor</td>
+<td>Click "Open Editor" nella toolbar</td>
+<td><strong>standalone</strong> — editor vuoto, nessun libro associato</td>
+</tr>
+<tr>
+<td>2. Library → capitolo/snapshot</td>
+<td>Click su nome capitolo o snapshot</td>
+<td><strong>chapter</strong> — carica contenuto HTML, contesto bibliografico</td>
+</tr>
+<tr>
+<td>3. Reader → Extract</td>
+<td>Click "Extract" nel Reader</td>
+<td><strong>chapter</strong> — estrae e apre immediatamente</td>
+</tr>
+</tbody>
+</table>
+<h3 id="modalita-operative">Modalità operative</h3>
+<table>
+<thead>
+<tr>
+<th>Modalità</th>
+<th>Caratteristiche</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>chapter</strong></td>
+<td>Contenuto HTML caricato, contesto bibliografico (bookName, chapterName, chapterId), salvataggio in IDB + filesystem</td>
+</tr>
+<tr>
+<td><strong>standalone</strong></td>
+<td>Editor vuoto, nessun contesto, salvataggio solo su filesystem</td>
+</tr>
+</tbody>
+</table>
+<h3 id="header-editor">Header</h3>
+<ul>
+<li><strong>Colore:</strong> <code>#0a84ff</code> (blu iOS)</li>
+<li><strong>Titolo (#appHeaderTitle):</strong> in modalità chapter mostra <code>chapterName</code> (o <code>bookName</code> come fallback); in standalone mostra <code>"Noesis Editor"</code></li>
+<li><strong>Pulsante ? (#editorHelpBtn):</strong> apre l'overlay di aiuto contestuale</li>
+</ul>
+<h3 id="toolbar-chapter">Toolbar Chapter (bordo giallo)</h3>
+<pre><code>CHAPTER SECTION
+│
+├── [+]  New (#chNewBtn)           — Crea nuovo documento
+│         Icona: bi-plus-square
+│         Comportamento: se contenuto, chiede conferma + save
+│
+├── [📁] Import (#chImportBtn)     — Importa da IDB o file HTML
+│         Icona: bi-folder2-open
+│         Colore: #ff9f0a (arancione)
+│         Dialog: mostra snapshot IDB + sezione file da disco
+│
+├── [💾] Save (#chExportMainBtn)    — Salva doppio snapshot
+│         Icona: bi-file-earmark-arrow-down
+│         Colore: #30d158 (verde)
+│         Output: clean + annotated (file + IDB)
+│
+└── [...] More (#chMoreBtn)        — Export formati alternativi
+          Icona: bi-three-dots
+          Colore: #ff453a (rosso)
+          Opzioni: TXT, MD, MD+ZIP, JSON, PDF, DOCX
+</code></pre>
+<h3 id="toolbar-collection">Toolbar Collection (bordo azzurro)</h3>
+<pre><code>COLLECTION SECTION
+│
+├── [+]  Add (#addChunkBtn)         — Aggiunge chunk alla collezione
+│         Badge: #chunkCounter (rosso, mostra numero chunk)
+│         Metodi: click [+], doppio tap img, long press img (600ms)
+│
+├── [↑]  Import JSON                — Importa collezione da file
+│         Colore: #0a84ff (blu)
+│
+├── [↓]  Export JSON                — Esporta collezione come JSON
+│         Colore: #32d74b (verde)
+│
+├── [...] More (#colMoreBtn)        — Export alternativi
+│         Colore: #ff9f0a (arancione)
+│         Opzioni: MD, MD+ZIP, HTML standalone
+│
+├── [👁] Inspect (#inspectPanel)    — Pannello gestione chunk
+│         Colore: #5e5ce6 (viola)
+│
+└── [🗑️] Clear                     — Svuota collezione
+          Colore: #ff453a (rosso)
+</code></pre>
+<h3 id="toolbar-tools">Toolbar Tools</h3>
+<pre><code>TOOLS SECTION
+│
+└── [🖊️] Excalidraw               — Apre Noesis Excalidraw
+          Icona: bi-diagram-3
+          Funzione: diagrammi, flowchart, mappe mentali
+          Export: SVG/PNG inseribili nel documento
+</code></pre>
+<h3 id="inspect-panel">Inspect Panel — Pannello Chunk</h3>
+<p>Pannello <strong>flottante non modale</strong>, draggable e resizable:</p>
+<ul>
+<li>Lista chunk con anteprima</li>
+<li>Selezione multipla checkbox</li>
+<li>Azioni per chunk: <strong>Inject</strong> (al cursore), <strong>Fullscreen</strong>, <strong>Delete</strong></li>
+<li>Inject di gruppo per tutti i chunk selezionati</li>
+</ul>
+<h3 id="sistema-snapshot">Sistema Snapshot (doppia memorizzazione)</h3>
+<p>Il pulsante <strong>Save</strong> genera <strong>quattro output simultanei</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Destinazione</th>
+<th>File/Oggetto</th>
+<th>Tipo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Filesystem</td>
+<td><code>noesis-clean-…html</code></td>
+<td>HTML senza background-color</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Filesystem</td>
+<td><code>noesis-annot-…html</code></td>
+<td>HTML con highlight preservati</td>
+</tr>
+<tr>
+<td>3</td>
+<td>IndexedDB</td>
+<td>snapshot <code>annot-…</code></td>
+<td>JSON in IDB</td>
+</tr>
+<tr>
+<td>4</td>
+<td>IndexedDB</td>
+<td>snapshot <code>clean-…</code></td>
+<td>JSON in IDB</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Schema naming:</strong> <code>noesis-{tipo}-{BOOK}__{CHAPTER}__{YYYYMMDD_HHMMSS}[_{label}].html</code></p>
+<h3 id="export-documento">Export Documento</h3>
+<table>
+<thead>
+<tr>
+<th>Formato</th>
+<th>Funzione</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TXT</td>
+<td>Testo puro</td>
+</tr>
+<tr>
+<td>MD</td>
+<td>Markdown (via Turndown)</td>
+</tr>
+<tr>
+<td>MD+ZIP</td>
+<td>Markdown + immagini estratte</td>
+</tr>
+<tr>
+<td>JSON</td>
+<td>Struttura documento</td>
+</tr>
+<tr>
+<td>DOCX</td>
+<td>Word (via html-docx-js)</td>
+</tr>
+<tr>
+<td>PDF</td>
+<td>Stampa nativa (@media print)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="toolbar-wysiwyg-summernote">Toolbar WYSIWYG — Summernote</h3>
+<pre><code>EDITOR TOOLBAR
+│
+├── ── TEXT FORMATTING ──────────────────────────────────────
+│
+├── [B]   Bold          — Summernote → &lt;strong&gt;
+├── [I]   Italic        — Summernote → &lt;em&gt;
+├── [U]   Underline     — Summernote → &lt;u&gt;
+└── [S]   Strikethrough — Summernote → &lt;s&gt;
+│
+│
+├── ── BLOCK STRUCTURE ──────────────────────────────────────
+│
+├── [H1]  Heading 1    — Summernote formatBlock → &lt;h1&gt;
+├── [H2]  Heading 2    — Summernote formatBlock → &lt;h2&gt;
+├── [H3]  Heading 3    — Summernote formatBlock → &lt;h3&gt;
+└── [¶]   Paragraph    — Summernote formatBlock → &lt;p&gt;
+│
+│
+├── ── LISTS ────────────────────────────────────────────────
+│
+├── [•]   Unordered List — Summernote → &lt;ul&gt;
+└── [1.]  Ordered List   — Summernote → &lt;ol&gt;
+│
+│
+├── ── MEDIA ────────────────────────────────────────────────
+│
+└── [🖼️]  Insert Image
+          Funzione: File picker → FileReader.readAsDataURL()
+                    → Summernote insertImage (base64 inline)
+          Output:   &lt;img src=&quot;data:image/...;base64,...&quot; /&gt;
+│
+│
+├── ── FONT SIZE ────────────────────────────────────────────
+│
+├── [A-]  Decrease Font Size (8px min)
+└── [A+]  Increase Font Size (28px max)
+│
+│
+├── ── TABLES PLUGIN ────────────────────────────────────────
+│
+├── [⊞]  Insert Table
+│         Toolbar Contestuale Flottante (appare al click su cella):
+│         ├── [⬆+]  Insert Row Above
+│         ├── [⬇+]  Insert Row Below
+│         ├── [◀+]  Insert Column Left
+│         ├── [▶+]  Insert Column Right
+│         ├── [⬆🗑️] Delete Row
+│         └── [◀🗑️] Delete Column
+│
+│
+├── ── TOOLS ────────────────────────────────────────────────
+│
+├── [🖊️]  Excalidraw
+│         Funzione: Apre Noesis Excalidraw in un nuovo tab.
+│                   Fork di Excalidraw per creare diagrammi,
+│                   flowchart, mappe mentali e schizzi visivi.
+│                   Salvataggio locale nel browser (localStorage).
+│         Export:   SVG o PNG — inseribili nel documento come
+│                   immagini base64 inline.
+│         Icona:    bi-diagram-3
+│
+│
+└── ── EXPORT ───────────────────────────────────────────────
+
+    ├── [📤]  Export Documento ▾
+    │         ├── TXT    — Testo puro
+    │         ├── MD     — Markdown (via Turndown)
+    │         ├── MD+ZIP — Markdown + immagini estratte in ZIP
+    │         ├── JSON   — Struttura documento come JSON
+    │         ├── DOCX   — Word (via html-docx-js)
+    │         └── PDF    — Stampa nativa browser (@media print A4)
+    │
+    ├── [📦]  Export Collezione ▾
+    │         ├── JSON   — Chunk come array JSON (importabile)
+    │         ├── HTML   — Chunk come documento HTML standalone
+    │         ├── MD     — Chunk in Markdown
+    │         └── MD+ZIP — Chunk in Markdown + immagini ZIP
+    │
+    └── [🖨️]  Print / PDF  — window.print() con @media print ottimizzato
+</code></pre>
+<hr />
+<h2 id="riepilogo-icone-bootstrap-icons-per-ambiente">Riepilogo icone Bootstrap Icons per ambiente</h2>
+<table>
+<thead>
+<tr>
+<th>Ambiente</th>
+<th>Funzione</th>
+<th>Icona Bootstrap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Library</td>
+<td>Add Book</td>
+<td><code>plus-lg</code></td>
+</tr>
+<tr>
+<td>Library</td>
+<td>Delete Book</td>
+<td><code>trash</code></td>
+</tr>
+<tr>
+<td>Library</td>
+<td>Open Reader (copertina)</td>
+<td><code>book</code> (placeholder)</td>
+</tr>
+<tr>
+<td>Reader</td>
+<td>Toggle Sidebar</td>
+<td><code>layout-sidebar</code></td>
+</tr>
+<tr>
+<td>Reader</td>
+<td>Bookmarks</td>
+<td><code>bookmark-star</code></td>
+</tr>
+<tr>
+<td>Reader</td>
+<td>Typography</td>
+<td><code>fonts</code></td>
+</tr>
+<tr>
+<td>Reader</td>
+<td>Themes</td>
+<td><code>palette</code></td>
+</tr>
+<tr>
+<td>Reader</td>
+<td>Interface Settings</td>
+<td><code>sliders</code></td>
+</tr>
+<tr>
+<td>Reader</td>
+<td>Scroll Mode</td>
+<td><code>arrows-expand</code></td>
+</tr>
+<tr>
+<td>Reader</td>
+<td>Save State</td>
+<td><code>floppy2</code></td>
+</tr>
+<tr>
+<td>Reader</td>
+<td>Extract Chapter</td>
+<td><code>file-earmark-arrow-down</code></td>
+</tr>
+<tr>
+<td>Reader</td>
+<td>Prev / Next</td>
+<td><code>chevron-left</code> / <code>chevron-right</code></td>
+</tr>
+<tr>
+<td>Editor</td>
+<td>Bold</td>
+<td><code>type-bold</code></td>
+</tr>
+<tr>
+<td>Editor</td>
+<td>Italic</td>
+<td><code>type-italic</code></td>
+</tr>
+<tr>
+<td>Editor</td>
+<td>Underline</td>
+<td><code>type-underline</code></td>
+</tr>
+<tr>
+<td>Editor</td>
+<td>Strikethrough</td>
+<td><code>type-strikethrough</code></td>
+</tr>
+<tr>
+<td>Editor</td>
+<td>H1/H2/H3</td>
+<td><code>type-h1</code> / <code>type-h2</code> / <code>type-h3</code></td>
+</tr>
+<tr>
+<td>Editor</td>
+<td>Unordered List</td>
+<td><code>list-ul</code></td>
+</tr>
+<tr>
+<td>Editor</td>
+<td>Ordered List</td>
+<td><code>list-ol</code></td>
+</tr>
+<tr>
+<td>Editor</td>
+<td>Image</td>
+<td><code>image</code></td>
+</tr>
+<tr>
+<td>Editor</td>
+<td>Font Size</td>
+<td><code>dash-circle</code> / <code>plus-circle</code></td>
+</tr>
+<tr>
+<td>Editor</td>
+<td>Table</td>
+<td><code>table</code></td>
+</tr>
+<tr>
+<td>Editor</td>
+<td>Print</td>
+<td><code>printer</code></td>
+</tr>
+<tr>
+<td>Editor</td>
+<td>Excalidraw</td>
+<td><code>diagram-3</code></td>
+</tr>
+<tr>
+<td>Library</td>
+<td>Toggle Tema</td>
+<td><code>sun</code> / <code>moon</code></td>
+</tr>
+<tr>
+<td>Library</td>
+<td>Import Snapshots</td>
+<td><code>cloud-upload</code></td>
+</tr>
+<tr>
+<td>Library</td>
+<td>Tools dropdown</td>
+<td><code>tools</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Noesis — Reading-to-Knowledge System · UI Reference v2.0 (noesis810)</em></p>
+    <div style="margin-top:56px; padding-top:32px; border-top:1px solid var(--border); display:flex; gap:16px; flex-wrap:wrap;">
+      <a href="approfondimenti.html" class="doc-back" style="margin-bottom:0;">← Tutti gli approfondimenti</a>
+      <a href="index.html" class="doc-back" style="margin-bottom:0;">🏠 Home</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>MIT License · Vanilla JS · No Server · <strong>Noesis</strong> · v810</p>
+  <p style="margin-top:8px;"><a href="index.html">Home</a> · <a href="guida.html">Guida</a> · <a href="approfondimenti.html">Approfondimenti</a> · <a href="faq.html">FAQ</a> · <a href="note.html">Note</a></p>
+</footer>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="site.js"></script>
+<script>
+// Highlight TOC item on scroll
+(function(){
+  const links = document.querySelectorAll('.doc-toc a');
+  if (!links.length) return;
+  const headings = Array.from(document.querySelectorAll('.doc-content h2, .doc-content h3'));
+  function onScroll() {
+    const scrollY = window.scrollY + 100;
+    let active = null;
+    headings.forEach(h => { if (h.offsetTop <= scrollY) active = h; });
+    links.forEach(l => l.style.color = '');
+    if (active) {
+      const id = active.getAttribute('id');
+      const link = document.querySelector('.doc-toc a[href="#' + id + '"]');
+      if (link) link.style.color = 'var(--violet)';
+    }
+  }
+  window.addEventListener('scroll', onScroll, {passive: true});
+})();
+</script>
+</body>
+</html>

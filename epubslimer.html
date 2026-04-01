@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ePub Image Slimmer - Fast Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .progress-bar-transition { transition: width 0.2s ease-out; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@19.0.0",
+        "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+        "lucide-react": "https://esm.sh/lucide-react@0.454.0",
+        "jszip": "https://esm.sh/jszip@3.10.1"
+      }
+    }
+    </script>
+
+    <script type="module">
+        import React, { useState, useRef } from 'react';
+        import ReactDOM from 'react-dom/client';
+        import JSZip from 'jszip';
+        import { 
+            FileArchive, Upload, Settings2, CheckCircle2, 
+            Download, AlertCircle, FileText, Zap, RefreshCw, Rocket
+        } from 'lucide-react';
+
+        // --- Logica di Compressione Ottimizzata ---
+        const compressImage = async (blob, quality, path) => {
+            const extension = path.split('.').pop().toLowerCase();
+            const isPng = extension === 'png';
+            
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                const url = URL.createObjectURL(blob);
+
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    // Ridimensionamento preventivo se l'immagine è enorme (opzionale per speed)
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) return reject('Canvas error');
+
+                    ctx.drawImage(img, 0, 0);
+                    const mimeType = isPng ? 'image/png' : 'image/jpeg';
+                    
+                    canvas.toBlob((resultBlob) => {
+                        URL.revokeObjectURL(url);
+                        resolve(resultBlob);
+                    }, mimeType, quality / 100);
+                };
+                img.onerror = () => reject('Image load error');
+                img.src = url;
+            });
+        };
+
+        const App = () => {
+            const [file, setFile] = useState(null);
+            const [quality, setQuality] = useState(60);
+            const [processing, setProcessing] = useState(false);
+            const [progress, setProgress] = useState(0);
+            const [status, setStatus] = useState('');
+            const [error, setError] = useState(null);
+            const [result, setResult] = useState(null);
+            const fileInputRef = useRef(null);
+
+            const handleFile = (e) => {
+                const f = e.target.files[0];
+                if (f && f.name.toLowerCase().endsWith('.epub')) {
+                    setFile(f);
+                    setError(null);
+                    setResult(null);
+                } else if (f) {
+                    setError("Per favore, seleziona un file .ePub valido.");
+                }
+            };
+
+            const processEpub = async () => {
+                if (!file) return;
+                setProcessing(true);
+                setProgress(0);
+                setStatus('Apertura file...');
+                
+                try {
+                    const zip = await JSZip.loadAsync(file);
+                    const imagePaths = [];
+                    
+                    zip.forEach((path) => {
+                        const low = path.toLowerCase();
+                        if (low.endsWith('.jpg') || low.endsWith('.jpeg') || low.endsWith('.png') || low.endsWith('.webp')) {
+                            imagePaths.push(path);
+                        }
+                    });
+
+                    if (imagePaths.length === 0) {
+                        throw new Error("Nessuna immagine trovata.");
+                    }
+
+                    setStatus(`Compressione di ${imagePaths.length} immagini...`);
+                    
+                    // --- Elaborazione in Parallelo (Concurrency: 4) ---
+                    const CONCURRENCY = 4;
+                    for (let i = 0; i < imagePaths.length; i += CONCURRENCY) {
+                        const chunk = imagePaths.slice(i, i + CONCURRENCY);
+                        await Promise.all(chunk.map(async (path) => {
+                            const imgData = await zip.file(path).async('blob');
+                            const compressedBlob = await compressImage(imgData, quality, path);
+                            // Aggiorniamo il file nello ZIP
+                            zip.file(path, compressedBlob);
+                        }));
+                        setProgress(Math.round(((i + chunk.length) / imagePaths.length) * 100));
+                    }
+
+                    setStatus('Generazione ePub finale...');
+                    
+                    // Generazione veloce con compressione bassa (le immagini sono già compresse)
+                    const outBlob = await zip.generateAsync({ 
+                        type: 'blob', 
+                        compression: 'DEFLATE',
+                        compressionOptions: { level: 1 }, // Livello 1 = Massimo della velocità
+                        mimeType: 'application/epub+zip'
+                    });
+                    
+                    setResult({
+                        blob: outBlob,
+                        name: file.name.replace(/\.epub$/i, '') + '_slim.epub',
+                        originalSize: file.size,
+                        newSize: outBlob.size,
+                        saved: Math.round(((file.size - outBlob.size) / file.size) * 100)
+                    });
+                } catch (err) {
+                    setError(err.message);
+                } finally {
+                    setProcessing(false);
+                    setStatus('');
+                }
+            };
+
+            const download = () => {
+                if (!result) return;
+                const url = URL.createObjectURL(result.blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = result.name;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            };
+
+            const formatSize = (b) => (b / 1024 / 1024).toFixed(2) + ' MB';
+
+            return React.createElement('div', { className: 'min-h-screen p-4 md:p-8 flex items-center justify-center' },
+                React.createElement('div', { className: 'max-w-2xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100' },
+                    // Header
+                    React.createElement('div', { className: 'bg-gradient-to-br from-blue-600 to-indigo-700 p-8 text-white relative overflow-hidden' },
+                        React.createElement(Rocket, { size: 120, className: 'absolute -right-8 -bottom-8 text-white opacity-10 rotate-12' }),
+                        React.createElement('div', { className: 'flex items-center gap-4 mb-4' },
+                            React.createElement(FileArchive, { size: 40, className: 'text-blue-200' }),
+                            React.createElement('h1', { className: 'text-3xl font-extrabold tracking-tight' }, 'ePub Slimmer')
+                        ),
+                        React.createElement('p', { className: 'text-blue-100 text-lg opacity-90' }, 'Versione Ultra-Veloce: Ottimizzazione parallela attiva.')
+                    ),
+
+                    React.createElement('div', { className: 'p-8' },
+                        !result && !processing && React.createElement('div', { className: 'space-y-8' },
+                            React.createElement('div', { 
+                                onClick: () => fileInputRef.current.click(),
+                                className: `border-4 border-dashed rounded-2xl p-10 flex flex-col items-center justify-center cursor-pointer transition-all ${file ? 'border-blue-400 bg-blue-50' : 'border-slate-200 hover:border-blue-400 hover:bg-slate-50'}`
+                            },
+                                React.createElement('input', { type: 'file', accept: '.epub', className: 'hidden', ref: fileInputRef, onChange: handleFile }),
+                                React.createElement(file ? FileText : Upload, { size: 48, className: file ? 'text-blue-500' : 'text-slate-300' }),
+                                React.createElement('h2', { className: 'mt-4 text-xl font-bold text-slate-700' }, file ? file.name : 'Seleziona ePub'),
+                                file && React.createElement('p', { className: 'text-slate-500 font-medium' }, formatSize(file.size))
+                            ),
+
+                            file && React.createElement('div', { className: 'bg-slate-50 p-6 rounded-2xl border border-slate-100' },
+                                React.createElement('div', { className: 'flex items-center gap-2 mb-4 text-slate-800' },
+                                    React.createElement(Settings2, { size: 20 }),
+                                    React.createElement('span', { className: 'font-bold' }, 'Bilanciamento Qualità/Peso')
+                                ),
+                                React.createElement('input', { 
+                                    type: 'range', min: 10, max: 80, value: quality, 
+                                    onChange: (e) => setQuality(e.target.value),
+                                    className: 'w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer mb-2'
+                                }),
+                                React.createElement('div', { className: 'flex justify-between text-xs font-bold text-blue-600' },
+                                    React.createElement('span', null, 'PIÙ LEGGERO'),
+                                    React.createElement('span', { className: 'text-lg bg-blue-100 px-3 py-1 rounded-full' }, quality + '%'),
+                                    React.createElement('span', null, 'PIÙ QUALITÀ')
+                                ),
+                                React.createElement('button', { 
+                                    onClick: processEpub,
+                                    className: 'mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2'
+                                }, React.createElement(Zap, { size: 20 }), 'Inizia Ottimizzazione')
+                            )
+                        ),
+
+                        processing && React.createElement('div', { className: 'py-12 text-center' },
+                            React.createElement(RefreshCw, { size: 48, className: 'mx-auto text-blue-500 animate-spin mb-6' }),
+                            React.createElement('h3', { className: 'text-2xl font-bold text-slate-800 mb-2' }, status),
+                            React.createElement('div', { className: 'w-full bg-slate-100 rounded-full h-4 mt-6 overflow-hidden' },
+                                React.createElement('div', { className: 'bg-blue-600 h-full progress-bar-transition', style: { width: progress + '%' } })
+                            ),
+                            React.createElement('p', { className: 'mt-2 text-slate-500 font-bold text-sm' }, progress + '% completato')
+                        ),
+
+                        result && React.createElement('div', { className: 'space-y-6 text-center' },
+                            React.createElement('div', { className: 'bg-emerald-50 border border-emerald-100 p-8 rounded-3xl' },
+                                React.createElement(CheckCircle2, { size: 48, className: 'mx-auto text-emerald-500 mb-4' }),
+                                React.createElement('h3', { className: 'text-2xl font-bold text-slate-800 mb-4' }, 'Libro Alleggerito!'),
+                                React.createElement('div', { className: 'grid grid-cols-2 gap-4' },
+                                    React.createElement('div', { className: 'bg-white p-4 rounded-xl' },
+                                        React.createElement('div', { className: 'text-xs font-bold text-slate-400 uppercase tracking-widest' }, 'Prima'),
+                                        React.createElement('div', { className: 'text-lg font-bold text-slate-700' }, formatSize(result.originalSize))
+                                    ),
+                                    React.createElement('div', { className: 'bg-white p-4 rounded-xl' },
+                                        React.createElement('div', { className: 'text-xs font-bold text-slate-400 uppercase tracking-widest' }, 'Dopo'),
+                                        React.createElement('div', { className: 'text-lg font-bold text-blue-600' }, formatSize(result.newSize))
+                                    )
+                                ),
+                                React.createElement('div', { className: 'mt-6 text-3xl font-black text-emerald-600' }, '-' + result.saved + '%')
+                            ),
+                            React.createElement('div', { className: 'flex flex-col gap-3' },
+                                React.createElement('button', { 
+                                    onClick: download,
+                                    className: 'w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-5 rounded-2xl shadow-xl flex items-center justify-center gap-2 transition-all'
+                                }, React.createElement(Download, { size: 24 }), 'Scarica ' + result.name),
+                                React.createElement('button', { 
+                                    onClick: () => { setFile(null); setResult(null); },
+                                    className: 'text-slate-400 hover:text-slate-600 font-bold py-2 transition-all'
+                                }, 'Annulla e ricomincia')
+                            )
+                        ),
+
+                        error && React.createElement('div', { className: 'mt-4 p-4 bg-red-50 border border-red-100 text-red-700 rounded-xl flex items-center gap-3 font-medium' },
+                            React.createElement(AlertCircle, { size: 20 }),
+                            React.createElement('span', null, error)
+                        )
+                    ),
+
+                    React.createElement('div', { className: 'bg-slate-50 p-6 border-t border-slate-100 text-center text-slate-400 text-xs font-medium' },
+                        'Lavoro 100% locale: privacy garantita e velocità massima.'
+                    )
+                )
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(React.createElement(App));
+    </script>
+</body>
+</html>
