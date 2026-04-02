@@ -13,7 +13,14 @@
 <nav>
   <div class="nav-inner">
     <a href="index.html" class="nav-brand">📚 <span>Noesis</span></a>
-    <button class="lang-toggle-btn" id="lang-toggle" onclick="window.noesisI18n.toggleLang()" title="Switch to Italian">🇮🇹 IT</button>
+    <div class="lang-dropdown" id="lang-dropdown">
+      <button class="lang-dropdown-btn" id="lang-toggle">🇬🇧 EN ▾</button>
+      <div class="lang-dropdown-menu">
+        <button onclick="window.noesisI18n.setLang('en')" data-lang="en">🇬🇧 EN</button>
+        <button onclick="window.noesisI18n.setLang('it')" data-lang="it">🇮🇹 IT</button>
+        <button onclick="window.noesisI18n.setLang('fr')" data-lang="fr">🇫🇷 FR</button>
+      </div>
+    </div>
     <button class="nav-toggle" aria-label="Menu">
       <span></span><span></span><span></span>
     </button>
