@@ -92,15 +92,11 @@ Per ogni pulsante: icona, nome, funzione e comportamento.</p>
 ├── 📚  LIBRARY          — Libreria gerarchica: libri → capitoli estratti → snapshot
 │
 ├── 📖  READER           — Lettura del libro con TOC sidebar
-│     ├── Navigation
-│     ├── Sidebar &amp; TOC
-│     ├── Highlight
+│     ├── Navigation (frecce floating)
+│     ├── Menubar: Library · TOC · Bookmarks · Display · Navigate · Annotate · Extract · Help
 │     ├── Display Settings (Tipografia + Temi + Interfaccia)
-│     ├── Scroll Mode
-│     ├── % Zoom
 │     ├── Bookmarks
-│     ├── Save State
-│     └── Extract Chapter → apre NOESIS EDITOR (sn56.x)
+│     └── Extract → apre NOESIS EDITOR (sn56.x)
 │
 └── ✏️  NOESIS EDITOR    — Editor WYSIWYG unificato (sn56.x / Summernote)
       │                   Noto anche come: sn56.x, Summernote Editor
@@ -127,11 +123,12 @@ Per ogni pulsante: icona, nome, funzione e comportamento.</p>
 │
 ├── ── HEADER ──────────────────────────────────────────────
 │
-├── [☀/🌙]  Toggle Tema
-│         Icona:    bi-sun / bi-moon
-│         Funzione: Alterna modalità light/dark della Library.
+├── [Themes ▾]  Selezione Tema (dropdown)
+│         Icona:    bi-sun-moon
+│         Funzione: Apre un dropdown con due voci: Light e Dark.
+│                   La selezione applica il tema immediatamente.
 │                   Preferenza salvata in localStorage.
-│         Trigger:  Click → toggle class + localStorage
+│         Trigger:  Click → apre dropdown; click voce → applica tema
 │
 ├── [+]  Add Book
 │         Icona:    bi-plus-lg
@@ -225,10 +222,10 @@ Per ogni pulsante: icona, nome, funzione e comportamento.</p>
 </code></pre>
 <hr />
 <h2 id="reader-ambiente-di-lettura">📖 READER — Ambiente di Lettura</h2>
-<p>Toolbar principale del reader, sempre visibile durante la lettura.</p>
-<pre><code>READER TOOLBAR
+<p>Menubar orizzontale (<code>nav.reader-menubar</code>) in cima al reader, sempre visibile. La vecchia toolbar a icone è mantenuta nel DOM con <code>display:none</code> per compatibilità interna.</p>
+<pre><code>READER MENUBAR
 │
-├── ── NAVIGATION ──────────────────────────────────────────
+├── ── NAVIGAZIONE FLOATING (frecce) ───────────────────────
 │
 ├── [◀]  Previous Page / Previous Chapter
 │         Icona:    chevron-left / arrow-left
@@ -245,27 +242,20 @@ Per ogni pulsante: icona, nome, funzione e comportamento.</p>
 │         Trigger:  Click → rendition.next()
 │         Visibile: Sempre (disabilitato all'ultimo capitolo)
 │
-├── [↕]  Scroll Mode Toggle
-│         Icona:    arrows-expand / list (scroll) ↔ file-earmark (paginated)
-│         Funzione: Alterna tra due modalità di lettura:
-│                   • Scroll continuo: scorrimento verticale fluido,
-│                     tutto il capitolo in un'unica colonna.
-│                   • Paginato: testo diviso in pagine con dimensione
-│                     fissa, navigazione con frecce o tastiera.
-│                   La preferenza viene salvata in localStorage.
-│         Trigger:  Click → toggle flow → rendition re-render
 │
+├── ── MENUBAR ─────────────────────────────────────────────
 │
-├── ── SIDEBAR &amp; TOC ────────────────────────────────────────
+├── [Library]  Torna alla Libreria
+│         Funzione: Mostra la library view. La posizione viene
+│                   auto-salvata ogni 3 secondi — nessuna azione
+│                   manuale richiesta.
+│         Trigger:  Click → showLibrary()
 │
-├── [☰]  Toggle Sidebar (TOC)
-│         Icona:    list / layout-sidebar
-│         Funzione: Mostra o nasconde la sidebar laterale che contiene
-│                   l'indice gerarchico del libro (Table of Contents).
-│                   La sidebar mostra tutti i capitoli e sottolivelli
-│                   come lista ad albero espandibile/collassabile.
-│                   Cliccando una voce dell'indice si naviga
-│                   direttamente a quel capitolo.
+├── [TOC]  Indice gerarchico
+│         Funzione: Apre/chiude la sidebar laterale con l'indice
+│                   gerarchico del libro (Table of Contents).
+│                   Struttura ad albero espandibile/collassabile.
+│                   Cliccando una voce si naviga al capitolo.
 │         Trigger:  Click → CSS class toggle → sidebar slide in/out
 │
 │   Controlli interni alla Sidebar TOC:
@@ -315,17 +305,39 @@ Per ogni pulsante: icona, nome, funzione e comportamento.</p>
 │   └── 🌙  NOTTURNI: Charcoal · Dark · Midnight · True Black
 │
 │   Sezione INTERFACCIA:
-│   ├── [🎨]  Toolbar Color     — color picker per la toolbar principale
+│   ├── [🎨]  Menubar Color     — color picker per la menubar
 │   ├── [🎨]  Sidebar Color     — color picker per la sidebar TOC
 │   ├── [🎨]  Nav Buttons Color — color picker per i pulsanti ◀ ▶
-│   └── [▓]   Opacity Slider    — opacità toolbar (0%–100%)
+│   └── [▓]   Opacity Slider    — opacità menubar (0%–100%)
+│
+│
+├── ── Navigate  ────────────────────────────────────────────
+│
+├── [Navigate ▾]  Modalità navigazione (dropdown con badge)
+│         Badge:   "Navigate [Page]" oppure "Navigate [Scroll]"
+│         Funzione: Apre un dropdown con due voci:
+│                   • Page Mode  — testo paginato, navigazione frecce
+│                   • Scroll Mode — scorrimento verticale continuo
+│                   La voce attiva è evidenziata in grassetto blu.
+│                   Cambiar modalità ricrea il rendition immediatamente.
+│         Trigger:  Click → dropdown; click voce → toggle flow
+│
+│
+├── ── Annotate  ────────────────────────────────────────────
+│
+├── [Annotate]  Modalità annotazione
+│         Funzione: Attiva/disattiva la modalità di evidenziazione.
+│                   Quando attiva, il testo selezionato viene
+│                   colorato con il colore scelto nel pannello
+│                   (Giallo / Verde / Rosa). Rimozione: selezione
+│                   del testo evidenziato + click "None".
+│                   Gli highlight sono CFI-based e persistenti.
 │
 │
 ├── ── BOOKMARKS ────────────────────────────────────────────
 │
-├── [🔖]  Bookmarks Drawer
-│         Badge:    Contatore numerico segnalibri attivi
-│         Funzione: Cassetto laterale con elenco segnalibri personali.
+├── [Bookmarks]  Segnalibri
+│         Funzione: Pannello con elenco segnalibri personali.
 │
 │   Controlli interni:
 │   ├── [+]      Add Bookmark    — salva posizione corrente con CFI
@@ -333,16 +345,20 @@ Per ogni pulsante: icona, nome, funzione e comportamento.</p>
 │   └── [🗑️]    Delete Bookmark — rimuove il segnalibro
 │
 │
-├── ── SAVE STATE ───────────────────────────────────────────
+├── ── AUTO-SAVE ────────────────────────────────────────────
 │
-├── [💾]  Save State
-│         Funzione: Salva manualmente posizione + preferenze del libro.
-│         Trigger:  Click → toast &quot;State saved&quot;
+│   (nessun pulsante — processo automatico)
+│   Posizione: auto-salvata ogni 3 secondi tramite savePositionOnly().
+│              Il CFI dell'elemento al centro visivo dell'iframe.
+│   Impostazioni display: salvate tramite prompt floating che appare
+│              per 8 secondi alla chiusura del pannello Display
+│              se ci sono modifiche non salvate.
+│   Trigger:  startAutoSave() → setInterval 3000ms
 │
 │
-└── ── EXTRACT CHAPTER ──────────────────────────────────────
+└── ── EXTRACT ──────────────────────────────────────────────
 
-    [📥]  Extract Chapter  (dropdown button)
+    [Extract ▾]  Estrazione capitolo (dropdown)
           Funzione: Estrae il capitolo come documento HTML standalone
                     e lo salva in IndexedDB (noesisDB) con un chapterId
                     univoco per il sistema di snapshot.
@@ -800,7 +816,7 @@ Per ogni pulsante: icona, nome, funzione e comportamento.</p>
 </tbody>
 </table>
 <hr />
-<p><em>Noesis — Reading-to-Knowledge System · UI Reference v2.0 (noesis810)</em></p>
+<p><em>Noesis — Reading-to-Knowledge System · UI Reference v2.1 (noesis812)</em></p>
     <div style="margin-top:56px; padding-top:32px; border-top:1px solid var(--border); display:flex; gap:16px; flex-wrap:wrap;">
       <a href="approfondimenti.html" class="doc-back" style="margin-bottom:0;">← Tutti gli approfondimenti</a>
       <a href="index.html" class="doc-back" style="margin-bottom:0;">🏠 Home</a>
@@ -809,7 +825,7 @@ Per ogni pulsante: icona, nome, funzione e comportamento.</p>
 </div>
 
 <footer>
-  <p>MIT License · Vanilla JS · No Server · <strong>Noesis</strong> · v810</p>
+  <p>MIT License · Vanilla JS · No Server · <strong>Noesis</strong> · v812</p>
   <p style="margin-top:8px;"><a href="index.html">Home</a> · <a href="guida.html">Guida</a> · <a href="approfondimenti.html">Approfondimenti</a> · <a href="faq.html">FAQ</a> · <a href="note.html">Note</a></p>
 </footer>
 <script src="translations.js"></script>

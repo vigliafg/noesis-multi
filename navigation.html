@@ -90,9 +90,9 @@
         <p data-i18n="reading.btn.library.p">Returns to Noesis Library without losing the current book state. Position is restored on next opening via Save State.</p>
       </div>
       <div class="card">
-        <span class="card-icon"><i class="bi bi-layout-sidebar"></i></span>
-        <h3 data-i18n="reading.btn.sidebar.h">Sidebar</h3>
-        <p data-i18n="reading.btn.sidebar.p">Opens/closes the expandable hierarchical TOC. Supports up to 3 nesting levels. Click any entry to navigate directly to that section.</p>
+        <span class="card-icon"><i class="bi bi-list-ul"></i></span>
+        <h3 data-i18n="reading.btn.sidebar.h">TOC</h3>
+        <p data-i18n="reading.btn.sidebar.p">Opens/closes the expandable Table of Contents panel. Supports up to 3 nesting levels. Click any entry to navigate directly to that section.</p>
       </div>
       <div class="card">
         <span class="card-icon"><i class="bi bi-bookmark-star"></i></span>
@@ -113,16 +113,6 @@
         <span class="card-icon"><i class="bi bi-arrow-down-up"></i></span>
         <h3 data-i18n="reading.btn.scroll.h">Scroll mode</h3>
         <p data-i18n="reading.btn.scroll.p">Toggles between paginated and continuous scrolling mode. In paginated mode, use arrow keys or swipe to turn pages.</p>
-      </div>
-      <div class="card">
-        <span class="card-icon">%</span>
-        <h3 data-i18n="reading.btn.percent.h">% Progress</h3>
-        <p data-i18n="reading.btn.percent.p">Shows current reading progress as a percentage. Click to jump to a specific percentage in the book.</p>
-      </div>
-      <div class="card">
-        <span class="card-icon"><i class="bi bi-floppy" style="color:#f97316"></i></span>
-        <h3 data-i18n="reading.btn.savestate.h">Save State</h3>
-        <p data-i18n="reading.btn.savestate.p">Saves the current state: chapter position, all display settings (theme, font, size, colours). State is automatically restored when you reopen the book from the library.</p>
       </div>
       <div class="card">
         <span class="card-icon"><i class="bi bi-file-earmark-arrow-down" style="color:#22c55e"></i></span>
@@ -403,22 +393,22 @@
     </div>
   </div>
 
-  <!-- SAVE STATE -->
+  <!-- AUTO-SAVE -->
   <div class="section">
     <div class="section-label" data-i18n="reading.savestate.label">Persistence</div>
-    <h2 class="section-title" data-i18n="reading.savestate.h2">Save State — <em>save everything</em></h2>
-    <p class="section-sub" data-i18n="reading.savestate.p">The <strong>💾 Save State</strong> button manually saves the current reading position and all preferences associated with the specific book.</p>
+    <h2 class="section-title" data-i18n="reading.savestate.h2">Auto-save — <em>always synced</em></h2>
+    <p class="section-sub" data-i18n="reading.savestate.p">Reading position is saved <strong>automatically every 3 seconds</strong> without any user action. Display settings (theme, typography, layout) are saved per book via a floating prompt that appears for 8 seconds when the Display panel is closed after making changes.</p>
 
     <div class="cards cards-2">
       <div class="card">
         <span class="card-icon">📍</span>
         <h3 data-i18n="reading.savestate.what.h">What is saved</h3>
-        <p data-i18n="reading.savestate.what.p">Exact CFI position in the text, font size, line height, page mode (single/double), reading theme, interface colours and scroll mode.</p>
+        <p data-i18n="reading.savestate.what.p">Position: auto-saved every 3 seconds (CFI of the element at the visual centre of the reader). Display settings: font size, line height, page mode (single/double), reading theme, interface colours and scroll mode — saved on request via the Display prompt.</p>
       </div>
       <div class="card">
         <span class="card-icon">📚</span>
         <h3 data-i18n="reading.savestate.perbook.h">Per book</h3>
-        <p data-i18n="reading.savestate.perbook.p">Preferences are saved per book individually in <code>noesisLibraryDB</code>. Each EPUB remembers its own configuration independently from others.</p>
+        <p data-i18n="reading.savestate.perbook.p">Preferences are saved per book individually in <code>EpubLibraryDB</code>. Each EPUB remembers its own configuration independently from others.</p>
       </div>
     </div>
 
