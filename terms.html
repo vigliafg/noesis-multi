@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms of Use — Noesis</title>
+  <meta name="description" content="Noesis Terms of Use — user responsibilities, copyright compliance, disclaimer of warranties and limitation of liability.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="approfondimenti.css">
+  <style>
+    .terms-wrapper { max-width: 760px; margin: 0 auto; padding: 48px 24px 64px; }
+    .terms-header { margin-bottom: 40px; }
+    .terms-header h1 { font-size: 32px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+    .terms-header .terms-meta { font-size: 13px; color: var(--text-muted); }
+    .terms-summary { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--violet); border-radius: 10px; padding: 28px 32px; margin-bottom: 48px; }
+    .terms-summary h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--violet); margin-bottom: 20px; }
+    .terms-summary p { font-size: 15px; line-height: 1.75; color: var(--text-muted); margin-bottom: 14px; }
+    .terms-summary p:last-child { margin-bottom: 0; }
+    .terms-divider { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+    .terms-full h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 32px; }
+    .terms-section { margin-bottom: 36px; }
+    .terms-section h3 { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+    .terms-section p { font-size: 14px; line-height: 1.75; color: var(--text-muted); margin-bottom: 10px; }
+    .terms-section p:last-child { margin-bottom: 0; }
+    .terms-section ul { margin: 10px 0 10px 20px; }
+    .terms-section ul li { font-size: 14px; line-height: 1.75; color: var(--text-muted); margin-bottom: 4px; }
+    .terms-section ol { margin: 10px 0 10px 20px; }
+    .terms-section ol li { font-size: 14px; line-height: 1.75; color: var(--text-muted); margin-bottom: 8px; }
+    .terms-caps { font-size: 13px; line-height: 1.75; color: var(--text-muted); font-variant: small-caps; letter-spacing: 0.02em; }
+    .terms-section p strong { color: var(--text); }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">📚 <span>Noesis</span></a>
+    <div class="lang-dropdown" id="lang-dropdown">
+      <button class="lang-dropdown-btn" id="lang-toggle">🇬🇧 EN ▾</button>
+      <div class="lang-dropdown-menu">
+        <button onclick="window.noesisI18n.setLang('en')" data-lang="en">🇬🇧 EN</button>
+        <button onclick="window.noesisI18n.setLang('it')" data-lang="it">🇮🇹 IT</button>
+        <button onclick="window.noesisI18n.setLang('fr')" data-lang="fr">🇫🇷 FR</button>
+        <button onclick="window.noesisI18n.setLang('es')" data-lang="es">🇪🇸 ES</button>
+        <button onclick="window.noesisI18n.setLang('de')" data-lang="de">🇩🇪 DE</button>
+      </div>
+    </div>
+    <button class="nav-toggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links">
+      <a href="index.html" data-i18n="nav.home">Home</a><a href="guida.html" data-i18n="nav.guide">Quick Guide</a><a href="library.html" data-i18n="nav.library">Library</a><a href="navigation.html" data-i18n="nav.reading">Reading</a><a href="htmleditor.html" data-i18n="nav.editor">Editor</a><a href="snapshot.html" data-i18n="nav.snapshot">Snapshot</a><a href="collezioni.html" data-i18n="nav.collections">Collections</a><a href="helpers.html" data-i18n="nav.helpers">Helpers</a><a href="faq.html" data-i18n="nav.faq">FAQ</a><a href="note.html" data-i18n="nav.notes">Notes</a>
+      <div class="nav-dropdown">
+        <a href="approfondimenti.html" data-i18n="nav.deepdives">Deep Dives</a>
+        <div class="nav-dropdown-menu">
+          <span class="dm-label" data-i18n="nav.dm.docs">Documentation</span>
+          <a href="doc-readme.html" data-i18n="nav.dm.readme">📚 README — Overview</a>
+          <a href="doc-ui.html" data-i18n="nav.dm.ui">🖥️ UI — Button Reference</a>
+          <a href="doc-workflow.html" data-i18n="nav.dm.workflow">🔄 Workflow — Usage Flows</a>
+          <a href="doc-tech.html" data-i18n="nav.dm.tech">⚙️ Technical Architecture</a>
+          <a href="doc-library-tech.html" data-i18n="nav.dm.libtech">📚 Technical Doc — Library</a>
+          <a href="doc-reader-tech.html" data-i18n="nav.dm.readtech">📖 Technical Doc — Reader</a>
+          <a href="doc-editor-tech.html" data-i18n="nav.dm.edtech">✏️ Technical Doc — Editor</a>
+          <a href="doc-full-embedding.html" data-i18n="nav.dm.fullembedding">📦 Full Version — Embedding</a>
+          <span class="dm-label" data-i18n="nav.dm.project">Project</span>
+          <a href="doc-adv.html" data-i18n="nav.dm.adv">🌟 Positioning</a>
+          <a href="doc-legal.html" data-i18n="nav.dm.legal">⚖️ Legal Analysis</a>
+          <a href="promo.html" data-i18n="nav.dm.promo">🚀 Presentation</a>
+        </div>
+      </div>
+      <a href="index.html#download" class="nav-cta" data-i18n="nav.download">⬇ Download</a>
+    </div>
+  </div>
+</nav>
+
+<div class="terms-wrapper">
+
+  <div class="terms-header">
+    <h1>Terms of Use</h1>
+    <p class="terms-meta">Noesis — Personal EPUB Reader &amp; Study Environment &nbsp;·&nbsp; Effective: April 2026 &nbsp;·&nbsp; Version 1.1</p>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="terms-summary">
+    <h2>Summary — What these Terms mean in plain words</h2>
+    <p>Noesis is free, open-source software that runs entirely on your device. Nothing is sent to any server. No account is required. No usage is tracked. The source code is public and released under the MIT License — you are free to use, study, and modify it.</p>
+    <p>Noesis is designed for personal study: reading EPUB files you own, highlighting and annotating them, extracting passages for your notes, and organising your reading work. All of this is entirely lawful in most jurisdictions when done privately and without commercial intent. The architecture of the software — local-only, no sharing features, no DRM bypass — reflects this purpose by design.</p>
+    <p>These Terms exist for one reason: to make clear that you are responsible for how you use the software. Noesis cannot know what content you load, where you are located, or what laws apply to you. It is your responsibility to ensure that the EPUB files you use are ones you have the right to use, and that your use of the software complies with the copyright laws and regulations of your country.</p>
+    <p>The developers provide Noesis free of charge, as-is, with no warranties of any kind. By using the software you accept full responsibility for your own use.</p>
+  </div>
+
+  <hr class="terms-divider">
+
+  <!-- FULL TERMS -->
+  <div class="terms-full">
+    <h2>Full Terms</h2>
+
+    <div class="terms-section">
+      <h3>1. Acceptance</h3>
+      <p>By using Noesis you agree to these Terms. If you do not agree, do not use the Software.</p>
+    </div>
+
+    <div class="terms-section">
+      <h3>2. Nature of the Software</h3>
+      <p>Noesis is free, open-source software released under the MIT License. It runs entirely on your local device. No data is ever transmitted to any server, no account is required, and no usage is monitored or recorded. The full source code is publicly available and may be used, copied, modified, and distributed under the terms of the MIT License.</p>
+      <p>These Terms of Use govern your use of Noesis as an end-user application and do not restrict any rights granted to you by the MIT License with respect to the source code.</p>
+    </div>
+
+    <div class="terms-section">
+      <h3>3. User Responsibility</h3>
+      <p class="terms-caps"><strong>You are solely responsible</strong> for ensuring that your use of Noesis — including the EPUB files you load, the content you extract, and the documents you produce — complies with all applicable laws and regulations in your country or jurisdiction.</p>
+      <p>This includes, without limitation:</p>
+      <ul>
+        <li>Copyright and intellectual property law</li>
+        <li>Laws governing private copying, fair use, or quotation rights</li>
+        <li>Data protection and privacy regulations</li>
+        <li>Any terms of service applicable to the content you use</li>
+      </ul>
+      <p>The developers of Noesis make no representation or warranty that any particular use of the Software is lawful in any jurisdiction.</p>
+    </div>
+
+    <div class="terms-section">
+      <h3>4. Copyright and Content</h3>
+      <p>By using Noesis you represent and warrant that:</p>
+      <ol type="a">
+        <li>You own, or have lawful rights to use, any EPUB files you load into the Software.</li>
+        <li>You will use any content extracted from EPUB files — including text passages, annotations, translations, and study documents — solely for personal, non-commercial purposes.</li>
+        <li>You will not reproduce, distribute, publish, or share copyrighted content in ways that infringe the exclusive rights of the copyright holder.</li>
+        <li>You understand that the right to make private copies and extract passages for personal study varies by jurisdiction. Where such rights are not recognised by the law of your country, you must obtain appropriate authorisation before reproducing or extracting copyrighted material.</li>
+      </ol>
+    </div>
+
+    <div class="terms-section">
+      <h3>5. Translations</h3>
+      <p>Noesis does not perform or provide translations. Any translation displayed is produced by your browser's own translation feature (e.g. Google Translate, Firefox Translation). You are responsible for ensuring that your use of browser-generated translations of copyrighted text complies with the laws of your jurisdiction.</p>
+    </div>
+
+    <div class="terms-section">
+      <h3>6. DRM and Technical Protection Measures</h3>
+      <p>Noesis does not support, bypass, or circumvent digital rights management (DRM) systems or any other technical protection measure. The Software is not compatible with DRM-protected files. You must not attempt to use Noesis to circumvent any such measure.</p>
+    </div>
+
+    <div class="terms-section">
+      <h3>7. No Legal Advice</h3>
+      <p>Nothing in these Terms constitutes legal advice. If you are uncertain whether your intended use of Noesis is lawful in your jurisdiction, you should seek independent legal advice.</p>
+    </div>
+
+    <div class="terms-section">
+      <h3>8. Disclaimer of Warranties</h3>
+      <p class="terms-caps">The software is provided "as is", without warranty of any kind, express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or non-infringement.</p>
+    </div>
+
+    <div class="terms-section">
+      <h3>9. Limitation of Liability</h3>
+      <p class="terms-caps">To the fullest extent permitted by applicable law, the developers of Noesis shall not be liable for any direct, indirect, incidental, special, exemplary, or consequential damages arising out of or in connection with your use of the software or any content you process with it, even if advised of the possibility of such damages.</p>
+    </div>
+
+    <div class="terms-section">
+      <h3>10. Severability</h3>
+      <p>If any provision of these Terms is found to be invalid, illegal, or unenforceable under applicable law, that provision shall be modified to the minimum extent necessary to make it enforceable, or, if modification is not possible, severed from these Terms. The remaining provisions shall continue in full force and effect.</p>
+    </div>
+
+    <div class="terms-section">
+      <h3>11. Governing Law</h3>
+      <p>These Terms are governed by and construed in accordance with the laws of Italy, without regard to conflict of law principles. This choice of law does not limit any mandatory consumer protection rights you may have under the laws of your country of residence.</p>
+    </div>
+
+    <div class="terms-section">
+      <h3>12. Changes</h3>
+      <p>These Terms may be updated at any time. The current version is always available on this page. Continued use of the Software after any change constitutes acceptance of the updated Terms.</p>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <p data-i18n="footer.license">MIT License · Vanilla JS · No Server · <strong>Noesis — Reading-to-Knowledge System</strong> · v812</p>
+  <p style="margin-top:8px;">
+    <a href="index.html" data-i18n="footer.home">Home</a> · <a href="guida.html" data-i18n="footer.guide">Guide</a> · <a href="faq.html" data-i18n="footer.faq">FAQ</a> · <a href="note.html" data-i18n="footer.notes">Notes</a>
+  </p>
+</footer>
+<script src="translations.js"></script>
+<script src="site.js"></script>
+</body>
+</html>

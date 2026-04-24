@@ -51,6 +51,7 @@ const TRANSLATIONS = {
     'footer.guide': 'Guide',
     'footer.faq': 'FAQ',
     'footer.notes': 'Notes',
+    'footer.terms': 'Terms of Use',
 
     // ── COMMON ──
     'common.new': 'new',
@@ -1171,6 +1172,7 @@ const TRANSLATIONS = {
     'footer.guide': 'Guida',
     'footer.faq': 'FAQ',
     'footer.notes': 'Note',
+    'footer.terms': 'Termini di utilizzo',
 
     // ── COMMON ──
     'common.new': 'nuovo',
@@ -2267,6 +2269,7 @@ const TRANSLATIONS = {
     'footer.guide': 'Guide',
     'footer.faq': 'FAQ',
     'footer.notes': 'Notes',
+    'footer.terms': 'Conditions d\'utilisation',
 
     // ── COMMON ──
     'common.new': 'nouveau',
@@ -3379,6 +3382,7 @@ const TRANSLATIONS = {
     'footer.guide': 'Guía',
     'footer.faq': 'FAQ',
     'footer.notes': 'Notas',
+    'footer.terms': 'Términos de uso',
     'footer.irc': 'GitHub',
 
     // ── HOME / INDEX ──
@@ -4532,6 +4536,7 @@ const TRANSLATIONS = {
     'footer.guide': 'Anleitung',
     'footer.faq': 'FAQ',
     'footer.notes': 'Notizen',
+    'footer.terms': 'Nutzungsbedingungen',
 
     // ── COMMON ──
     'common.new': 'neu',
