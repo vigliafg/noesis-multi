@@ -2795,11 +2795,12 @@
         <!-- TOC -->
         <span class="rmb-item" id="rmbToc">
           TOC
-          <span id="ubmBadge" class="rmb-badge" style="display:none;">0</span>
         </span>
 
         <!-- Bookmarks -->
-        <span class="rmb-item" id="rmbBookmarks">Bookmarks</span>
+        <span class="rmb-item" id="rmbBookmarks">Bookmarks
+          <span id="ubmBadge" class="rmb-badge" style="display:none;">0</span>
+        </span>
 
         <!-- Display: wrapper con il menu esistente dentro -->
         <div class="rmb-item-wrap" id="displayDropdownWrap">
@@ -3750,6 +3751,7 @@ ${htmlContent}
     // --- READER HIGHLIGHTS ---
     let readerHighlights = []; // [{cfi, color}]
     let currentReaderHighlightColor = 'yellow';
+    const HL_COLORS = { yellow: '#ffeb3b', green: '#a5d6a7', pink: '#f8bbd9' };
     let _readerHlHasSelection = false;
     let _readerPendingCfi = null; // CFI provided by epub.js 'selected' event
 
@@ -5042,9 +5044,9 @@ ${htmlContent}
             width: auto !important;
             max-width: none !important;
           }
-          .epub-hl-yellow { background-color: #ffeb3b !important; }
-          .epub-hl-green  { background-color: #a5d6a7 !important; }
-          .epub-hl-pink   { background-color: #f8bbd9 !important; }
+          .epub-hl-yellow { background-color: #ffeb3b !important; fill: #ffeb3b !important; fill-opacity: 0.5 !important; }
+          .epub-hl-green  { background-color: #a5d6a7 !important; fill: #a5d6a7 !important; fill-opacity: 0.5 !important; }
+          .epub-hl-pink   { background-color: #f8bbd9 !important; fill: #f8bbd9 !important; fill-opacity: 0.5 !important; }
         `;
         contents.document.head.appendChild(style);
 
@@ -5055,7 +5057,9 @@ ${htmlContent}
             readerHighlights.forEach(hl => {
               try {
                 rendition.annotations.remove(hl.cfi, 'highlight');
-                rendition.annotations.highlight(hl.cfi, {}, () => {}, 'epub-hl-' + hl.color);
+                const _hlColor = HL_COLORS[hl.color] || '#ffeb3b';
+                rendition.annotations.highlight(hl.cfi, {}, () => {}, 'epub-hl-' + hl.color,
+                  { fill: _hlColor, 'fill-opacity': '0.5' });
               } catch(e) { /* stale CFI – ignore */ }
             });
           }, 120);
@@ -6154,7 +6158,9 @@ ${htmlContent}
             rendition.annotations.remove(cfi, 'highlight');
             // Add new highlight
             readerHighlights.push({ cfi: cfi, color: currentReaderHighlightColor });
-            rendition.annotations.highlight(cfi, {}, () => {}, 'epub-hl-' + currentReaderHighlightColor);
+            const _hlColor = HL_COLORS[currentReaderHighlightColor] || '#ffeb3b';
+            rendition.annotations.highlight(cfi, {}, () => {}, 'epub-hl-' + currentReaderHighlightColor,
+              { fill: _hlColor, 'fill-opacity': '0.5' });
             // Clear selection in iframe
             try {
               const iframes = document.querySelectorAll('#viewer iframe');
