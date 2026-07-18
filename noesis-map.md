@@ -1,7 +1,7 @@
 # NOESIS-MAP — Mappa Completa della Basecodice
 
-> **Ultimo aggiornamento:** 2026-07-17
-> **Versione di riferimento:** noesis812 (v0.12)
+> **Ultimo aggiornamento:** 2026-07-18
+> **Versione di riferimento:** noesis813-full-reader-responsive (v0.13)
 > **Scopo:** Documento di riferimento completo per qualsiasi futura implementazione di codice sul repository noesis-multi.
 
 ---
@@ -39,6 +39,11 @@ noesis-multi/
 │   │                           Editor sn56 standalone
 │   │
 │   └── noesis810.html / noesis810-full.html   Versione precedente (ancora presente)
+│
+└── noesis813-full-reader-responsive.html   ★ RESPONSIVE READER (~7553 righe, v0.13)
+│                           Reader + Library con UI mobile ottimizzata:
+│                           hamburger menu, TOC overlay, touch zone navigation.
+│                           Deriva da noesis812-full-reader.html + modifiche manuali.
 │
 ├── 🔷 TOOL STANDALONE
 │   ├── epubslimer.html / multiepubslimer.html   Riduzione dimensione EPUB
@@ -953,7 +958,327 @@ RIGA    CONTENUTO
 
 ---
 
-## 14. COMANDI UTILI
+## 15. STRUTTURA INTERNA DI `noesis813-full-reader-responsive.html` (7553 righe)
+
+> **Base:** noesis812-full-reader.html (reader-only split)
+> **Modifiche v812→v813:** mobile responsive layout, hamburger menu, TOC overlay,
+> swipe navigation, mobile touch zones per page-turn.
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│  noesis813-full-reader-responsive.html                          │
+│  Reader + Library responsive. Fully offline (embedded).         │
+│  NO editor, NO snapshot UI, NO IDB bridge.                     │
+└──────────────────────────────────────────────────────────────────┘
+
+RIGA       CONTENUTO
+────       ──────────────────────────────────────────────────────────
+1-7        <head> + meta (viewport con max-scale=3.0)
+8-14       🟦 Bootstrap Icons CSS + font base64 (EMBEDDED, ~259 KB)
+
+15-2845    🟦 CSS APPLICATIVO (~2830 righe)
+           │
+           ├── 15-38     Global & Utils (reset, .hidden, flexbox)
+           ├── 39-89     Light theme (default, CSS variables)
+           ├── 90-146    Gray Dark Light theme
+           ├── 147-197   Header
+           ├── 198-230   Unified Library Header Buttons
+           ├── 231-277   Themes Dropdown
+           ├── 278-333   Tools Dropdown, Book row, Book header
+           ├── 334-431   Cover, Book meta, Book actions
+           ├── 432-573   Extracted chapters section
+           ├── 574-678   Responsive base (max-width: 600px, 768px)
+           ├── 679-1192  Reader View base + header + toolbar
+           ├── 834-1078  User Bookmarks Drawer (.ubm-*)
+           ├── 1079-1137 Extract Chapter Dropdown
+           ├── 1138-1214 Theme Picker Popup
+           ├── 1215-1389 Typography Popup + Save Toast
+           ├── 1390-1460 ⭐ Floating Navigation Buttons
+           │   ├── 1391-1412  .floating-nav-btn: fixed, 25px×200px, semi-trasparente
+           │   ├── 1424-1429  #floatingPrevBtn (left:0), #floatingNextBtn (right:0)
+           │   ├── 1433        .floating-nav-btn.hidden { display:none !important }
+           │   ├── 1438        @media (≤768px): 22px×180px, font 18px
+           │   └── 1446        @media (≤480px): 20px×150px, font 16px
+           ├── 1461-1756  Media Dialog + Display Save Prompt + Highlight
+           ├── 1757-2033  Reader Menubar (.rmb-*)
+           ├── 2034-2207  Custom tooltip, Banner avvio, Help overlay
+           ├── 2208-2367  Library help banner
+           ├── 2368-2603  Reader Menubar (regole complete)
+           │
+           ├── 2598-2845 ⭐⭐ MOBILE RESPONSIVE — v813 (~250 righe)
+           │   ├── 2598        .mobile-touch-zone { display: none } — hidden default
+           │   ├── 2602-2607   Intestazione: v813-responsive (touch zones)
+           │   ├── 2609-2618   Touch targets: WCAG 44×44px su (pointer: coarse)
+           │   ├── 2620-2634   Hamburger menu button (hidden desktop)
+           │   ├── 2635-2693   Hamburger drawer (slide from left, 300px)
+           │   ├── 2694-2708   Mobile overlay backdrop
+           │   ├── 2709-2827   @media (≤768px) — Tablet:
+           │   │   ├── Menubar: hamburger visibile, voci testuali nascoste
+           │   │   ├── #bookmarks → TOC overlay (fixed, slide left, z-index 1000)
+           │   │   ├── #viewer → width 100%
+           │   │   ├── .floating-nav-btn → display:none!important
+           │   │   ├── ⭐ .mobile-touch-zone — edge-tap zones:
+           │   │   │   display:flex, fixed, top:15vh, height:70vh,
+           │   │   │   width:12vw (min 44px, max 60px), z-index 99
+           │   │   │   ::after: chevron indicators (subtle borders)
+           │   │   │   .tapped: gradient glow feedback
+           │   │   ├── Library header: compact (padding/font ridotti)
+           │   │   ├── Reader header: compact
+           │   │   └── Popup/Drawer: dimensioni ridotte
+           │   └── 2828-2844   @media (≤480px) — Smartphone:
+           │       ├── #bookmarks: 280px/max 90vw
+           │       ├── Library header: 8px 10px, title 16px
+           │       ├── Book covers: 44×60px
+           │       └── #hamburgerDrawer: 260px/max 88vw
+           └── 2845        END MOBILE RESPONSIVE
+────
+2846        </style>
+2847        </head>
+2848        <body>
+
+2850-2878  🟧 OVERLAY GLOBALI
+           ├── 2850-2853   #loadingOverlay + spinner
+           ├── 2854-2855   #mobileOverlayBackdrop — backdrop scuro mobile
+           └── 2857-2870   #hamburgerDrawer — menu mobile slide-in
+               ├── 2860        #hamburgerClose ×
+               ├── 2862-2869   8 voci (Library, TOC, Bookmarks, Display,
+               │               Navigate, Annotate, Extract, Help)
+               └── Mappate a .rmb-item corrispondenti
+
+2874-3035  🟧 LIBRARY VIEW (#library-view)
+           ├── 2879-2953   Header:
+           │   ├── 2889-2890  #hamburgerBtnLib (mobile only)
+           │   ├── 2893       #libAddBooksBtn
+           │   ├── 2905-2923  #libThemesDropdown, #libToolsDropdown
+           │   └── 2945       #libHelpBtn
+           ├── 2950        #bookGrid — griglia libri
+           ├── 2955-2973   #libHelpBanner
+           └── 2975-3008   #libHelpOverlay
+
+3037-3039  🟧 SN56 SOURCE (JSON vuoto/minimale, solo 2 ref)
+3040-3041  🟩 JSZip v3.10.1 inline
+3042-3043  🟩 epub.js v0.3.93 inline
+
+3045-7553  🌿 JAVASCRIPT (~4508 righe, 60% del file)
+           │
+           ├── 3045-3057  "use strict" + error handler globale
+           │
+           ├── 3058-3337  MODULO noesisDB (~280 righe)
+           │   ├── 3058-3060  Costanti: NOESIS_DB_NAME, v1, 'chapters'
+           │   ├── 3062-3077  openNoesisDB()
+           │   ├── 3078-3088  saveExtractedChapterToDB()
+           │   ├── 3089-3099  deleteExtractedChapterFromDB()
+           │   ├── 3100-3106  deleteSnapshotFromDB()
+           │   └── 3107-3116  getExtractedChapterFromDB()
+           │   ⚠️ NO IDB bridge (rimosso nello split reader)
+           │
+           ├── 3119-3243  MODULO mainDB / EpubLibraryDB (~125 righe)
+           │   ├── 3119-3121  Costanti: DB_NAME, v1, 'books'
+           │   ├── 3124-3163  openDB()
+           │   ├── 3164-3213  saveBookToDB()
+           │   ├── 3215-3226  getAllBooks()
+           │   └── 3227-3243  deleteBook()
+           │
+           ├── 3245-3498  CORE UI (~250 righe)
+           │   ├── 3245-3258  Variabili view: libraryView, readerView, bookGrid, ...
+           │   ├── 3259-3278  showLoading(), hideLoading(), showLibrary()
+           │   ├── 3279-3305  showReader(bookData)
+           │   ├── 3310-3320  _generateCleanHTML()
+           │   ├── 3323-3328  _buildExtractionTimestamp()
+           │   ├── 3330-3339  _autoDownloadHTML()
+           │   ├── 3341-3369  loadLibraryBooks() — SOLO libri, no capitoli/snapshot
+           │   └── 3370-3498  openBookFromLibrary(bookData)
+           │
+           ├── 3500-3960  STATO GLOBALE READER (~460 righe)
+           │   ├── 3500-3520  Variabili: book, rendition, fontSize, lineHeight,
+           │   │              scrollMode, dualPageMode, sidebarVisible,
+           │   │              currentTheme, currentLocation, buttonZoom,
+           │   │              _autoSaveTimer, _lastAutoSavedCfi, _dspTimer
+           │   ├── 3522-3537  interfaceSettings + defaultInterfaceSettings
+           │   ├── 3539-3547  currentBookId, currentBookTitle,
+           │   │              readerHighlights[], HL_COLORS
+           │   ├── 3550-3564  showToast(msg)
+           │   ├── 3565-3596  _getCenterCfi()
+           │   ├── 3597-3605  _snapshotVisualState()
+           │   ├── 3606-3639  savePositionOnly()
+           │   ├── 3640-3677  saveVisualSettings()
+           │   ├── 3678-3698  startAutoSave() / stopAutoSave()
+           │   ├── 3699-3730  _isBrowserTranslated(), display save prompt
+           │   ├── 3731-3806  saveBookState(), loadAndApplyBookState()
+           │   ├── 3807-3871  setStatus(), updateFontInfo(), updateLineHeightInfo(),
+           │   │              applyInterfaceSettings()
+           │   ├── 3872-3891  hexToRgba(), adjustColor()
+           │   ├── 3892-3960  _syncNavModeBtn(), updateInterfaceControls()
+           │   │              ⭐ shouldShowButtons → touch zone visibility toggle
+           │   └── 3936-3938  scrollMode=false, sidebarVisible=false
+           │
+           ├── 3961-4600  ESTRAZIONE CAPITOLI (~640 righe)
+           │   ├── 3961-4140  navigateToHref(), collectAllSubchapters()
+           │   ├── 4141-4398  extractMultipleSections()
+           │   └── 4399-4600  extractCurrentChapter()
+           │
+           ├── 4601-5000  TEMI + RENDITION (~400 righe)
+           │   ├── 4709-4733  THEME_COLORS (15 temi)
+           │   ├── 4734-4740  THEME_GROUPS (5 gruppi)
+           │   ├── 4740-4815  applyTheme(), updateThemeSwatchActive(), buildThemePopup()
+           │   └── 4816-5000  recreateRendition()
+           │
+           ├── 5001-5350  TOC + SEGNALIBRI (~350 righe)
+           │   ├── 5001-5094  renderBookmarksSimple()
+           │   ├── 5095-5148  saveUserBookmarksToDB(), loadUserBookmarksFromDB()
+           │   ├── 5149-5237  renderUbmList()
+           │   ├── 5238-5341  createUserBookmark()
+           │   └── 5342-5350  openUbmDrawer(), closeUbmDrawer()
+           │
+           ├── 5351-6148  EVENT HANDLERS (~800 righe)
+           │   ├── 5351-5600  Highlight, media click, keyboard shortcuts
+           │   ├── 5601-5800  Toolbar: prev/next, TOC toggle, scroll, dual page
+           │   ├── 5801-6000  Estrazione, font, line height, temi
+           │   ├── 6001-6100  Bookmark drawer, Library theme toggle
+           │   └── 6101-6148  Floating nav button click handlers:
+           │       floatingPrevBtn.onclick = () => rendition.prev()
+           │       floatingNextBtn.onclick = () => rendition.next()
+           │
+           ├── 6149-6180  ⭐ MOBILE TOUCH ZONES — v813 (~30 righe)
+           │   ├── 6149        // ── Mobile Touch Zones: edge-tap page navigation ──
+           │   ├── 6150-6177   (function initMobileTouchZones() { ... })()
+           │   │   ├── getElementById('touchZonePrev/Next')
+           │   │   ├── _handleZoneTap(direction, el, e):
+           │   │   │   • check selezione testo (window.getSelection())
+           │   │   │   • check scrollMode || sidebarVisible
+           │   │   │   • debounce 350ms
+           │   │   │   • feedback visivo (.tapped class, 250ms)
+           │   │   │   • rendition.prev() / rendition.next()
+           │   │   └── listener 'click' + 'touchend' su entrambe le zone
+           │   └── 6178        fine IIFE
+           │
+           ├── 6181-6228  Floating nav button visibility toggle
+           │
+           ├── 6230-7080  MENUBAR + INIZIALIZZAZIONE (~850 righe)
+           │   ├── 6230-6480  Event delegation globale document.addEventListener
+           │   │              Gestione .rmb-item, highlight mode,
+           │   │              Navigate dropdown, Annotate, Extract, Help
+           │   ├── 6481-6662  Library: tools dropdown, localStorage keys
+           │   ├── 6663-6692  localStorage: chiavi e helper banner
+           │   ├── 6693-6730  Reader help overlay
+           │   ├── 6731-6770  Library theme toggle
+           │   └── 6771-7080  Editor Report help, Navigate Menubar completo
+           │
+           └── 7081-7553  ⭐⭐ MOBILE RESPONSIVE HANDLERS (~470 righe)
+               ├── 7081-7090   State variabili: _isMobile(), _drawerOpen, _touchStartX/Y
+               ├── 7091-7104   _closeAllDrawers()
+               ├── 7105-7125   openHamburger(), closeHamburger()
+               ├── 7126-7196   openTocOverlay() — trasforma #bookmarks in overlay
+               │               spostamento DOM + stili inline
+               ├── 7197-7225   closeTocOverlay() — ripristina #bookmarks
+               ├── 7226-7238   Backdrop click → close all drawers
+               ├── 7239-7296   Hamburger items → trigger .rmb-item action
+               ├── 7297-7310   Override TOC button on mobile → openTocOverlay()
+               ├── 7311-7368   ⭐ Swipe navigation (mobile):
+               │   ├── touchstart/touchend su #viewer
+               │   ├── threshold 50px, check selezione testo
+               │   ├── edge swipe (dx>50) → openTocOverlay()
+               │   └── swipe ← → rendition.prev/next()
+               ├── 7369-7456   initLibraryMobileDropdown()
+               ├── 7457-7505   updateMobileHeader()
+               └── 7506-7549   Init: DOMContentLoaded → initSwipeNavigation(),
+                                initLibraryMobileDropdown(), updateMobileHeader()
+────
+7554-7555  </body></html>
+```
+
+### 15.1 DIFFERENZE CHIAVE vs noesis812-full-reader.html
+
+| Feature | 812 reader | 813 responsive |
+|---------|-----------|----------------|
+| Viewport meta | `no-scale` | `max-scale=3.0` (pinch-zoom) |
+| Mobile menu | ❌ | Hamburger drawer (slide-in left) |
+| TOC su mobile | Sidebar fissa | Overlay slide-in |
+| Floating nav buttons | Visibili (nascosti via .hidden) | Nascosti su ≤768px |
+| Edge-tap navigation | ❌ | ✅ Touch zones (v813) |
+| Swipe navigation | ❌ | ✅ 50px threshold |
+| Mobile backdrop | ❌ | ✅ #mobileOverlayBackdrop |
+| Library dropdown mobile | ❌ | ✅ Touch-friendly |
+| Righe totali | 6865 | 7553 (+688) |
+
+### 15.2 NUOVI ELEMENTI DOM (v813 responsive)
+
+| ID / Classe | Tipo | Riga | Ruolo |
+|-------------|------|------|-------|
+| `#mobileOverlayBackdrop` | div | 2854 | Sfondo scuro overlay mobile |
+| `#hamburgerDrawer` | div | 2857 | Menu hamburger slide-in (300px) |
+| `#hamburgerClose` | button | 2860 | × chiudi hamburger |
+| `#hamburgerBtn` | button | 3065 | ☰ nella reader menubar (mobile) |
+| `#hamburgerBtnLib` | button | 2889 | ☰ nella library header (mobile) |
+| `.hmb-item` | div ×8 | 2862-2869 | Voci hamburger (Library, TOC, ...) |
+| `#touchZonePrev` | div | 3379 | Zona touch sinistra page-turn |
+| `#touchZoneNext` | div | 3380 | Zona touch destra page-turn |
+
+### 15.3 NUOVE FUNZIONI MOBILE (v813)
+
+| Funzione | Riga | Descrizione |
+|----------|------|-------------|
+| `_isMobile()` | 7088 | `() => window.innerWidth <= 768` |
+| `_closeAllDrawers()` | 7091 | Chiude hamburger + TOC overlay |
+| `openHamburger()` | 7105 | Apre drawer hamburger con backdrop |
+| `closeHamburger()` | 7110 | Chiude drawer hamburger |
+| `openTocOverlay()` | 7126 | Trasforma #bookmarks in overlay mobile |
+| `closeTocOverlay()` | 7197 | Ripristina #bookmarks in sidebar |
+| `initSwipeNavigation()` | 7311 | Touch handler swipe ← → su #viewer |
+| `initLibraryMobileDropdown()` | 7369 | Dropdown touch-friendly library |
+| `updateMobileHeader()` | 7457 | Aggiorna header mobile |
+| `initMobileTouchZones()` | 6150 | IIFE: touch zone edge-tap navigation |
+| `_handleZoneTap(dir, el, e)` | 6155 | Handler interno: debounce, check stato, feedback |
+
+### 15.4 FLUSSO: Mobile Page Navigation
+
+```
+SU MOBILE (≤768px), modalità paginata, sidebar chiusa:
+
+OPZIONE 1 — Edge Tap (Touch Zones):
+  User tocca bordo sinistro/destro schermo
+    → touchend/click su #touchZonePrev o #touchZoneNext
+    → _handleZoneTap():
+      1. Check: testo selezionato? → return
+      2. Check: scrollMode || sidebarVisible? → return
+      3. Check: debounce 350ms? → return
+      4. Aggiunge classe .tapped (glow animation 250ms)
+      5. rendition.prev() o rendition.next()
+
+OPZIONE 2 — Swipe:
+  User swipa ← o → su #viewer
+    → touchstart: registra _touchStartX, _touchStartY
+    → touchend: calcola dx, dy
+    → Check: |dx| > 50 && |dx| > |dy| → è swipe orizzontale
+    → Check: testo selezionato? → return
+    → Edge + dx > 50 → openTocOverlay()
+    → dx < -50 → rendition.next()
+    → dx > 50 → rendition.prev()
+```
+
+### 15.5 BREAKPOINT RESPONSIVE
+
+| Breakpoint | Target | Cosa cambia |
+|------------|--------|-------------|
+| `(pointer: coarse)` | Touch devices | Touch target 44×44px |
+| `max-width: 768px` | Tablet | Hamburger visibile, TOC overlay, touch zones attive, floating btn nascosti |
+| `max-width: 480px` | Smartphone | Drawer 260px, cover 44×60px, font ridotti |
+| `max-width: 600px` | Library grid | Griglia 1 colonna |
+
+### 15.6 VARIABILI DI STATO MOBILE
+
+| Variabile | Riga | Tipo | Default | Descrizione |
+|-----------|------|------|---------|-------------|
+| `_drawerOpen` | ~7086 | let | `false` | Stato drawer hamburger |
+| `_tocOverlayOpen` | ~7087 | let | `false` | Stato TOC overlay |
+| `_touchStartX` | ~7088 | let | `null` | Coord X touchstart swipe |
+| `_touchStartY` | ~7089 | let | `null` | Coord Y touchstart swipe |
+| `_touchIsEdge` | ~7090 | let | `false` | Swipe partito dal bordo |
+| `_tzDebounce` | ~6158 | let | `null` | Timer debounce touch zone |
+
+---
+
+## 16. COMANDI UTILI
 
 ```bash
 # Eseguire split
@@ -965,44 +1290,48 @@ grep -c "cdn.jsdelivr.net\|code.jquery.com" noesis812-full.html
 # Deve restituire 0
 
 # Contare righe e dimensione
-wc -l noesis812*.html
-ls -lh noesis812*.html
+wc -l noesis812*.html noesis813*.html
+ls -lh noesis812*.html noesis813*.html
 
 # Trovare una funzione specifica
-grep -n "function nomeFunzione" noesis812.html
+grep -n "function nomeFunzione" noesis813-full-reader-responsive.html
 
 # Trovare una variabile globale
-grep -n "^    let varName\|^    const VAR_NAME" noesis812.html
+grep -n "^    let varName\|^    const VAR_NAME" noesis813-full-reader-responsive.html
+
+# Verificare struttura responsive
+grep -n "MOBILE RESPONSIVE\|END MOBILE\|touchZone\|hamburger\|@media" noesis813-full-reader-responsive.html
 ```
 
 ---
 
-## 15. NOTE PER IMPLEMENTAZIONI FUTURE
+## 17. NOTE PER IMPLEMENTAZIONI FUTURE
 
-### 15.1 Cosa NON toccare
+### 17.1 Cosa NON toccare
 
 - I marcatori `<!-- SN56_SOURCE_START/END -->` — rompono split_noesis.py
 - I marcatori `// ── IDB bridge` e `// ── END IDB bridge` — rompono split
 - I marcatori `// ── Apri sn56.x con payload ──` — rompono split
 - L'ordine JSZip → epub.js — epub.js dipende da JSZip come globale
 - Le classi CSS `.snapshots-*` e `.snapshot-*` — rimosse dallo split
+- I marcatori `MOBILE RESPONSIVE` e `END MOBILE RESPONSIVE` — delimitano il blocco responsive
+- I marcatori `MOBILE RESPONSIVE HANDLERS` e `END MOBILE RESPONSIVE HANDLERS` — delimitano JS mobile
 
-### 15.2 Dove aggiungere nuovo codice
+### 17.2 Dove aggiungere nuovo codice nella v813
 
 | Cosa aggiungere | Dove metterlo |
 |-----------------|---------------|
-| Nuovo tema lettura | Array `THEME_COLORS` + gruppo in `THEME_GROUPS` + CSS `:root.theme-*` |
-| Nuova impostazione reader | `interfaceSettings` + `defaultInterfaceSettings` + `applyInterfaceSettings()` |
-| Nuovo pulsante menubar | HTML `nav.reader-menubar` + CSS `.rmb-item` + handler in event delegation |
-| Nuovo pulsante library header | HTML header + CSS `.lib-header-btn` + handler |
-| Nuovo store IDB | Nuova costante + funzioni open/save/get/delete |
-| Nuova feature reader | Dopo la sezione esistente più affine (es. dopo TOC per nuovi pannelli) |
+| Nuovo tema lettura | `THEME_COLORS` + `THEME_GROUPS` + CSS `:root.theme-*` |
+| Nuova impostazione reader | `interfaceSettings` + `applyInterfaceSettings()` |
+| Nuovo pulsante menubar | HTML `nav.reader-menubar` + `.rmb-item` + handler + voce hamburger `.hmb-item` |
+| Nuova feature mobile | Dentro `MOBILE RESPONSIVE HANDLERS` (JS) + `MOBILE RESPONSIVE` (CSS) |
+| Nuovo breakpoint | Dentro `RESPONSIVE BREAKPOINTS` (~riga 2709) |
+| Nuovo pulsante library | HTML `#library-view header` + CSS `.lib-header-btn` + handler |
 
-### 15.3 Pattern per aggiungere una feature
+### 17.3 Pattern per estendere la v813 → v814
 
-1. **CSS**: aggiungere regole nella sezione appropriata (o in fondo al blocco CSS)
-2. **HTML**: aggiungere elementi statici nella view appropriata
-3. **JS variabili**: dichiarare `let` nella sezione stato globale (righe ~4044+)
-4. **JS funzioni**: aggiungere funzioni prima della event delegation
-5. **JS handler**: collegare nell'event delegation globale (`document.addEventListener`)
-6. **Testare split**: eseguire `split_noesis.py --version 812` e verificare
+1. **CSS mobile**: aggiungere regole dentro `@media (max-width: 768px)` o nuovo breakpoint
+2. **HTML mobile**: aggiungere elementi tra i marcatori MOBILE RESPONSIVE
+3. **JS mobile**: aggiungere funzioni tra `// ── State ──` e `// ── END MOBILE RESPONSIVE HANDLERS ──`
+4. **JS globale**: aggiungere nel flusso principale JS, prima degli event handler
+5. **Testare**: aprire il file nel browser, testare a diverse larghezze (DevTools responsive mode)
