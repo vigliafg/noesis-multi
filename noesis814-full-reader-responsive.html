@@ -2537,6 +2537,24 @@
       white-space: nowrap;
       text-transform: uppercase;
     }
+    #navModeIndicator {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      line-height: 1.2;
+      opacity: 0.65;
+      margin-right: 4px;
+      text-align: right;
+      cursor: default;
+      user-select: none;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    #navModeIndicator small {
+      font-size: 8px;
+      font-weight: 400;
+    }
     .nav-mode-popover {
       display: none;
       position: absolute;
@@ -3166,6 +3184,9 @@
 
         <!-- Help -->
         <span class="rmb-item" id="rmbHelp">Help</span>
+
+        <!-- Nav mode indicator -->
+        <span id="navModeIndicator" title="Navigation mode">NAV<br>PAGEMODE</span>
 
       </nav>
       <!-- ═══════════ END MENUBAR ═══════════ -->
@@ -3902,7 +3923,9 @@ ${htmlContent}
         if (scrollModeBtn) {
           scrollModeBtn.classList.toggle('active', scrollMode);
           const lbl = scrollModeBtn.querySelector('.nav-mode-label');
-          if (lbl) lbl.innerHTML = scrollMode
+          if (lbl) lbl.textContent = scrollMode ? 'Scroll Mode' : 'Page Mode';
+          const ind = document.getElementById('navModeIndicator');
+          if (ind) ind.innerHTML = scrollMode
             ? 'NAV<br>SCROLLMODE<br><small>ChapterMode ON</small>'
             : 'NAV<br>PAGEMODE';
           const op = document.getElementById('navOptPage');
@@ -6184,7 +6207,9 @@ ${htmlContent}
 
       function _syncNavModeBtn() {
         const label = scrollModeBtn.querySelector('.nav-mode-label');
-        if (label) label.innerHTML = scrollMode
+        if (label) label.textContent = scrollMode ? 'Scroll Mode' : 'Page Mode';
+        const ind = document.getElementById('navModeIndicator');
+        if (ind) ind.innerHTML = scrollMode
           ? 'NAV<br>SCROLLMODE<br><small>ChapterMode ON</small>'
           : 'NAV<br>PAGEMODE';
         scrollModeBtn.classList.toggle('active', scrollMode);
