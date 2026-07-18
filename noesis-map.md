@@ -1335,3 +1335,258 @@ grep -n "MOBILE RESPONSIVE\|END MOBILE\|touchZone\|hamburger\|@media" noesis813-
 3. **JS mobile**: aggiungere funzioni tra `// ── State ──` e `// ── END MOBILE RESPONSIVE HANDLERS ──`
 4. **JS globale**: aggiungere nel flusso principale JS, prima degli event handler
 5. **Testare**: aprire il file nel browser, testare a diverse larghezze (DevTools responsive mode)
+
+---
+
+## 18. MAPPA DIFFERENZIALE: v813-responsive vs v812-full (MADRE)
+
+> **Scopo:** Guida per il merge futuro delle feature mobile responsive dalla v813
+> nella versione madre `noesis812-full.html` (o `noesis814-full.html`).
+> **File confrontati:** `noesis813-full-reader-responsive.html` (820 KB, 7553 righe)
+> vs `noesis812-full.html` (1.7 MB, 7258 righe).
+
+### 18.1 PREMESSA: Catena di derivazione
+
+```
+noesis812-full.html  (MADRE — completo: editor, snapshot, IDB bridge)
+    │
+    ├─[split_noesis.py]──▶ noesis812-full-reader.html (reader-only split)
+    │                       RIMOSSO: editor sn56, snapshot UI, IDB bridge
+    │
+    └─[modifiche manuali]──▶ noesis813-full-reader-responsive.html
+                             AGGIUNTO: mobile responsive ~720 righe
+```
+
+La v813 eredita tutte le RIMOZIONI dello split PIÙ le AGGIUNTE mobile.
+Per il merge nella MADRE, le rimozioni vanno **IGNORATE** (sono feature
+dello split), mentre le aggiunte vanno **PORTATE** nella madre.
+
+---
+
+### 18.2 RIEPILOGO QUANTITATIVO
+
+| Metrica | v812-full (MADRE) | v813-responsive | Delta |
+|---------|-------------------|-----------------|-------|
+| Righe totali | 7,258 | 7,553 | +295 |
+| Dimensione | 1.7 MB | 820 KB | -880 KB |
+| CSS (righe) | ~2,640 | ~2,830 | +190 |
+| HTML (righe) | ~600 | ~630 | +30 |
+| JS (righe) | ~3,990 | ~4,508 | +518 |
+| Editor sn56 | SI (912 KB) | NO (0 ref) | RIMOSSO |
+| Mobile features | NO (0 ref) | SI (~720 righe) | AGGIUNTO |
+
+---
+
+### 18.3 CATEGORIA A: RIMOSSO DALLO SPLIT (da IGNORARE nel merge)
+
+Queste feature sono state rimosse da `split_noesis.py` per creare il reader-only.
+**NON vanno riportate** — la MADRE le ha già.
+
+#### A.1 HTML rimosso
+
+| Elemento | Riga 812-full | Ruolo |
+|----------|---------------|-------|
+| `<!-- SN56_SOURCE_START/END -->` | 3241, 3259 | Delimitatori blocco editor embedded |
+| `<script id="sn56Source">` | 3242-3258 | JSON con HTML editor completo (~912 KB) |
+| `#importSnapshotsInput` | 2678 | Input file nascosto per import snapshot |
+| `#libImportSnapshotsBtn` | 2679 | Pulsante "Import Snapshots" |
+| `#libEditorBtn` | 2684 | Pulsante "Open Editor" |
+
+#### A.2 JS rimosso
+
+| Funzione / Blocco | Riga 812-full | Ruolo |
+|-------------------|---------------|-------|
+| `_openSn56()` | ~3561 | Apri editor sn56 in finestra blob |
+| `_openExtractedEnv()` | ~3621 | Apri snapshot esistente nell'editor |
+| `getAllExtractedChapters()` | ~3545 | Recupera capitoli/snapshot da noesisDB |
+| `importSnapshotsFromDisk()` | ~3812 | Importa file HTML snapshot da disco |
+| `_processSnapshotFiles()` | ~3844 | Processa file snapshot selezionati |
+| **IDB Bridge** (postMessage) | ~3331-3350 | Handler messaggi da finestre blob:null |
+| IIFE Import Snapshots | ~7002 | Inizializzazione import snapshot |
+| IIFE Open Editor | ~7050 | Inizializzazione apertura editor |
+| `loadLibraryBooks()` (semplificata) | - | Mostra solo libri, no capitoli/snapshot |
+
+#### A.3 CSS rimosso
+
+| Blocco | Ruolo |
+|--------|-------|
+| 6 classi `.snapshot-*` | Stili per UI snapshot (rimosse dallo split) |
+
+---
+
+### 18.4 CATEGORIA B: AGGIUNTO PER MOBILE (da PORTARE nel merge)
+
+Queste sono le feature nuove della v813 che vanno integrate nella MADRE.
+Ordinate per priorità e dipendenza.
+
+#### B.1 Viewport Meta — PRIORITA: ALTA
+
+```diff
+- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
++ <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0">
+```
+
+**Riga:** 6 in entrambi i file. **Impatto:** permette pinch-zoom su mobile.
+
+#### B.2 CSS: Blocco MOBILE RESPONSIVE (~250 righe) — PRIORITA: ALTA
+
+**Righe 813:** 2598-2845 (tra Reader Menubar e `</style>`)
+**Da inserire nella MADRE:** prima di `</style>`, dopo il blocco Reader Menubar.
+
+Il blocco include:
+- `.mobile-touch-zone { display: none }` — default nascosto
+- `@media (pointer: coarse)` — touch targets WCAG 44x44px
+- `.hamburger-btn` — pulsante hamburger
+- `#hamburgerDrawer` + `.hmb-item` — drawer slide-in 300px
+- `#mobileOverlayBackdrop` — sfondo overlay scuro
+- `@media (max-width: 768px)` — Tablet: hamburger visibile, TOC overlay, viewer full-width, floating btn nascosti, touch zones attive, header compact
+- `@media (max-width: 480px)` — Smartphone: drawer 260px, cover 44x60px
+
+**ATTENZIONE:** le righe 1438 e 1446 (nel blocco Floating Nav Buttons)
+contengono `@media` per i floating buttons a 768px e 480px.
+Queste vanno **mantenute** ma il blocco a 2742 (`.floating-nav-btn { display: none !important }`)
+le sovrascrive su mobile. Verificare che non ci siano conflitti.
+
+#### B.3 HTML: Nuovi elementi DOM — PRIORITA: ALTA
+
+| # | Elemento | Dove inserirlo nella MADRE |
+|---|----------|---------------------------|
+| 1 | `<div id="mobileOverlayBackdrop"></div>` | Subito dopo `<body>`, prima di `#loadingOverlay` |
+| 2 | `<div id="hamburgerDrawer">` con 8 `.hmb-item` + `#hamburgerClose` | Dopo `#mobileOverlayBackdrop` |
+| 3 | `<button id="hamburgerBtnLib">…</button>` | Dentro `#library-view header`, prima degli altri pulsanti |
+| 4 | `<button id="hamburgerBtn">…</button>` | Dentro `#reader-view nav.reader-menubar`, primo elemento |
+| 5 | `<div id="touchZonePrev" class="mobile-touch-zone left"></div>` | In `#reader-view`, dopo `#floatingNextBtn` |
+| 6 | `<div id="touchZoneNext" class="mobile-touch-zone right"></div>` | Dopo `#touchZonePrev` |
+
+#### B.4 JS: Modifiche puntuali — PRIORITA: ALTA
+
+**B.4.1 — Blocco shouldShowButtons** (riga 813: ~3962):
+Dopo `floatingPrevBtn/NextBtn.classList.toggle('hidden', ...)` aggiungere:
+```javascript
+        const tzPrev = document.getElementById('touchZonePrev');
+        const tzNext = document.getElementById('touchZoneNext');
+        if (tzPrev) tzPrev.classList.toggle('hidden', !shouldShowButtons);
+        if (tzNext) tzNext.classList.toggle('hidden', !shouldShowButtons);
+```
+
+**B.4.2 — Touch Zone IIFE** (riga 813: ~6149):
+Dopo i floating button click handler, aggiungere IIFE con:
+- `_handleZoneTap()`: debounce 350ms, check selezione testo, check scrollMode/sidebarVisible
+- Listener `click` + `touchend` su `#touchZonePrev` e `#touchZoneNext`
+- Chiama `rendition.prev()` / `rendition.next()`
+
+#### B.5 JS: Blocco MOBILE RESPONSIVE HANDLERS (~470 righe) — PRIORITA: MEDIA
+
+**Righe 813:** 7081-7549
+**Da inserire nella MADRE:** prima di `</script>`, dopo tutti gli handler esistenti.
+
+Contiene:
+- `_isMobile()`, `_closeAllDrawers()`
+- `openHamburger()`, `closeHamburger()`
+- `openTocOverlay()`, `closeTocOverlay()` — trasforma #bookmarks in overlay
+- `initSwipeNavigation()` — swipe left/right 50px threshold
+- `initLibraryMobileDropdown()` — dropdown touch-friendly
+- `updateMobileHeader()`
+- Inizializzazione su `DOMContentLoaded`
+
+**Conflitto potenziale:** il TOC button override su mobile potrebbe interferire
+con l'event delegation esistente per `.rmb-item[data-panel="toc"]`.
+
+#### B.6 Variabili di stato mobile — PRIORITA: MEDIA
+
+| Variabile | Riga 813 | Dove dichiarare nella MADRE |
+|-----------|----------|-----------------------------|
+| `_tocOverlayOpen` | ~7185 | Sezione STATO GLOBALE READER (~4050) |
+| `_touchStartX/Y` | ~7186 | idem |
+| `_touchIsEdge` | ~7187 | idem |
+| `_isMobile` | ~7188 | idem |
+
+---
+
+### 18.5 CATEGORIA C: MODIFICATO (cambiamenti a codice condiviso)
+
+#### C.1 Floating Nav Buttons CSS
+
+Nella v813, `@media (max-width: 768px)` e `@media (max-width: 480px)` per
+i floating buttons (righe 1438, 1446) sono **identiche** a quelle nella MADRE.
+Nessuna azione necessaria.
+
+#### C.2 Gestione #bookmarks (TOC)
+
+La v813 modifica `#bookmarks` in overlay mobile via `openTocOverlay()`:
+- Sposta l'elemento nel DOM (`document.body.appendChild`)
+- Applica stili inline (position: fixed, z-index: 1000, transform)
+- `closeTocOverlay()` ripristina la posizione originale
+
+Nella MADRE, `#bookmarks` e una sidebar fissa. Questo override e innocuo
+perche si attiva solo su `_isMobile()`. Nessun conflitto atteso.
+
+---
+
+### 18.6 CHECKLIST MERGE (15 step)
+
+```
+[ ] 1. Viewport meta: max-scale=3.0, rimuovere user-scalable=no
+[ ] 2. CSS: copiare blocco MOBILE RESPONSIVE (righe 2598-2845) prima di </style>
+[ ] 3. HTML: aggiungere #mobileOverlayBackdrop dopo <body>
+[ ] 4. HTML: aggiungere #hamburgerDrawer con 8 .hmb-item
+[ ] 5. HTML: aggiungere #hamburgerBtnLib nel library header
+[ ] 6. HTML: aggiungere #hamburgerBtn nel reader menubar
+[ ] 7. HTML: aggiungere #touchZonePrev e #touchZoneNext nel reader-view
+[ ] 8. JS:  toggle touch zone in shouldShowButtons
+[ ] 9. JS:  IIFE initMobileTouchZones dopo floating btn handlers
+[ ] 10. JS: copiare MOBILE RESPONSIVE HANDLERS (7081-7549) prima di </script>
+[ ] 11. JS: verificare no conflitti event delegation TOC button
+[ ] 12. JS: dichiarare variabili mobile nella sezione STATO GLOBALE READER
+[ ] 13. Test: DevTools responsive mode, breakpoint 768px e 480px
+[ ] 14. Test: hamburger, TOC overlay, touch zones, swipe
+[ ] 15. Test: editor sn56 funziona ancora (non deve rompersi)
+```
+
+---
+
+### 18.7 MAPPA VISUALE DEL MERGE
+
+```
+noesis812-full.html (MADRE) — punti di inserimento
+═══════════════════════════════════════════════════
+
+1-7      <head> + meta
+         [x] viewport: max-scale=3.0, no user-scalable
+
+8-14     Bootstrap Icons CSS embedded
+15-2640  CSS applicativo
+         [+] MOBILE RESPONSIVE block (2598-2845) prima di </style>
+
+2642     <body>
+         [+] #mobileOverlayBackdrop
+         [+] #hamburgerDrawer
+
+2648     #loadingOverlay (esistente)
+
+2655     #library-view
+         [+] #hamburgerBtnLib nello header
+
+2836     #reader-view
+         [+] #hamburgerBtn nella reader-menubar
+         [+] #touchZonePrev, #touchZoneNext dopo floating buttons
+
+3241     <!-- SN56_SOURCE_START --> (NON toccare)
+3259     <!-- SN56_SOURCE_END --> (NON toccare)
+
+3266     <script>
+         ... tutto il JS esistente (NON toccare) ...
+         [+] toggle touch zone in shouldShowButtons
+         [+] IIFE initMobileTouchZones
+         [+] MOBILE RESPONSIVE HANDLERS block
+7256     </script>
+```
+
+### 18.8 NOTE TECNICHE
+
+1. **Nessuna nuova dipendenza:** tutte le feature mobile usano solo DOM API standard.
+2. **Backward compatibility:** gated da `_isMobile()` e media queries CSS. Desktop invariato.
+3. **Ordine CSS:** il blocco MOBILE RESPONSIVE va in fondo al `<style>` per precedenza.
+4. **Ordine JS:** MOBILE RESPONSIVE HANDLERS va in fondo al `<script>`, dopo tutto.
+5. **sn56Source:** NON toccare. Le feature mobile non interagiscono con l'editor.
+6. **Dimensione finale MADRE:** ~1.7 MB + ~15 KB = ~1.71 MB.
