@@ -4295,9 +4295,13 @@ ${htmlContent}
         nameEl.textContent = '';
         return;
       }
-      // Extract just the chapter name (last segment of the breadcrumb)
       const parts = fullPath.split(' › ');
-      nameEl.textContent = parts[parts.length - 1];
+      // Show parent context when available: "Part I → Chapter 1" instead of just "Chapter 1"
+      if (parts.length > 1) {
+        nameEl.textContent = parts[parts.length - 2] + ' → ' + parts[parts.length - 1];
+      } else {
+        nameEl.textContent = parts[0];
+      }
       nameEl.title = fullPath;
       updateChapterNav();
     }
