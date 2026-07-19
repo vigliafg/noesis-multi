@@ -1,8 +1,14 @@
 # NOESIS-MAP — Mappa Completa della Basecodice
 
 > **Ultimo aggiornamento:** 2026-07-19
-> **Versione di riferimento:** noesis814-full-reader-responsive (v0.14)
+> **Versione di riferimento:** noesis816-full-reader-responsive (v0.16)
 > **Scopo:** Documento di riferimento completo per qualsiasi futura implementazione di codice sul repository noesis-multi.
+>
+> **Cronologia versioni responsive:**
+> - v0.13 (813): hamburger menu, TOC overlay, touch zone navigation
+> - v0.14 (814): hamburger contestuale, toolbar pulita, dead CSS rimosso
+> - v0.15 (815): statusbar con spine prev/next, parent context TOC, WCAG tap targets
+> - v0.16 (816): nav mode popover in toolbar, chapter boundary detection, rifiniture mobile
 
 ---
 
@@ -40,10 +46,26 @@ noesis-multi/
 │   │
 │   └── noesis810.html / noesis810-full.html   Versione precedente (ancora presente)
 │
-└── noesis813-full-reader-responsive.html   ★ RESPONSIVE READER (~7553 righe, v0.13)
+├── noesis813-full-reader-responsive.html   ★ RESPONSIVE READER (~7553 righe, v0.13)
 │                           Reader + Library con UI mobile ottimizzata:
 │                           hamburger menu, TOC overlay, touch zone navigation.
 │                           Deriva da noesis812-full-reader.html + modifiche manuali.
+│
+├── noesis814-full-reader-responsive.html   ★ RESPONSIVE READER v0.14
+│                           Hamburger contestuale (reader vs library),
+│                           toolbar pulita con solo icone attive,
+│                           dead CSS rimosso dalla v813.
+│
+├── noesis815-full-reader-responsive.html   ★ RESPONSIVE READER v0.15
+│                           Chapter navigation statusbar con spine prev/next,
+│                           parent context TOC ("Part I → Chapter 1"),
+│                           WCAG tap targets 44×44px su mobile.
+│
+└── noesis816-full-reader-responsive.html   ★ RESPONSIVE READER v0.16 (CURRENT)
+│                           Nav mode popover in toolbar (sostituisce dropdown
+│                           menubar Navigate), chapter boundary detection
+│                           in scroll mode, hamburger contestuale raffinato,
+│                           statusbar con tooltip full path, rifiniture mobile.
 │
 ├── 🔷 TOOL STANDALONE
 │   ├── epubslimer.html / multiepubslimer.html   Riduzione dimensione EPUB
@@ -461,6 +483,17 @@ const defaultInterfaceSettings = {
 | `updateFontInfo` | 4374 | Aggiorna display font size |
 | `updateLineHeightInfo` | 4378 | Aggiorna display line height |
 | `navigateToHref` | 4432 | Naviga a un href nella TOC |
+
+### 5.10 Chapter Navigation (⭐ v815/v816)
+
+| Funzione | Riga (816) | Descrizione |
+|----------|------------|-------------|
+| `setStatus(msg)` | ~4288 | Imposta il testo nella statusbar |
+| `setStatusPath(fullPath)` | ~4292 | Mostra breadcrumb con parent context ("Part I → Chapter 1") |
+| `_findSpineIndex(href)` | ~4310 | Cerca indice di un href nello spine EPUB |
+| `goPrevChapter()` | ~4321 | Naviga al capitolo precedente via spine |
+| `goNextChapter()` | ~4330 | Naviga al capitolo successivo via spine |
+| `updateChapterNav()` | ~4339 | Aggiorna stato disabled dei pulsanti prev/next |
 
 ### 5.7 Estrazione
 
@@ -887,6 +920,41 @@ function _closeAllReaderMenus() {
 ```
 
 Chiamata in cima a ogni handler di click sulla menubar, prima di aprire il menu richiesto.
+
+### 12.6 Chapter Navigation Statusbar (⭐ v815/v816)
+
+**Elementi:** `#status` flex container, `#statusPrevBtn`, `#statusChapterName`, `#statusNextBtn`
+
+**CSS:** `.chap-nav-btn` — pulsanti ◀/▶ 44×44px tap target (WCAG), border:none, bg transparent
+
+**Flusso:**
+```
+User click ◀ o ▶ nella statusbar
+  → goPrevChapter() / goNextChapter()
+  → _findSpineIndex(href) — cerca href corrente nello spine
+  → rendition.display(spine.items[idx ± 1].href)
+  → L'evento 'relocated' chiama updateChapterNav()
+    → disabilita ◀ se primo capitolo, ▶ se ultimo
+    → setStatusPath() con breadcrumb TOC
+```
+
+### 12.7 Nav Mode Popover (⭐ v816)
+
+**Elementi:** `#scrollModeBtn` (bottone toolbar), `#navModePopover` (dropdown popover)
+
+**CSS:** `.nav-mode-popover` — position:absolute, bg white, border-radius 6px, box-shadow. `.open` per mostrare.
+
+**Flusso:**
+```
+User click #scrollModeBtn
+  → Toggle #navModePopover.open
+User click Page Mode / Scroll Mode
+  → Imposta scrollMode, chiama _syncNavModeBtn()
+  → recreateRendition() con nuovo layout
+Click esterno → chiude popover
+```
+
+**Nota:** Nella v816 il Navigate dropdown nella menubar esiste ancora come indicatore testuale (`.rmb-nav-item` Page/Scroll), ma l'interazione primaria è stata spostata nel popover della toolbar.
 
 ---
 
@@ -1672,3 +1740,113 @@ function openHamburger() {
 3. **Backward compatibility:** `initLibraryMobileDropdown()` rimosso — non più necessario.
 4. **CSS morto ripulito:** `.library-title`, `.library-subtitle` non più presenti.
 5. **Hamburger condiviso:** stesso drawer per library e reader, voci filtrate dinamicamente.
+
+---
+
+## 19. EVOLUZIONE RESPONSIVE BRANCH — RIEPILOGO v813→v816
+
+> Tutte le varianti responsive derivano da `noesis812-full-reader.html` (reader-only split).
+> Ogni versione aggiunge miglioramenti incrementali mantenendo la struttura fully-offline.
+
+### Timeline
+
+```
+noesis812-full-reader.html (v0.12, 6865 righe)
+  │  Reader + Library, NO editor, NO snapshot UI
+  │
+  ├──▶ noesis813 (v0.13, ~7553 righe)
+  │      + hamburger menu, + TOC overlay mobile, + touch zones
+  │      + viewer 100% width su mobile, - floating nav btn desktop
+  │
+  ├──▶ noesis814 (v0.14)
+  │      + hamburger contestuale (reader vs library)
+  │      + toolbar pulita (solo icone attive)
+  │      - dead CSS rimosso dalla v813
+  │
+  ├──▶ noesis815 (v0.15)
+  │      + ⭐ statusbar con spine prev/next
+  │      + ⭐ parent context TOC ("Part I → Chapter 1")
+  │      + ⭐ WCAG tap targets 44×44px su mobile (.chap-nav-btn)
+  │
+  └──▶ noesis816 (v0.16) ★ CURRENT
+         + nav mode popover in toolbar (#navModePopover)
+         + chapter boundary detection in scroll mode
+         + hamburger contestuale raffinato
+         + statusbar tooltip full path (hover)
+         + rifiniture CSS mobile
+```
+
+### Cambiamenti v813 → v814
+
+| Modifica | Descrizione |
+|----------|-------------|
+| Hamburger contestuale | Due hamburger: `#hamburgerBtnLib` (library) e `#hamburgerBtn` (reader) |
+| Toolbar pulita | Solo pulsanti attivi visibili; rimossi dead buttons |
+| Dead CSS | Rimosso CSS non referenziato (`.library-title`, `.library-subtitle`) |
+| `initLibraryMobileDropdown()` | Rimosso — gestione unificata nell'hamburger drawer |
+
+### Cambiamenti v814 → v815
+
+| Modifica | Descrizione |
+|----------|-------------|
+| ⭐ **Chapter Navigation Statusbar** | Nuovo `#status` con ◀/▶ spine nav, `#statusChapterName` centrato |
+| ⭐ **Parent Context TOC** | `setStatusPath()` mostra "Parent → Chapter" invece del solo nome |
+| ⭐ **WCAG Tap Targets** | `.chap-nav-btn` a 44×44px su `pointer: coarse` |
+| `_findSpineIndex()` | Cerca href corrente nello spine EPUB |
+| `goPrevChapter()` / `goNextChapter()` | Naviga capitoli via `rendition.display(spine.items[idx±1].href)` |
+| `updateChapterNav()` | Disabilita ◀ al primo capitolo, ▶ all'ultimo |
+
+### Cambiamenti v815 → v816
+
+| Modifica | Descrizione |
+|----------|-------------|
+| ⭐ **Nav Mode Popover** | `#navModePopover` in toolbar, `#scrollModeBtn` con label dinamica |
+| **Menubar Navigate semplificato** | `.rmb-nav-item` Page/Scroll diventano indicatori testuali |
+| **`_syncNavModeBtn()`** | Sincronizza popover con stato `scrollMode` globale |
+| **Statusbar Tooltip** | `#statusPath[data-full]:hover::after` mostra path completo |
+| **Chapter Boundary Detection** | In scroll mode rileva cambio capitolo → aggiorna statusbar |
+
+### Nuovi elementi HTML (v815+)
+
+```html
+<!-- Statusbar chapter navigation (v815+) -->
+<div id="status">
+  <button id="statusPrevBtn" class="chap-nav-btn" disabled>◀</button>
+  <span id="statusChapterName">Select an EPUB file…</span>
+  <button id="statusNextBtn" class="chap-nav-btn" disabled>▶</button>
+</div>
+
+<!-- Nav Mode Popover (v816) -->
+<button id="scrollModeBtn" class="btn btn-icon nav-mode-btn">
+  <span class="nav-mode-label">Page Mode</span>
+</button>
+<div id="navModePopover" class="nav-mode-popover">
+  <div id="navOptPage" class="nav-mode-option active">Page Mode</div>
+  <div id="navOptScroll" class="nav-mode-option">Scroll Mode</div>
+</div>
+```
+
+### Flusso: Chapter Navigation via Spine
+
+```
+User click ◀ o ▶ nella statusbar
+  → goPrevChapter() / goNextChapter()
+  → _findSpineIndex(loc.start.href) — cerca href nello spine
+  → rendition.display(book.spine.items[idx ± 1].href)
+  → epub.js 'relocated' event → updateChapterNav()
+    → disabled state aggiornato (primo/ultimo capitolo)
+    → setStatusPath() con breadcrumb TOC
+```
+
+### Flusso: Parent Context Display
+
+```
+rendition.on('relocated', ...)
+  → findBreadcrumbInToc(book.navigation.toc, loc.start.href, '')
+  → setStatusPath("Part I › Chapter 1")
+    → Split per ' › '
+    → Se parts.length > 1:
+      statusChapterName.textContent = parts[parts.length-2] + ' → ' + parts[parts.length-1]
+      (es. "Part I → Chapter 1")
+    → updateChapterNav()
+```

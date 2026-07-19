@@ -22,10 +22,11 @@ Prima di scrivere, modificare o anche solo proporre una modifica a un file del r
    codice applicativo Noesis (single-file HTML).
 2. **Varianti del codice** — relazioni fra `noesis812.html`, `noesis812-full.html`,
    `noesis812-full-reader.html`, `noesis812-full-editor.html`,
-   `noesis813-full-reader-responsive.html`, `noesis814-full-reader-responsive.html`. Tutte derivano l'una dall'altra tramite `split_noesis.py`
+   `noesis813-full-reader-responsive.html`, `noesis814-full-reader-responsive.html`,
+   `noesis815-full-reader-responsive.html`, `noesis816-full-reader-responsive.html`. Tutte derivano l'una dall'altra tramite `split_noesis.py`
    o modifiche manuali.
 3. **Struttura interna riga-per-riga** di ogni variante (~7236 righe Regular, ~7258 Full,
-   ~7553 Reader Responsive, ~7481 v814 Reader Responsive).
+   ~7553 Reader Responsive v813, ~7481 v814, v815/v816 con statusbar e nav popover).
 4. **Mappa delle variabili globali** — stato reader, temi, UI, IDB.
 5. **Mappa delle funzioni principali** — firme + righe (Reg vs Full).
 6. **Flussi dati** — import EPUB, apertura reader, estrazione capitoli, auto-save, highlight.
@@ -45,7 +46,7 @@ Prima di scrivere, modificare o anche solo proporre una modifica a un file del r
   funzioni private, `camelCase` per il resto — vedi `noesis-map.md` § 8.2).
 - **Considera l'impatto sulle varianti derivate** — una modifica al CSS o alla menubar può
   propagarsi di riflesso su `812-full`, `812-full-reader`, `813-full-reader-responsive`,
-  `814-full-reader-responsive`.
+  `814-full-reader-responsive`, `815-full-reader-responsive`, `816-full-reader-responsive`.
 
 > ⚠️ Se ritieni che `noesis-map.md` sia obsoleto rispetto al codice reale, **ferma il lavoro**,
 > apri un'issue o chiedi conferma prima di procedere. Non sovrascrivere la mappa di tua
@@ -86,9 +87,11 @@ Come impostare Chrome DevTools:
 
 **Cosa controllare in desktop:**
 - [ ] Header library: pulsanti visibili e allineati (no overflow).
-- [ ] Reader menubar (`.reader-menubar`): 8 voci testuali visibili su una riga.
+- [ ] Reader menubar (`.reader-menubar`): voci testuali visibili su una riga.
 - [ ] TOC sidebar (`#bookmarks`): visibile di default lato sinistro.
 - [ ] Pulsanti floating prev/next (`.floating-nav-btn`): visibili ai lati del viewer.
+- [ ] Chapter Navigation Statusbar (`#status`): ◀ capitolo ▶ con nome centrato, parent context visibile ("Part I → Chapter 1").
+- [ ] Nav Mode Popover (`#navModePopover`): `#scrollModeBtn` in toolbar, popover con Page/Scroll.
 - [ ] Popup temi (`.tp-popup`) e dropdown: posizionati correttamente, non tagliati.
 - [ ] Display Save Prompt (`#displaySavePrompt`): posizione e timing corretti.
 - [ ] Keyboard shortcuts funzionanti (`←` `→` `?` `Esc`).
@@ -104,8 +107,8 @@ Come impostare Chrome DevTools:
 4. **Abilita la simulazione touch** verificando che l'icona del touch sia attiva.
 
 **Cosa controllare in mobile (regime `@media (max-width: 768px)`):**
-- [ ] **Hamburger button** visibile in cima al reader (`.hamburger-btn`).
-- [ ] **Voci testuali menubar nascoste**, sostituite dal menu hamburger (#hamburgerDrawer).
+- [ ] **Hamburger button** visibile in cima al reader (`.hamburger-btn`) o library (`#hamburgerBtnLib`).
+- [ ] **Voci testuali menubar nascoste**, sostituite dal menu hamburger contestuale (#hamburgerDrawer con voci `.hmb-lib`/`.hmb-rdr` filtrate).
 - [ ] **TOC overlay** anziché sidebar fissa: `#bookmarks` fixed, slide from left, `z-index: 1000`.
 - [ ] **Touch zones** (`.mobile-touch-zone`) visibili e funzionanti ai bordi del viewer
   (larghezza 12vw, min 44px, max 60px, `top: 15vh`, `height: 70vh`, `z-index: 99`).
@@ -113,9 +116,11 @@ Come impostare Chrome DevTools:
 - [ ] **Floating prev/next nascosti** (`.floating-nav-btn` → `display: none !important`).
 - [ ] **Library header compatto** (padding e font ridotti).
 - [ ] **Book covers** ridimensionati (44×60px @ ≤480px; default @ ≤768px).
-- [ ] **Tap targets ≥ 44×44px** (regola WCAG, regola CSS `(pointer: coarse)`).
+- [ ] **Tap targets ≥ 44×44px** (regola WCAG, regola CSS `(pointer: coarse)`) — inclusi `.chap-nav-btn` ◀/▶.
 - [ ] **Hamburger drawer** (`#hamburgerDrawer`): larghezza base **300px**; a breakpoint ≤480px diventa **260px (max 88vw)**;
   chiusura con pulsante × (`#hamburgerClose`) o tap sul backdrop (`#mobileOverlayBackdrop`).
+- [ ] **Chapter Navigation Statusbar** (`#status`): pulsanti ◀/▶ visibili e funzionanti, nome capitolo centrato.
+- [ ] **Nav Mode Popover** (`#navModePopover`): accessibile da toolbar, opzioni Page/Scroll selezionabili.
 - [ ] **Popup/drawer** dimensioni ridotte rispetto al desktop, no overflow orizzontale.
 - [ ] **Viewport meta** rispettato: niente scroll orizzontale indesiderato, `max-scale=3.0` per zoom utente consentito.
 
@@ -150,6 +155,8 @@ Testa la modifica a tutti e due i breakpoint, non solo al principale.
   - Apertura libro
   - Cambio tema
   - Apertura/chiusura TOC, drawer, popup
+  - Navigazione capitoli via statusbar ◀/▶
+  - Cambio modalità Page/Scroll via nav popover
   - Estrazione capitolo
   - Navigazione prev/next (`←`/`→` su desktop, touch zones su mobile)
   - Apertura editor sn56 (se la modifica interessa l'editor, testare anche il blob window)
@@ -160,8 +167,10 @@ Testa la modifica a tutti e due i breakpoint, non solo al principale.
 - [ ] Se hai toccato CSS, hai aggiornato anche eventuali `style.css` paralleli (sito di doc).
 - [ ] Se hai toccato JS, hai considerato lo shift di righe fra Regular e Full (vedi `noesis-map.md` § 2).
 - [ ] Se hai toccato lo schema IDB, hai aggiornato `noesis-map.md` § 9 e `DOC4_SCHEMI_DATI.md`.
-- [ ] Se la modifica è nella Reader Responsive (v813/v814), hai confrontato con `812-full-reader.html`
+- [ ] Se la modifica è nella Reader Responsive (v813/v814/v815/v816), hai confrontato con `812-full-reader.html`
        per assicurarti di non aver perso funzionalità desktop.
+- [ ] Se la modifica tocca la statusbar (`#status`, `.chap-nav-btn`), hai verificato parent context e spine navigation.
+- [ ] Se la modifica tocca il Nav Mode Popover (`#navModePopover`, `#scrollModeBtn`), hai verificato la sincronizzazione con `scrollMode`.
 
 ---
 
