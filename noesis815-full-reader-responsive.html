@@ -1477,6 +1477,15 @@
       opacity: 0.35;
       cursor: default;
     }
+    /* Mobile: enlarge tap targets to WCAG 44×44px minimum */
+    @media screen and (max-width: 768px) {
+      .chap-nav-btn {
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
+        border-radius: 6px;
+      }
+    }
 
     /* Full path tooltip on hover */
     #statusPath[data-full]:hover::after {
