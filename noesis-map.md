@@ -1,7 +1,7 @@
 # NOESIS-MAP — Mappa Completa della Basecodice
 
-> **Ultimo aggiornamento:** 2026-07-18
-> **Versione di riferimento:** noesis813-full-reader-responsive (v0.13)
+> **Ultimo aggiornamento:** 2026-07-19
+> **Versione di riferimento:** noesis814-full-reader-responsive (v0.14)
 > **Scopo:** Documento di riferimento completo per qualsiasi futura implementazione di codice sul repository noesis-multi.
 
 ---
@@ -1590,3 +1590,85 @@ noesis812-full.html (MADRE) — punti di inserimento
 4. **Ordine JS:** MOBILE RESPONSIVE HANDLERS va in fondo al `<script>`, dopo tutto.
 5. **sn56Source:** NON toccare. Le feature mobile non interagiscono con l'editor.
 6. **Dimensione finale MADRE:** ~1.7 MB + ~15 KB = ~1.71 MB.
+
+---
+
+## 16. STRUTTURA INTERNA DI `noesis814-full-reader-responsive.html` (7481 righe, 820K)
+
+> **Base:** noesis813-full-reader-responsive.html (copia esatta)
+> **Modifiche v813→v814:** menu hamburger contestuale, toolbar library pulita, dead CSS rimosso,
+> rimozione `initLibraryMobileDropdown()` in conflitto.
+
+### 16.1 RIEPILOGO MODIFICHE
+
+| # | Modifica | Dettaglio |
+|---|----------|-----------|
+| 1 | **Hamburger contestuale** | `openHamburger()` rileva la vista attiva e mostra/nasconde voci via classi `.hmb-lib` / `.hmb-rdr` |
+| 2 | **Voci library nell'hamburger** | Add Books, Theme: Light, Theme: Dark, Tools, Refresh Library, Help |
+| 3 | **Voci reader nell'hamburger** | Library, TOC, Bookmarks, Display, Navigate, Annotate, Extract, Help |
+| 4 | **Voci condivise contestuali** | Library (refresh o showLibrary), Help (libHelpBtn o rmbHelp) |
+| 5 | **Toolbar library pulita** | Rimosso testo `library-title` ("Noesis") e `library-subtitle` da `.library-header-left` |
+| 6 | **Hamburger a estrema sinistra** | `#hamburgerBtnLib` spostato in `.library-header-left` |
+| 7 | **Rimossa `initLibraryMobileDropdown()`** | Nascondeva pulsanti THEMES/TOOLS/HELP su mobile in conflitto con hamburger |
+| 8 | **CSS mobile: pulsanti nascosti** | `#libThemesBtn, #libToolsBtn, #libHelpBtn { display: none !important }` su ≤768px (i container dropdown restano visibili) |
+| 9 | **CSS morto rimosso** | Regole `.library-title`, `.library-subtitle`, `.library-title i`, `.library-title span` eliminate |
+| 10 | **File più snello** | Da 7553 a 7481 righe (-72), da 824K a 820K |
+
+### 16.2 HAMBURGER DRAWER — HTML
+
+```html
+<div id="hamburgerDrawer">
+  <div class="hamburger-header">
+    <span class="hamburger-title">Noesis</span>
+    <button class="hamburger-close" id="hamburgerClose">✕</button>
+  </div>
+  <!-- .hmb-lib = library only, .hmb-rdr = reader only, no class = both -->
+  <div class="hamburger-item" id="hmbLibrary">Library</div>
+  <div class="hamburger-item hmb-lib" id="hmbAddBooks">Add Books</div>
+  <div class="hamburger-item hmb-lib" id="hmbLibThemeLight">Theme: Light</div>
+  <div class="hamburger-item hmb-lib" id="hmbLibThemeDark">Theme: Dark</div>
+  <div class="hamburger-item hmb-lib" id="hmbLibTools">Tools</div>
+  <div class="hamburger-item hmb-lib" id="hmbLibRefresh">Refresh Library</div>
+  <div class="hamburger-item hmb-rdr" id="hmbToc">TOC</div>
+  <div class="hamburger-item hmb-rdr" id="hmbBookmarks">Bookmarks</div>
+  <div class="hamburger-item hmb-rdr" id="hmbDisplay">Display</div>
+  <div class="hamburger-item hmb-rdr" id="hmbNavigate">Navigate</div>
+  <div class="hamburger-item hmb-rdr" id="hmbAnnotate">Annotate</div>
+  <div class="hamburger-item hmb-rdr" id="hmbExtract">Extract</div>
+  <div class="hamburger-item" id="hmbHelp">Help</div>
+</div>
+```
+
+### 16.3 HAMBURGER — LOGICA JS
+
+```javascript
+// openHamburger() — contestuale
+function openHamburger() {
+  const isLibrary = !libraryView.classList.contains('hidden');
+  document.querySelectorAll('#hamburgerDrawer .hamburger-item').forEach(function(item) {
+    if (item.classList.contains('hmb-lib')) {
+      item.style.display = isLibrary ? 'flex' : 'none';
+    } else if (item.classList.contains('hmb-rdr')) {
+      item.style.display = isLibrary ? 'none' : 'flex';
+    } else {
+      item.style.display = 'flex';  // shared: always visible
+    }
+  });
+  // ...open drawer...
+}
+
+// Tre gruppi di handler:
+// 1. hamburgerReaderMap — mappa hmb-rdr → rmb* (con dropdown workaround)
+// 2. hamburgerLibHandlers — click diretti su pulsanti library
+// 3. Shared items (Library, Help) — dispatch contestuale
+```
+
+### 16.4 NOTE TECNICHE v814
+
+1. **Nessuna nuova dipendenza.** Stesse dipendenze della v813.
+2. **Dropdown visibili su mobile:** i pulsanti sono nascosti (`display: none`) ma i container
+   dropdown (`#libThemesDropdown`, `#libToolsDropdown`) restano nel layout, quindi i menu
+   aperti dall'hamburger appaiono correttamente.
+3. **Backward compatibility:** `initLibraryMobileDropdown()` rimosso — non più necessario.
+4. **CSS morto ripulito:** `.library-title`, `.library-subtitle` non più presenti.
+5. **Hamburger condiviso:** stesso drawer per library e reader, voci filtrate dinamicamente.
