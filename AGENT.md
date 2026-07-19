@@ -55,9 +55,22 @@ Prima di scrivere, modificare o anche solo proporre una modifica a un file del r
 
 ## 2. VERIFICA OBBLIGATORIA — Chrome DevTools in DOPPIA RISOLUZIONE
 
-**Ogni** modifica a CSS, HTML o JS che influisce sulla UI **deve** essere verificata manualmente
-(o automatizzata) tramite **Chrome DevTools** in **due** regimi di risoluzione. Nessuna modifica
-UI può essere data per buona se testata in una sola delle due.
+**Ogni** modifica a CSS, HTML o JS che influisce sulla UI **deve** essere verificata in
+**due** regimi di risoluzione. Nessuna modifica UI può essere data per buona se testata
+in una sola delle due.
+
+**Quale strumento usare per la verifica:**
+
+| Tipo di test | Strumento | Perché |
+|---|---|---|
+| Layout, posizionamento, visibilità elementi | **`browser-use`** | Solo un agente con visione può vedere se un dropdown appare, se un pulsante è allineato, se il layout è rotto |
+| Interazioni (click, tap, swipe, hamburger) | **`browser-use`** | Serve interazione reale col DOM + verifica visiva del risultato |
+| Console errori JS, warning, 404 | `basher` o `browser-use` | `basher` può eseguire script di validazione; `browser-use` cattura errori runtime |
+| IndexedDB (store popolati, record validi) | `basher` | Basta JS inline nella pagina, nessuna visione necessaria |
+| Network (CDN caricate, risorse mancanti) | `basher` o `browser-use` | `basher` con curl per check statici; `browser-use` per test runtime |
+| Sintassi JS, parsing HTML, CSS valido | `basher` | `node --check` o strumenti CLI — nessun browser necessario |
+
+> **Regola pratica:** se il test riguarda **come appare** o **come si comporta visivamente** la pagina → `browser-use`. Se riguarda **dati, stato o sintassi** → `basher` / `code-searcher`.
 
 ### 2.1 Risoluzione DESKTOP (≥ 769px di larghezza)
 
@@ -156,8 +169,11 @@ Testa la modifica a tutti e due i breakpoint, non solo al principale.
 
 | Strumento | Quando usarlo |
 |-----------|---------------|
-| **Chrome DevTools — Device Toolbar** | Test responsive (vedi § 2) |
-| **Chrome DevTools — Application → IndexedDB** | Ispezione store `books` e `chapters` |
+| **`browser-use` sub-agent** | Test visivi/layout e interazioni UI reale (vedi § 2). Unico sub-agent con capacità visive. |
+| **`basher` sub-agent** | Test di stato/dati: sintassi JS, console errori, IndexedDB, network, validazione CSS. |
+| **`code-searcher` sub-agent** | Trovare pattern nel codice, verificare presenza/assenza di regole CSS, classi, handler. |
+| **Chrome DevTools — Device Toolbar** | Test responsive (vedi § 2) — usato DA `browser-use` |
+| **Chrome DevTools — Application → IndexedDB** | Ispezione store `books` e `chapters` — verificabile anche via `basher` |
 | **Chrome DevTools — Sensors** | Simulazione offline (per testare versione Full senza CDN) |
 | **`split_noesis.py`** | Rigenerare `*-full-reader.html` / `*-full-editor.html` dopo modifiche a `812-full.html` |
 | **`python3 -m http.server 8000`** | Servire il sito doc in locale per ispezione |
