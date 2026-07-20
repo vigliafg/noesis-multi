@@ -6174,6 +6174,7 @@ ${htmlContent}
 
       scrollModeBtn.onclick = (e) => {
         e.stopPropagation();
+        _closeAllReaderMenus(true);
         navModePopover.classList.toggle('open');
       };
 
@@ -6201,7 +6202,7 @@ ${htmlContent}
         }
       };
 
-      document.addEventListener('click', () => navModePopover.classList.remove('open'));
+
       toggleSidebarBtn.onclick = async () => {
         sidebarVisible = !sidebarVisible;
         bookmarks.classList.toggle('hidden', !sidebarVisible);
@@ -6564,16 +6565,7 @@ ${htmlContent}
         extractMenu.classList.toggle('show');
       };
 
-      // Close dropdown when clicking outside
-      document.addEventListener('click', (e) => {
-        var rmbExtractEl = document.getElementById('rmbExtract');
-        var rmbExtractWrap = document.getElementById('rmbExtractWrap');
-        if (extractMenu && !extractMenu.contains(e.target)
-            && e.target !== extractChapterBtn && !extractChapterBtn.contains(e.target)
-            && e.target !== rmbExtractEl && !(rmbExtractWrap && rmbExtractWrap.contains(e.target))) {
-          extractMenu.classList.remove('show');
-        }
-      });
+
 
       // Handle menu item clicks
       extractMenu.querySelectorAll('.extract-menu-item').forEach(item => {
@@ -6760,13 +6752,24 @@ ${htmlContent}
         p.style.opacity    = '0';
       });
       var em = document.getElementById('extractMenu');
-      if (em) em.classList.remove('show');
+      if (em) { em.classList.remove('show'); em.style.display = ''; }
       var hm = document.getElementById('readerHighlightMenu');
-      if (hm) hm.classList.remove('show');
+      if (hm) { hm.classList.remove('show'); hm.style.display = ''; }
+      /* Navigate dropdown */
+      var nm = document.getElementById('rmbNavigateMenu');
+      if (nm) nm.classList.remove('show');
+      var nb = document.getElementById('rmbNavigate');
+      if (nb) nb.classList.remove('rmb-active');
+      /* Nav mode popover */
+      if (typeof navModePopover !== 'undefined' && navModePopover) {
+        navModePopover.classList.remove('open');
+      }
+      /* Display menu */
       var dm = document.getElementById('displayMenu');
       if (dm) {
         var dmWasOpen = dm.classList.contains('open');
         dm.classList.remove('open');
+        dm.style.display = '';
         ['displayBodyTypo','displayBodyThemes','displayBodyInterface'].forEach(function(id) {
           var b = document.getElementById(id); if (b) b.classList.remove('open');
         });
@@ -6776,6 +6779,40 @@ ${htmlContent}
         if (dmWasOpen && !suppressDisplayPrompt) _showDisplaySavePrompt();
       }
     }
+
+    /* ── Unified click-outside: close any open reader menu/dropdown ── */
+    document.addEventListener('click', function(e) {
+      var target = e.target;
+      var dm = document.getElementById('displayMenu');
+      var em = document.getElementById('extractMenu');
+      var hm = document.getElementById('readerHighlightMenu');
+      var nm = document.getElementById('rmbNavigateMenu');
+      var nw = document.getElementById('rmbNavigateWrap');
+      var xb = document.getElementById('extractChapterBtn');
+      var hb = document.getElementById('readerHighlightBtn');
+      var db = document.getElementById('displayBtn');
+      var dw = document.getElementById('displayDropdownWrap');
+      var rd = document.getElementById('rmbDisplay');
+      var re = document.getElementById('rmbExtract');
+      var rw = document.getElementById('rmbExtractWrap');
+
+      var anyOpen = false;
+      if (dm && dm.classList.contains('open')) anyOpen = true;
+      if (em && em.classList.contains('show')) anyOpen = true;
+      if (hm && hm.classList.contains('show')) anyOpen = true;
+      if (nm && nm.classList.contains('show')) anyOpen = true;
+      if (typeof navModePopover !== 'undefined' && navModePopover && navModePopover.classList.contains('open')) anyOpen = true;
+      if (!anyOpen) return;
+
+      var inside = false;
+      if ((dm && dm.contains(target)) || (db && db.contains(target)) || target === rd || (dw && dw.contains(target))) inside = true;
+      if ((em && em.contains(target)) || (xb && xb.contains(target)) || target === re || (rw && rw.contains(target))) inside = true;
+      if ((hm && hm.contains(target)) || (hb && hb.contains(target))) inside = true;
+      if ((nm && nm.contains(target)) || (nw && nw.contains(target))) inside = true;
+      if (typeof navModePopover !== 'undefined' && navModePopover && navModePopover.contains(target)) inside = true;
+
+      if (!inside) _closeAllReaderMenus();
+    });
 
     /* ═══════════════════════════════════════════════════════
        DISPLAY MENU — accordion, moves popups inline
@@ -6846,20 +6883,7 @@ ${htmlContent}
         }
       });
 
-      /* Close on outside click */
-      document.addEventListener('click', function(e) {
-        var rmbDisplayEl = document.getElementById('rmbDisplay');
-        var rmbDisplayWrap = document.getElementById('displayDropdownWrap');
-        if (!displayMenu.contains(e.target) && e.target !== displayBtn
-            && !displayBtn.contains(e.target)
-            && e.target !== rmbDisplayEl
-            && !(rmbDisplayWrap && rmbDisplayWrap.contains(e.target))) {
-          var wasOpen = displayMenu.classList.contains('open');
-          displayMenu.classList.remove('open');
-          SECTIONS.forEach(function(s) { _toggle(s, false); });
-          if (wasOpen) _showDisplaySavePrompt();
-        }
-      });
+
 
       /* Section header clicks */
       SECTIONS.forEach(function(sec) {
@@ -6877,22 +6901,7 @@ ${htmlContent}
     })(); /* end initDisplayMenu */
 
     /* Patch: close Display menu when Extract or Highlight menus open */
-    (function patchReaderMenus() {
-      var extractChapterBtn = document.getElementById('extractChapterBtn');
-      if (extractChapterBtn) {
-        extractChapterBtn.addEventListener('click', function() {
-          var dm = document.getElementById('displayMenu');
-          if (dm && dm.classList.contains('open')) _closeAllReaderMenus();
-        }, true);
-      }
-      var hlBtn = document.getElementById('readerHighlightBtn');
-      if (hlBtn) {
-        hlBtn.addEventListener('click', function() {
-          var dm = document.getElementById('displayMenu');
-          if (dm && dm.classList.contains('open')) _closeAllReaderMenus();
-        }, true);
-      }
-    })();
+
 
     /* ── Editor Report: help system (iniettato nella finestra popup) ──
        La logica è già inline nel markup HTML dell'editor (vedere openQuillEditor).
@@ -7072,20 +7081,6 @@ ${htmlContent}
         });
       }
 
-      // Outside click: chiude Navigate menu
-      document.addEventListener('click', function(e) {
-        var wrap = document.getElementById('rmbNavigateWrap');
-        if (wrap && !wrap.contains(e.target)) {
-          _closeNavigate();
-        }
-        // Sync active state di Display
-        var displayMenu = document.getElementById('displayMenu');
-        if (rmbDisplay) {
-          if (!displayMenu || !displayMenu.classList.contains('open')) {
-            rmbDisplay.classList.remove('rmb-active');
-          }
-        }
-      });
 
       // Sync rmb-active di Display quando il menu viene chiuso da _closeAllReaderMenus
       // (patch: observer sull'attributo class di displayMenu)
@@ -7448,11 +7443,12 @@ ${htmlContent}
         }
       });
 
-      // Escape key closes any open drawer
+      // Escape key closes any open drawer or dropdown
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
           if (_hamburgerOpen) closeHamburger();
           if (_tocOverlayOpen) closeTocOverlay();
+          _closeAllReaderMenus();
         }
       });
 
