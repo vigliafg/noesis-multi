@@ -4,9 +4,7 @@
 
 ## 📋 Prossimi sviluppi (Roadmap)
 
-1. **Responsive Editor** — Modifica della UI di `noesis812-full-editor.html` in versione responsive (mobile-first).
-   - Hamburgher menu, toolbar adattiva, inspect panel draggable ottimizzato per touch.
-   - Breakpoint: ≤768px tablet, ≤480px smartphone.
+1. ~~**Responsive Editor** — Modifica della UI di `noesis812-full-editor.html` in versione responsive (mobile-first).~~ ✅ **COMPLETATO** in v0.16 — Vedi sezione Editor v0.16.
 
 2. **Dropdown Reader v816** — Revisione del comportamento dei dropdown modali e non modali nell'ambiente reader di `noesis816-reader.html` e `noesis816-full-reader.html`.
    - Gestione coerente di apertura/chiusura: un solo dropdown aperto alla volta.
@@ -21,7 +19,57 @@
 
 ---
 
-## v0.16 — noesis816-full-reader.html / noesis816-reader.html
+## v0.16 — Editor: noesis816-full-editor.html / noesis816-editor.html
+
+### Rinomina versione Full
+
+- `noesis816-full-editor-responsive.html` → `noesis816-full-editor.html`
+- La versione Full (embedded) è ora la basecode canonica dell'editor.
+
+### Nuova UI Responsive (da noesis812-full-editor)
+
+Trasformazione completa della UI dell'editor in versione responsive mobile-first:
+
+**Toolbar testuale (stile reader):**
+- Bottoni solo testo (New, Import, Export, More, Add, Inspect, Clear, Excalidraw)
+  con stile `.btn-editor` ispirato ai `.btn` del reader (15px, white bg, border, 4px radius)
+- Varianti colore: primary (blu), success (verde), warning (arancio), info (azzurro)
+- Header: titolo nascosto (rimane in DOM per compatibilità JS), hamburger ☰ allineato a sinistra
+
+**Hamburger menu (mobile ≤768px):**
+- Drawer laterale con tutte le funzioni della toolbar desktop
+- Item solo testo, contatore chunk sincronizzato (`drawerChunkCounter`)
+- Dropdown "More" centrati con `appendChild(document.body)` per evitare conflitti di stacking
+- Backdrop scuro con chiusura al tap
+
+**Bottom toolbar:**
+- Visibile solo in desktop (>768px)
+- Completamente nascosta in mobile (`display: none !important`)
+
+**Dropdown behavior (fix):**
+- Comportamento corretto: tap fuori chiude, nuovo dropdown sostituisce il precedente, scelta opzione esegue e chiude
+- `_closeAllDropdowns()` resetta inline `display` e `transform` per evitare conflitti tra drawer e toolbar
+- `stopPropagation()` per prevenire chiusura immediata dopo apertura da drawer
+
+**Inspect panel mobile:**
+- Larghezza 95vw con `left: 2.5vw` e `right: 2.5vw` per margini laterali uniformi
+
+### Nuova versione CDN: `noesis816-editor.html`
+
+- Derivata da `noesis816-full-editor.html` sostituendo le dipendenze embedded con CDN jsDelivr:
+  - **Bootstrap Icons** v1.11.3 → CDN
+  - **jQuery** v3.7.1 → CDN (caricato prima degli script inline)
+  - **Summernote-lite** v0.8.20 → CDN (JS; CSS embedded preservato per compatibilità font icone)
+- CSS Summernote e JS applicativo (Turndown, JSZip, logica editor) rimangono inline
+- Dimensione: 627 KB vs 904 KB full (-31%)
+- Testata: toolbar Summernote orizzontale con icone, zero errori JS
+
+### Aggiornamento homepage
+
+- Aggiunte card download per Editor CDN v816 e Full Editor v816
+- Rimossa card obsoleta "Full Editor Only" (noesis812-full-editor.zip)
+
+---
 
 ### Rinomina versione Full
 

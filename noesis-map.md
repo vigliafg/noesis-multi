@@ -1,14 +1,15 @@
 # NOESIS-MAP — Mappa Completa della Basecodice
 
-> **Ultimo aggiornamento:** 2026-07-19
-> **Versione di riferimento:** noesis816-full-reader (v0.16)
+> **Ultimo aggiornamento:** 2026-07-20
+> **Versione di riferimento:** noesis816-full-reader / noesis816-full-editor (v0.16)
 > **Scopo:** Documento di riferimento completo per qualsiasi futura implementazione di codice sul repository noesis-multi.
 >
 > **Cronologia versioni responsive:**
 > - v0.13 (813): hamburger menu, TOC overlay, touch zone navigation
 > - v0.14 (814): hamburger contestuale, toolbar pulita, dead CSS rimosso
 > - v0.15 (815): statusbar con spine prev/next, parent context TOC, WCAG tap targets
-> - v0.16 (816): nav mode popover in toolbar, chapter boundary detection, rifiniture mobile. Variante CDN: `noesis816-reader.html`
+> - v0.16 (816): nav mode popover in toolbar, chapter boundary detection, rifiniture mobile. Varianti CDN: `noesis816-reader.html`, `noesis816-editor.html`
+> - v0.16 EDITOR: toolbar testuale stile reader, hamburger menu responsive, dropdown fix, inspect panel mobile. Variante CDN: `noesis816-editor.html`
 
 ---
 
@@ -41,10 +42,21 @@ noesis-multi/
 │   │   ├──[split_noesis.py]──▶ older-version/noesis812-full-reader.html   (793 KB, 6865 righe)
 │   │   │                       Library + Reader, NO editor, NO snapshot UI
 │   │   │
-│   │   └──[split_noesis.py]──▶ noesis812-full-editor.html   (871 KB, 4441 righe)
-│   │                           Editor sn56 standalone
+│   │   └──[split_noesis.py]──▶ older-version/noesis812-full-editor.html   (871 KB, 4441 righe)
+│   │                           Editor sn56 standalone (v0.12, ora archiviato)
 │   │
 │   └── noesis810.html / noesis810-full.html   Versione precedente (ancora presente)
+│
+├── noesis816-full-editor.html              ★ EDITOR v0.16 — FULL (basecode canonica)
+│                           Versione responsive con toolbar testuale (stile reader),
+│                           hamburger menu mobile, dropdown fix, inspect panel 95vw.
+│                           Dipendenze: jQuery, Summernote-lite, Bootstrap Icons,
+│                           Turndown, JSZip — tutte embedded inline (904 KB).
+│
+├── noesis816-editor.html                   ★ EDITOR v0.16 — CDN
+│                           Versione con Bootstrap Icons, jQuery e Summernote-lite
+│                           da CDN jsDelivr. CSS Summernote e JS custom inline.
+│                           Derivata da noesis816-full-editor.html (627 KB, -31%).
 │
 ├── older-version/                         📦 Versioni intermedie archiviate
 │   ├── noesis813-full-reader-responsive.html   v0.13 — hamburger menu, TOC overlay
@@ -52,9 +64,10 @@ noesis-multi/
 │   ├── noesis815-full-reader-responsive.html   v0.15 — statusbar spine, WCAG
 │   ├── noesis812-full-reader.html              reader-only split (v0.12)
 │   ├── noesis812-full-reader-responsive.html   reader responsive derivato
+│   ├── noesis812-full-editor.html              editor standalone (v0.12, pre-responsive)
 │   └── noesis812-full-reader.zip               archivio compresso
 │
-├── noesis816-reader.html                  ★ READER v0.16 — CDN (current)
+├── noesis816-reader.html                  ★ READER v0.16 — CDN
 │                           Versione con dipendenze CDN jsDelivr (Bootstrap Icons,
 │                           JSZip, epub.js). CSS e JS applicativo inline.
 │                           Derivata da noesis816-full-reader.html.
@@ -983,7 +996,10 @@ RIGA    CONTENUTO
 6864-6865 </body></html>
 ```
 
-### 13.2 `noesis812-full-editor.html` (4441 righe, 871 KB)
+### 13.2 `older-version/noesis812-full-editor.html` (4441 righe, 871 KB) — v0.12
+
+> **Nota:** Questa è la versione pre-responsive archiviata in `older-version/`.
+> La versione corrente è `noesis816-full-editor.html` (v0.16, ~904 KB) con UI responsive.
 
 ```
 RIGA    CONTENUTO
@@ -1000,7 +1016,7 @@ RIGA    CONTENUTO
         │   ├── Header (#appHeader) con titolo dinamico
         │   ├── Help overlay (#editorHelpOverlay)
         │   ├── #editor-container → Summernote WYSIWYG
-        │   ├── Bottom toolbar (#bottom-toolbar)
+        │   ├── Bottom toolbar (#bottom-toolbar) con icone Bootstrap
         │   │   ├── Chapter section: New, Import, Export, More
         │   │   ├── Collection section: +Add, Import, Export, More, Inspect, Clear
         │   │   └── Tools section: Excalidraw
@@ -1021,6 +1037,75 @@ RIGA    CONTENUTO
             ├── Dropdown management
             └── IDB bridge (postMessage al parent per noesisDB)
 4441    </html>
+```
+
+### 13.3 `noesis816-full-editor.html` (v0.16, ~904 KB) — FULL Responsive
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│  noesis816-full-editor.html — Versione Fully-Offline Responsive │
+│  Basecode canonica dell'editor. ZERO dipendenze CDN.             │
+│  Derivato da noesis812-full-editor.html + trasformazione UI.     │
+└──────────────────────────────────────────────────────────────────┘
+
+DIFFERENZE PRINCIPALI vs v0.12:
+
+🎨 TOOLBAR TESTUALE (stile reader):
+  - Bottoni .btn-editor: solo testo, 15px, white bg, border, 4px radius
+  - Varianti: primary (blu), success (verde), warning (arancio), info (azzurro)
+  - Header: titolo nascosto (display:none, resta in DOM per JS),
+    hamburger ☰ allineato a sinistra, pulsante help ? a destra
+
+🍔 HAMBURGER MENU (mobile ≤768px):
+  - #hamburgerDrawerEditor: slide-in da sinistra, 300px, backdrop scuro
+  - 10 voci: Chapter (New, Import, Export, More), Collection (Add, Inspect,
+    Clear, More), Tools (Excalidraw)
+  - Dropdown "More": menu spostato in document.body con stopPropagation
+    per evitare conflitti di chiusura
+  - Contatore chunk sincronizzato (#drawerChunkCounter) su voce "Add Chunk"
+
+📱 BOTTOM TOOLBAR:
+  - Visibile solo in desktop (>768px): #bottom-toolbar visibile
+  - Mobile (≤768px): #bottom-toolbar, #bottom-toolbar * → display: none !important
+
+🔽 DROPDOWN FIX:
+  - _closeAllDropdowns(): resetta display + transform inline
+  - Comportamento: tap fuori chiude, nuovo dropdown sostituisce precedente,
+    scelta opzione esegue + chiude
+
+📐 INSPECT PANEL MOBILE:
+  - width: 95vw, left: 2.5vw, right: 2.5vw → margini laterali uniformi
+
+📦 DIPENDENZE (tutte embedded inline):
+  - Bootstrap Icons v1.11.3 (CSS + font base64)
+  - Summernote-lite v0.8.20 (CSS + font + JS)
+  - jQuery v3.7.1, JSZip, Turndown, html-docx-js
+  - Custom JS: initEditor(), export, chapter snapshot, chunk collection
+```
+
+### 13.4 `noesis816-editor.html` (v0.16, ~627 KB) — CDN
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│  noesis816-editor.html — Versione CDN                           │
+│  Bootstrap Icons, jQuery e Summernote-lite da jsDelivr.         │
+│  CSS Summernote e JS custom inline.                             │
+└──────────────────────────────────────────────────────────────────┘
+
+CDN LINKS:
+  <link>  bootstrap-icons@1.11.3 (CSS)
+  <script> jquery@3.7.1 (JS, caricato PRIMA degli script inline)
+  <script> summernote@0.8.20/dist/summernote-lite.min.js
+
+EMBEDDED (inline):
+  - Summernote-lite CSS + @font-face (necessario per icone toolbar)
+  - Bootstrap Icons → rimosso, sostituito da CDN
+  - jQuery → rimosso, sostituito da CDN
+  - Summernote JS → rimosso, sostituito da CDN
+  - JSZip, Turndown, html-docx-js → mantenuti inline
+  - Custom JS → invariato
+
+DIMENSIONE: 627 KB vs 904 KB full (-31%)
 ```
 
 ---
