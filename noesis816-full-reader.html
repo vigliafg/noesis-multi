@@ -4476,6 +4476,10 @@ ${htmlContent}
           flow: 'scrolled',
           manager: 'default'  // Use default manager to prevent auto-scroll issues
         });
+        /* Inject close handler into epub iframe */
+        setTimeout(function() { _injectIframeCloseHandler(); }, 500);
+        /* Inject close handler into epub iframe */
+        setTimeout(function() { _injectIframeCloseHandler(); }, 500);
 
         rendition.on('linkClicked', (linkHref) => {
           navigateToHref(linkHref);
@@ -5253,6 +5257,8 @@ ${htmlContent}
       // Auto-update breadcrumb on every page change
       rendition.on('relocated', (location) => {
         if (!location || !location.start || !location.start.href) return;
+        /* Re-inject close handler after iframe content reload */
+        setTimeout(function() { _injectIframeCloseHandler(); }, 300);
         // Track the CFI from real epub.js navigation events (fired only on genuine
         // page/section changes, not on external DOM modifications like browser translation).
         if (location.start.cfi) _lastNavigatedCfi = location.start.cfi;
@@ -6778,6 +6784,23 @@ ${htmlContent}
         });
         if (dmWasOpen && !suppressDisplayPrompt) _showDisplaySavePrompt();
       }
+    }
+    /* ── Inject click handler into epub.js iframe ── */
+    function _injectIframeCloseHandler() {
+      var viewer = document.getElementById('viewer');
+      if (!viewer) return;
+      var iframe = viewer.querySelector('iframe');
+      if (!iframe) return;
+      try {
+        var idoc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
+        if (!idoc) return;
+        /* Remove old handler if present */
+        if (iframe._noesisCloseHandler) {
+          idoc.removeEventListener('click', iframe._noesisCloseHandler);
+        }
+        iframe._noesisCloseHandler = function() { _closeAllReaderMenus(); };
+        idoc.addEventListener('click', iframe._noesisCloseHandler);
+      } catch(e) { /* cross-origin guard */ }
     }
 
     /* ── Unified click-outside: close any open reader menu/dropdown ── */
