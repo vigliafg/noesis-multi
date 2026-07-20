@@ -21,13 +21,15 @@ Prima di scrivere, modificare o anche solo proporre una modifica a un file del r
 1. **Architettura del repository** — separazione fra sito di documentazione (Cloudflare Pages) e
    codice applicativo Noesis (single-file HTML).
 2. **Varianti del codice** — relazioni fra `noesis812.html`, `noesis812-full.html`,
-   `noesis812-full-reader.html` (in `older-version/`), `noesis812-full-editor.html`,
+   `noesis812-full-reader.html` (in `older-version/`), `noesis812-full-editor.html` (in `older-version/`),
    `noesis813-full-reader-responsive.html`, `noesis814-full-reader-responsive.html`,
    `noesis815-full-reader-responsive.html` (in `older-version/`),
-   `noesis816-full-reader.html` (Full),
-   `noesis816-reader.html` (CDN). Tutte derivano l'una dall'altra tramite `split_noesis.py`
-   o modifiche manuali. Le versioni intermedie (813-815) e i reader-only 812
-   sono archiviati in `older-version/`.
+   `noesis816-full-reader.html` (Reader Full),
+   `noesis816-reader.html` (Reader CDN),
+   `noesis816-full-editor.html` (Editor Full responsive),
+   `noesis816-editor.html` (Editor CDN). Tutte derivano l'una dall'altra tramite `split_noesis.py`
+   o modifiche manuali. Le versioni intermedie (813-815), i reader-only 812
+   e l'editor pre-responsive 812 sono archiviati in `older-version/`.
 3. **Struttura interna riga-per-riga** di ogni variante (~7236 righe Regular, ~7258 Full,
    ~7553 Reader Responsive v813, ~7481 v814, v815/v816 con statusbar e nav popover,
    v816 CDN con dipendenze jsDelivr. Versioni archiviate in `older-version/`.
@@ -49,8 +51,9 @@ Prima di scrivere, modificare o anche solo proporre una modifica a un file del r
 - **Rispettare le convenzioni di naming** (`NOESIS_*` per costanti IDB, `_underscorePrefix` per
   funzioni private, `camelCase` per il resto — vedi `noesis-map.md` § 8.2).
 - **Considera l'impatto sulle varianti derivate** — una modifica al CSS o alla menubar può
-  propagarsi di riflesso su `812-full`, `812-full-reader`, `813-full-reader-responsive`,   `814-full-reader-responsive`, `815-full-reader-responsive`, `816-full-reader` (Full),
-   `816-reader` (CDN).
+  propagarsi di riflesso su `812-full`, `812-full-reader`, `813-full-reader-responsive`,
+  `814-full-reader-responsive`, `815-full-reader-responsive`, `816-full-reader` (Full),
+  `816-reader` (CDN), `816-full-editor` (Responsive), `816-editor` (CDN).
 
 > ⚠️ Se ritieni che `noesis-map.md` sia obsoleto rispetto al codice reale, **ferma il lavoro**,
 > apri un'issue o chiedi conferma prima di procedere. Non sovrascrivere la mappa di tua
@@ -234,4 +237,4 @@ Prima di procedere, chiedi conferma esplicita se la modifica:
 
 ---
 
-**Ultimo aggiornamento del presente file:** 2026-07-20
+**Ultimo aggiornamento del presente file:** 2026-07-20 (aggiunti riferimenti editor v816)
