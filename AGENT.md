@@ -21,12 +21,16 @@ Prima di scrivere, modificare o anche solo proporre una modifica a un file del r
 1. **Architettura del repository** — separazione fra sito di documentazione (Cloudflare Pages) e
    codice applicativo Noesis (single-file HTML).
 2. **Varianti del codice** — relazioni fra `noesis812.html`, `noesis812-full.html`,
-   `noesis812-full-reader.html`, `noesis812-full-editor.html`,
+   `noesis812-full-reader.html` (in `older-version/`), `noesis812-full-editor.html`,
    `noesis813-full-reader-responsive.html`, `noesis814-full-reader-responsive.html`,
-   `noesis815-full-reader-responsive.html`, `noesis816-full-reader-responsive.html`. Tutte derivano l'una dall'altra tramite `split_noesis.py`
-   o modifiche manuali.
+   `noesis815-full-reader-responsive.html` (in `older-version/`),
+   `noesis816-full-reader.html` (Full),
+   `noesis816-reader.html` (CDN). Tutte derivano l'una dall'altra tramite `split_noesis.py`
+   o modifiche manuali. Le versioni intermedie (813-815) e i reader-only 812
+   sono archiviati in `older-version/`.
 3. **Struttura interna riga-per-riga** di ogni variante (~7236 righe Regular, ~7258 Full,
-   ~7553 Reader Responsive v813, ~7481 v814, v815/v816 con statusbar e nav popover).
+   ~7553 Reader Responsive v813, ~7481 v814, v815/v816 con statusbar e nav popover,
+   v816 CDN con dipendenze jsDelivr. Versioni archiviate in `older-version/`.
 4. **Mappa delle variabili globali** — stato reader, temi, UI, IDB.
 5. **Mappa delle funzioni principali** — firme + righe (Reg vs Full).
 6. **Flussi dati** — import EPUB, apertura reader, estrazione capitoli, auto-save, highlight.
@@ -45,8 +49,8 @@ Prima di scrivere, modificare o anche solo proporre una modifica a un file del r
 - **Rispettare le convenzioni di naming** (`NOESIS_*` per costanti IDB, `_underscorePrefix` per
   funzioni private, `camelCase` per il resto — vedi `noesis-map.md` § 8.2).
 - **Considera l'impatto sulle varianti derivate** — una modifica al CSS o alla menubar può
-  propagarsi di riflesso su `812-full`, `812-full-reader`, `813-full-reader-responsive`,
-  `814-full-reader-responsive`, `815-full-reader-responsive`, `816-full-reader-responsive`.
+  propagarsi di riflesso su `812-full`, `812-full-reader`, `813-full-reader-responsive`,   `814-full-reader-responsive`, `815-full-reader-responsive`, `816-full-reader` (Full),
+   `816-reader` (CDN).
 
 > ⚠️ Se ritieni che `noesis-map.md` sia obsoleto rispetto al codice reale, **ferma il lavoro**,
 > apri un'issue o chiedi conferma prima di procedere. Non sovrascrivere la mappa di tua
@@ -167,7 +171,7 @@ Testa la modifica a tutti e due i breakpoint, non solo al principale.
 - [ ] Se hai toccato CSS, hai aggiornato anche eventuali `style.css` paralleli (sito di doc).
 - [ ] Se hai toccato JS, hai considerato lo shift di righe fra Regular e Full (vedi `noesis-map.md` § 2).
 - [ ] Se hai toccato lo schema IDB, hai aggiornato `noesis-map.md` § 9 e `DOC4_SCHEMI_DATI.md`.
-- [ ] Se la modifica è nella Reader Responsive (v813/v814/v815/v816), hai confrontato con `812-full-reader.html`
+- [ ] Se la modifica è nel Reader (v813/v814/v815/v816), hai confrontato con `812-full-reader.html`
        per assicurarti di non aver perso funzionalità desktop.
 - [ ] Se la modifica tocca la statusbar (`#status`, `.chap-nav-btn`), hai verificato parent context e spine navigation.
 - [ ] Se la modifica tocca il Nav Mode Popover (`#navModePopover`, `#scrollModeBtn`), hai verificato la sincronizzazione con `scrollMode`.
@@ -230,4 +234,4 @@ Prima di procedere, chiedi conferma esplicita se la modifica:
 
 ---
 
-**Ultimo aggiornamento del presente file:** 2026-07-19
+**Ultimo aggiornamento del presente file:** 2026-07-20

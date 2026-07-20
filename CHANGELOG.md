@@ -2,6 +2,43 @@
 
 ---
 
+## 📋 Prossimi sviluppi (Roadmap)
+
+1. **Responsive Editor** — Modifica della UI di `noesis812-full-editor.html` in versione responsive (mobile-first).
+   - Hamburgher menu, toolbar adattiva, inspect panel draggable ottimizzato per touch.
+   - Breakpoint: ≤768px tablet, ≤480px smartphone.
+
+2. **Dropdown Reader v816** — Revisione del comportamento dei dropdown modali e non modali nell'ambiente reader di `noesis816-reader.html` e `noesis816-full-reader.html`.
+   - Gestione coerente di apertura/chiusura: un solo dropdown aperto alla volta.
+   - Comportamento modale (backdrop + Escape) vs non modale (click esterno chiude).
+   - Interessati: Navigate popover, Extract dropdown, Display panel, Themes dropdown, Annotate.
+
+3. **Test Annotate** — Test e verifica del funzionamento completo della funzione Annotate (highlight) nell'ambiente reader di v816 (sia CDN che Full).
+   - Selezione testo → creazione highlight (yellow/green/pink).
+   - Rimozione selettiva highlight.
+   - Persistenza in IndexedDB e ripristino al reload.
+   - Compatibilità con Page Mode e Scroll Mode.
+
+---
+
+## v0.16 — noesis816-full-reader.html / noesis816-reader.html
+
+### Rinomina versione Full
+
+- `noesis816-full-reader-responsive.html` → `noesis816-full-reader.html`
+- La versione Full (embedded) è ora la basecode canonica del reader.
+
+### Nuova versione CDN: `noesis816-reader.html`
+
+- Derivata da `noesis816-full-reader.html` sostituendo le 3 dipendenze embedded con CDN jsDelivr:
+  - **Bootstrap Icons** v1.11.3
+  - **JSZip** v3.10.1
+  - **epub.js** v0.3.93
+- Tutto il CSS e JS applicativo rimane inline.
+- Testata: zero errori JavaScript, tutte le dipendenze CDN caricate correttamente (`typeof JSZip` → `function`, `typeof ePub` → `function`).
+
+---
+
 ## v0.12.0 — noesis812.html
 
 Versione di produzione. Comprende tutte le modifiche di v0.11.x (non rilasciate pubblicamente) più il redesign completo dell'interfaccia reader e della libreria.

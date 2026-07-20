@@ -1,14 +1,14 @@
 # NOESIS-MAP — Mappa Completa della Basecodice
 
 > **Ultimo aggiornamento:** 2026-07-19
-> **Versione di riferimento:** noesis816-full-reader-responsive (v0.16)
+> **Versione di riferimento:** noesis816-full-reader (v0.16)
 > **Scopo:** Documento di riferimento completo per qualsiasi futura implementazione di codice sul repository noesis-multi.
 >
 > **Cronologia versioni responsive:**
 > - v0.13 (813): hamburger menu, TOC overlay, touch zone navigation
 > - v0.14 (814): hamburger contestuale, toolbar pulita, dead CSS rimosso
 > - v0.15 (815): statusbar con spine prev/next, parent context TOC, WCAG tap targets
-> - v0.16 (816): nav mode popover in toolbar, chapter boundary detection, rifiniture mobile
+> - v0.16 (816): nav mode popover in toolbar, chapter boundary detection, rifiniture mobile. Variante CDN: `noesis816-reader.html`
 
 ---
 
@@ -38,7 +38,7 @@ noesis-multi/
 │   │   │                               Tutte le dipendenze embedded inline.
 │   │   │                               È il file da cui derivano reader ed editor.
 │   │   │
-│   │   ├──[split_noesis.py]──▶ noesis812-full-reader.html   (793 KB, 6865 righe)
+│   │   ├──[split_noesis.py]──▶ older-version/noesis812-full-reader.html   (793 KB, 6865 righe)
 │   │   │                       Library + Reader, NO editor, NO snapshot UI
 │   │   │
 │   │   └──[split_noesis.py]──▶ noesis812-full-editor.html   (871 KB, 4441 righe)
@@ -46,24 +46,23 @@ noesis-multi/
 │   │
 │   └── noesis810.html / noesis810-full.html   Versione precedente (ancora presente)
 │
-├── noesis813-full-reader-responsive.html   ★ RESPONSIVE READER (~7553 righe, v0.13)
-│                           Reader + Library con UI mobile ottimizzata:
-│                           hamburger menu, TOC overlay, touch zone navigation.
-│                           Deriva da noesis812-full-reader.html + modifiche manuali.
+├── older-version/                         📦 Versioni intermedie archiviate
+│   ├── noesis813-full-reader-responsive.html   v0.13 — hamburger menu, TOC overlay
+│   ├── noesis814-full-reader-responsive.html   v0.14 — hamburger contestuale
+│   ├── noesis815-full-reader-responsive.html   v0.15 — statusbar spine, WCAG
+│   ├── noesis812-full-reader.html              reader-only split (v0.12)
+│   ├── noesis812-full-reader-responsive.html   reader responsive derivato
+│   └── noesis812-full-reader.zip               archivio compresso
 │
-├── noesis814-full-reader-responsive.html   ★ RESPONSIVE READER v0.14
-│                           Hamburger contestuale (reader vs library),
-│                           toolbar pulita con solo icone attive,
-│                           dead CSS rimosso dalla v813.
+├── noesis816-reader.html                  ★ READER v0.16 — CDN (current)
+│                           Versione con dipendenze CDN jsDelivr (Bootstrap Icons,
+│                           JSZip, epub.js). CSS e JS applicativo inline.
+│                           Derivata da noesis816-full-reader.html.
 │
-├── noesis815-full-reader-responsive.html   ★ RESPONSIVE READER v0.15
-│                           Chapter navigation statusbar con spine prev/next,
-│                           parent context TOC ("Part I → Chapter 1"),
-│                           WCAG tap targets 44×44px su mobile.
-│
-└── noesis816-full-reader-responsive.html   ★ RESPONSIVE READER v0.16 (CURRENT)
-│                           Nav mode popover in toolbar (sostituisce dropdown
-│                           menubar Navigate), chapter boundary detection
+└── noesis816-full-reader.html             ★ READER v0.16 — FULL (basecode canonica)
+│                           Versione con tutte le dipendenze embedded inline
+│                           (zero richieste HTTP). Basecode canonica del reader.
+│                           Nav mode popover in toolbar, chapter boundary detection
 │                           in scroll mode, hamburger contestuale raffinato,
 │                           statusbar con tooltip full path, rifiniture mobile.
 │
@@ -960,7 +959,7 @@ Click esterno → chiude popover
 
 ## 13. MAPPA VARIANTI DERIVATE
 
-### 13.1 `noesis812-full-reader.html` (6865 righe, 793 KB)
+### 13.1 `older-version/noesis812-full-reader.html` (6865 righe, 793 KB)
 
 ```
 RIGA    CONTENUTO
@@ -1026,15 +1025,15 @@ RIGA    CONTENUTO
 
 ---
 
-## 15. STRUTTURA INTERNA DI `noesis813-full-reader-responsive.html` (7553 righe)
+## 15. STRUTTURA INTERNA DI `older-version/noesis813-full-reader-responsive.html` (7553 righe)
 
-> **Base:** noesis812-full-reader.html (reader-only split)
+> **Base:** older-version/noesis812-full-reader.html (reader-only split)
 > **Modifiche v812→v813:** mobile responsive layout, hamburger menu, TOC overlay,
 > swipe navigation, mobile touch zones per page-turn.
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│  noesis813-full-reader-responsive.html                          │
+│  older-version/noesis813-full-reader-responsive.html                          │
 │  Reader + Library responsive. Fully offline (embedded).         │
 │  NO editor, NO snapshot UI, NO IDB bridge.                     │
 └──────────────────────────────────────────────────────────────────┘
@@ -1255,7 +1254,7 @@ RIGA       CONTENUTO
 7554-7555  </body></html>
 ```
 
-### 15.1 DIFFERENZE CHIAVE vs noesis812-full-reader.html
+### 15.1 DIFFERENZE CHIAVE vs older-version/noesis812-full-reader.html
 
 | Feature | 812 reader | 813 responsive |
 |---------|-----------|----------------|
@@ -1358,17 +1357,17 @@ grep -c "cdn.jsdelivr.net\|code.jquery.com" noesis812-full.html
 # Deve restituire 0
 
 # Contare righe e dimensione
-wc -l noesis812*.html noesis813*.html
-ls -lh noesis812*.html noesis813*.html
+wc -l older-version/noesis812*.html older-version/noesis813*.html
+ls -lh older-version/noesis812*.html older-version/noesis813*.html
 
 # Trovare una funzione specifica
-grep -n "function nomeFunzione" noesis813-full-reader-responsive.html
+grep -n "function nomeFunzione" older-version/noesis813-full-reader-responsive.html
 
 # Trovare una variabile globale
-grep -n "^    let varName\|^    const VAR_NAME" noesis813-full-reader-responsive.html
+grep -n "^    let varName\|^    const VAR_NAME" older-version/noesis813-full-reader-responsive.html
 
 # Verificare struttura responsive
-grep -n "MOBILE RESPONSIVE\|END MOBILE\|touchZone\|hamburger\|@media" noesis813-full-reader-responsive.html
+grep -n "MOBILE RESPONSIVE\|END MOBILE\|touchZone\|hamburger\|@media" older-version/noesis813-full-reader-responsive.html
 ```
 
 ---
@@ -1418,10 +1417,10 @@ grep -n "MOBILE RESPONSIVE\|END MOBILE\|touchZone\|hamburger\|@media" noesis813-
 ```
 noesis812-full.html  (MADRE — completo: editor, snapshot, IDB bridge)
     │
-    ├─[split_noesis.py]──▶ noesis812-full-reader.html (reader-only split)
+    ├─[split_noesis.py]──▶ older-version/noesis812-full-reader.html (reader-only split)
     │                       RIMOSSO: editor sn56, snapshot UI, IDB bridge
     │
-    └─[modifiche manuali]──▶ noesis813-full-reader-responsive.html
+    └─[modifiche manuali]──▶ older-version/noesis813-full-reader-responsive.html
                              AGGIUNTO: mobile responsive ~720 righe
 ```
 
@@ -1661,9 +1660,9 @@ noesis812-full.html (MADRE) — punti di inserimento
 
 ---
 
-## 16. STRUTTURA INTERNA DI `noesis814-full-reader-responsive.html` (7481 righe, 820K)
+## 16. STRUTTURA INTERNA DI `older-version/noesis814-full-reader-responsive.html` (7481 righe, 820K)
 
-> **Base:** noesis813-full-reader-responsive.html (copia esatta)
+> **Base:** older-version/noesis813-full-reader-responsive.html (copia esatta)
 > **Modifiche v813→v814:** menu hamburger contestuale, toolbar library pulita, dead CSS rimosso,
 > rimozione `initLibraryMobileDropdown()` in conflitto.
 
@@ -1745,25 +1744,25 @@ function openHamburger() {
 
 ## 19. EVOLUZIONE RESPONSIVE BRANCH — RIEPILOGO v813→v816
 
-> Tutte le varianti responsive derivano da `noesis812-full-reader.html` (reader-only split).
+> Tutte le varianti responsive derivano da `older-version/noesis812-full-reader.html` (reader-only split).
 > Ogni versione aggiunge miglioramenti incrementali mantenendo la struttura fully-offline.
 
 ### Timeline
 
 ```
-noesis812-full-reader.html (v0.12, 6865 righe)
+older-version/noesis812-full-reader.html (v0.12, 6865 righe)
   │  Reader + Library, NO editor, NO snapshot UI
   │
-  ├──▶ noesis813 (v0.13, ~7553 righe)
+  ├──▶ older-version/noesis813 (v0.13, ~7553 righe)
   │      + hamburger menu, + TOC overlay mobile, + touch zones
   │      + viewer 100% width su mobile, - floating nav btn desktop
   │
-  ├──▶ noesis814 (v0.14)
+  ├──▶ older-version/noesis814 (v0.14)
   │      + hamburger contestuale (reader vs library)
   │      + toolbar pulita (solo icone attive)
   │      - dead CSS rimosso dalla v813
   │
-  ├──▶ noesis815 (v0.15)
+  ├──▶ older-version/noesis815 (v0.15)
   │      + ⭐ statusbar con spine prev/next
   │      + ⭐ parent context TOC ("Part I → Chapter 1")
   │      + ⭐ WCAG tap targets 44×44px su mobile (.chap-nav-btn)

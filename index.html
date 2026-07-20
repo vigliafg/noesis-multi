@@ -116,11 +116,11 @@
 
 <!-- HERO -->
 <section class="hero hero-home">
-  <div class="hero-badge" data-i18n="index.hero.badge">v812 · Reading-to-Knowledge System</div>
+  <div class="hero-badge" data-i18n="index.hero.badge">v816 · Reading-to-Knowledge System</div>
   <h1 data-i18n="index.hero.h1">Read in any language.<br><em>Turn books into knowledge.</em></h1>
   <p data-i18n="index.hero.p">A multilingual EPUB reader with highlights, chapter extraction, snapshot versioning and integrated WYSIWYG editor. All in the browser. Zero server. Zero account.</p>
   <div class="hero-ctas">
-    <a href="noesis812.html" class="btn-live-demo" target="_blank" rel="noopener" data-i18n="index.hero.btn.demo">▶ Live Demo</a>
+    <a href="noesis816-reader.html" class="btn-live-demo" target="_blank" rel="noopener" data-i18n="index.hero.btn.demo">▶ Live Demo</a>
     <a href="#download" class="btn-primary" data-i18n="index.hero.btn.download">⬇ Download free</a>
     <a href="guida.html" class="btn-secondary" data-i18n="index.hero.btn.guide">📖 Quick Guide →</a>
     <a href="#features" class="btn-secondary" data-i18n="index.hero.btn.features">Explore features ↓</a>
@@ -393,7 +393,7 @@
 <!-- DOWNLOAD -->
 <div class="container-wide" id="download">
   <div class="download-block">
-    <div class="badge badge-violet" style="margin-bottom:16px;" data-i18n="index.download.badge">v812 · MIT License · Vanilla JS</div>
+    <div class="badge badge-violet" style="margin-bottom:16px;" data-i18n="index.download.badge">v816 · MIT License · Vanilla JS</div>
     <h3 data-i18n="index.download.h3">Download. Unzip. Open.</h3>
     <p data-i18n="index.download.p">No installation. No server. No account. Choose the version that best suits your needs.</p>
 
@@ -431,21 +431,40 @@
         <p style="font-size:12px; color:var(--text-muted); margin-top:10px; text-align:center;"><span data-i18n="index.dl.full.deps">Isolated dependencies:</span> <a href="noesis812-full-Deps.zip" style="color:var(--violet);">noesis812-full-Deps.zip</a></p>
       </div>
 
-      <!-- Full Reader Only -->
-      <div style="border:2px solid rgba(16,185,129,0.3); border-radius:12px; padding:24px; background:rgba(16,185,129,0.02); position:relative;">
-        <div class="badge" style="background:rgba(59,130,246,0.15); color:#3b82f6; margin-bottom:12px;" data-i18n="index.dl.fullreader.badge">Serverless READER ONLY</div>
-        <h4 style="font-size:18px; font-weight:800; margin-bottom:6px;" data-i18n="index.dl.fullreader.h">Full Reader Only</h4>
-        <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;" data-i18n="index.dl.fullreader.p">Solo Noesis Reader embedded. Nessuna dipendenza esterna — ideale per sola lettura.</p>
+      <!-- CDN Reader v816 -->
+      <div style="border:2px solid rgba(124,58,237,0.5); border-radius:12px; padding:24px; background:rgba(124,58,237,0.04); position:relative;">
+        <div class="badge badge-violet" style="margin-bottom:12px;">NEW · CDN</div>
+        <h4 style="font-size:18px; font-weight:800; margin-bottom:6px;">Reader v816 — CDN</h4>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">Reader + Library responsive con dipendenze da CDN jsDelivr. File leggero, sempre aggiornato. Interfaccia mobile-first con hamburger menu, chapter navigation statusbar e 15 temi di lettura.</p>
         <ul style="font-size:13px; color:var(--text-muted); list-style:none; margin:0 0 20px; padding:0; line-height:2;">
-          <li><span style="color:#10b981; font-weight:700;">✓</span> <span data-i18n="index.dl.fullreader.li1">100% offline — zero dipendenze</span></li>
-          <li><span style="color:#10b981; font-weight:700;">✓</span> <span data-i18n="index.dl.fullreader.li2">Solo Reader — file più piccolo</span></li>
-          <li><span style="color:#ef4444; font-weight:700;">✗</span> <span data-i18n="index.dl.fullreader.li3">Nessun editor integrato</span></li>
+          <li><span style="color:#10b981; font-weight:700;">✓</span> File ultraleggero (~60 KB)</li>
+          <li><span style="color:#10b981; font-weight:700;">✓</span> Dipendenze CDN sempre aggiornate</li>
+          <li><span style="color:#10b981; font-weight:700;">✓</span> Responsive mobile + desktop</li>
+          <li><span style="color:#10b981; font-weight:700;">✓</span> Chapter nav statusbar, nav popover</li>
+          <li><span style="color:#ef4444; font-weight:700;">✗</span> Richiede internet al primo avvio</li>
         </ul>
-        <a href="noesis812-full-reader.zip" class="btn-download" style="display:block; text-align:center; background:linear-gradient(135deg,#3b82f6,#60a5fa);">⬇ noesis812-full-reader.zip</a>
+        <a href="noesis816-reader.html" class="btn-download" style="display:block; text-align:center;">⬇ noesis816-reader.html</a>
+        <p style="font-size:11px; color:var(--text-muted); margin-top:8px; text-align:center;">Download diretto · Apri nel browser</p>
+      </div>
+
+      <!-- Full Reader v816 -->
+      <div style="border:2px solid rgba(16,185,129,0.3); border-radius:12px; padding:24px; background:rgba(16,185,129,0.02); position:relative;">
+        <div class="badge" style="background:rgba(59,130,246,0.15); color:#3b82f6; margin-bottom:12px;">Serverless READER v816</div>
+        <h4 style="font-size:18px; font-weight:800; margin-bottom:6px;">Full Reader v816</h4>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">Reader + Library responsive con tutte le dipendenze embedded. 100% offline. Mobile-first con hamburger menu, chapter navigation statusbar, nav mode popover e 15 temi.</p>
+        <ul style="font-size:13px; color:var(--text-muted); list-style:none; margin:0 0 20px; padding:0; line-height:2;">
+          <li><span style="color:#10b981; font-weight:700;">✓</span> 100% offline — zero dipendenze esterne</li>
+          <li><span style="color:#10b981; font-weight:700;">✓</span> File unico autosufficiente</li>
+          <li><span style="color:#10b981; font-weight:700;">✓</span> Responsive mobile + desktop</li>
+          <li><span style="color:#10b981; font-weight:700;">✓</span> Ideale per archivio e ambienti air-gapped</li>
+          <li><span style="color:#ef4444; font-weight:700;">✗</span> File più grande (~750 KB)</li>
+        </ul>
+        <a href="noesis816-full-reader.html" class="btn-download" style="display:block; text-align:center; background:linear-gradient(135deg,#3b82f6,#60a5fa);">⬇ noesis816-full-reader.html</a>
+        <p style="font-size:11px; color:var(--text-muted); margin-top:8px; text-align:center;">Download diretto · Apri nel browser</p>
       </div>
 
       <!-- Full Editor Only -->
-      <div style="border:2px solid rgba(16,185,129,0.3); border-radius:12px; padding:24px; background:rgba(16,185,129,0.02); position:relative;">
+      <div style="border:2px solid rgba(16,185,129,0.3); border-radius:12px; padding:24px; background:rgba(16,185,129,0.02); position:relative; grid-column: 1 / -1; max-width: 500px; justify-self: center; width: 100%;">
         <div class="badge" style="background:rgba(245,158,11,0.15); color:#d97706; margin-bottom:12px;" data-i18n="index.dl.fulleditor.badge">Serverless EDITOR ONLY</div>
         <h4 style="font-size:18px; font-weight:800; margin-bottom:6px;" data-i18n="index.dl.fulleditor.h">Full Editor Only</h4>
         <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;" data-i18n="index.dl.fulleditor.p">Solo Noesis Editor (sn56) embedded. Per editing e creazione documenti offline.</p>
@@ -491,7 +510,7 @@
 </div>
 
 <footer>
-  <p data-i18n="footer.license">MIT License · Vanilla JS · No Server · <strong>Noesis — Reading-to-Knowledge System</strong> · v812</p>
+  <p data-i18n="footer.license">MIT License · Vanilla JS · No Server · <strong>Noesis — Reading-to-Knowledge System</strong> · v816</p>
   <p style="margin-top:8px;">
     <a href="index.html" data-i18n="footer.home">Home</a> · <a href="guida.html" data-i18n="footer.guide">Guide</a> · <a href="faq.html" data-i18n="footer.faq">FAQ</a> · <a href="note.html" data-i18n="footer.notes">Notes</a> · <a href="terms.html" data-i18n="footer.terms">Terms of Use</a>
   </p>
