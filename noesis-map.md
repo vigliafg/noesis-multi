@@ -1,7 +1,7 @@
 # NOESIS-MAP — Mappa Completa della Basecodice
 
-> **Ultimo aggiornamento:** 2026-07-20
-> **Versione di riferimento:** noesis816-full-reader / noesis816-full-editor (v0.16)
+> **Ultimo aggiornamento:** 2026-07-21
+> **Versione di riferimento:** noesis816-full-reader / noesis816-full-editor (v0.16.1)
 > **Scopo:** Documento di riferimento completo per qualsiasi futura implementazione di codice sul repository noesis-multi.
 >
 > **Cronologia versioni responsive:**
@@ -67,17 +67,17 @@ noesis-multi/
 │   ├── noesis812-full-editor.html              editor standalone (v0.12, pre-responsive)
 │   └── noesis812-full-reader.zip               archivio compresso
 │
-├── noesis816-reader.html                  ★ READER v0.16 — CDN
+├── noesis816-reader.html                  ★ READER v0.16.1 — CDN
 │                           Versione con dipendenze CDN jsDelivr (Bootstrap Icons,
 │                           JSZip, epub.js). CSS e JS applicativo inline.
-│                           Derivata da noesis816-full-reader.html.
+│                           ★ v0.16.1: Contextual Annotate Popup — popup fluttuante
+│                           vicino al testo selezionato, 4 colori, 1 click per evidenziare.
 │
-└── noesis816-full-reader.html             ★ READER v0.16 — FULL (basecode canonica)
+└── noesis816-full-reader.html             ★ READER v0.16.1 — FULL (basecode canonica)
 │                           Versione con tutte le dipendenze embedded inline
 │                           (zero richieste HTTP). Basecode canonica del reader.
-│                           Nav mode popover in toolbar, chapter boundary detection
-│                           in scroll mode, hamburger contestuale raffinato,
-│                           statusbar con tooltip full path, rifiniture mobile.
+│                           ★ v0.16.1: Contextual Annotate Popup — redesign completo
+│                           del sistema di highlight con popup contestuale.
 │
 ├── 🔷 TOOL STANDALONE
 │   ├── epubslimer.html / multiepubslimer.html   Riduzione dimensione EPUB
@@ -404,7 +404,7 @@ Record: `{ bookId, title, author, coverBase64, data (ArrayBuffer EPUB), highligh
 | `currentBookId` | 4081 | 4103 | let | `null` | ID libro corrente in IDB |
 | `currentBookTitle` | 4082 | 4104 | let | `''` | Titolo libro corrente |
 | `readerHighlights` | 4085 | 4107 | let | `[]` | Highlight array `[{cfi, color}]` |
-| `currentReaderHighlightColor` | 4086 | 4108 | let | `'yellow'` | Colore highlight attivo |
+| `currentReaderHighlightColor` | ~ | ~ | let | `'yellow'` | Colore highlight attivo (yellow/green/pink/remove) |
 | `HL_COLORS` | 4087 | 4109 | const | `['yellow','green','pink']` |
 | `_readerHlHasSelection` | 4088 | 4110 | let | `false` | Flag selezione attiva |
 | `_readerPendingCfi` | 4089 | 4111 | let | `null` | CFI pending per highlight |
@@ -608,15 +608,24 @@ User chiude il pannello Display
     → nessuna azione
 ```
 
-### 6.6 Flusso: Highlight
+### 6.6 Flusso: Contextual Annotate Popup (v0.16.1)
 
 ```
 User seleziona testo nel reader
-  → mouseup event → _readerPendingCfi = selection.cfiRange
-  → Se Annotate mode è attivo:
-    → Aggiunge/rimuove highlight con colore corrente
-    → readerHighlights.push({cfi, color})
-    → Salva highlights nel record libro in EpubLibraryDB
+  → epub.js 'selected' event → _readerPendingCfi = cfiRange
+  → setTimeout 60ms → _showCtxAnnotatePopup()
+  → Popup appare centrato sotto la riga selezionata (4 pallini colore)
+  → User clicca un colore → applyReaderHighlight() / removeReaderHighlight()
+  → Popup si chiude, highlight applicato/rimosso
+  → Salva highlights nel record libro in EpubLibraryDB
+
+Annullamento:
+  → User clicca fuori → iframe selectionchange → _hideCtxAnnotatePopup()
+  → Popup sparisce senza annotare
+
+Il vecchio readerHighlightMenu è mantenuto nascosto (display:none) per compatibilità.
+Il pallino colore (rmbAnnotateColor / hmbAnnotateColor) mostra il colore attivo
+sia in desktop (menubar) che in mobile (hamburger drawer).
 ```
 
 ---

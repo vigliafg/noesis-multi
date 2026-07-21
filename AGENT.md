@@ -25,9 +25,11 @@ Prima di scrivere, modificare o anche solo proporre una modifica a un file del r
    `noesis813-full-reader-responsive.html`, `noesis814-full-reader-responsive.html`,
    `noesis815-full-reader-responsive.html` (in `older-version/`),
    `noesis816-full-reader.html` (Reader Full),
-   `noesis816-reader.html` (Reader CDN),
+   `noesis816-reader.html` (Reader CDN, v0.16.1 con popup contestuale),
    `noesis816-full-editor.html` (Editor Full responsive),
-   `noesis816-editor.html` (Editor CDN). Tutte derivano l'una dall'altra tramite `split_noesis.py`
+   `noesis816-editor.html` (Editor CDN).
+   La funzione Annotate usa ora un popup contestuale (ctxAnnotatePopup) anziché
+   un menu dropdown. Vedi CHANGELOG.md § v0.16.1. Tutte derivano l'una dall'altra tramite `split_noesis.py`
    o modifiche manuali. Le versioni intermedie (813-815), i reader-only 812
    e l'editor pre-responsive 812 sono archiviati in `older-version/`.
 3. **Struttura interna riga-per-riga** di ogni variante (~7236 righe Regular, ~7258 Full,
@@ -237,4 +239,4 @@ Prima di procedere, chiedi conferma esplicita se la modifica:
 
 ---
 
-**Ultimo aggiornamento del presente file:** 2026-07-20 (aggiunti riferimenti editor v816)
+**Ultimo aggiornamento del presente file:** 2026-07-21 (v0.16.1 — contextual annotate popup, dropdown fix)

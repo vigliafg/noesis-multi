@@ -2,20 +2,47 @@
 
 ---
 
+## v0.16.1 — Reader: Contextual Annotate Popup
+
+### Dropdown modali fix
+
+- **Annotate/Extract** ora mutualmente esclusivi: cliccando uno si chiude l'altro.
+- Aggiunto `_closeAllReaderMenus()` nei click handler di `rmbAnnotate` e `rmbExtract`.
+- Stesso fix su entrambe le versioni (CDN e Full).
+
+### Sidebar TOC si chiude al click nel viewer (desktop)
+
+- In modalità desktop, cliccando nell'area del viewer la sidebar TOC ora si chiude.
+- In mobile il comportamento era già corretto (backdrop overlay).
+- Fix applicato in `_injectIframeCloseHandler`: `toggleSidebarBtn.click()` se `sidebarVisible` e `width > 768`.
+
+### Contextual Annotate Popup — redesign completo
+
+Sostituito il vecchio menu a tendina "Annotate" con un **popup contestuale** che appare
+**vicino al testo selezionato**:
+
+- **4 pallini colore** (Yellow 🟡, Green 🟢, Pink 🩷, Remove ✕) in un popup floating
+- Popup appare automaticamente su selezione testo (epub.js `selected` event)
+- **Posizionamento**: centrato sotto la riga selezionata, o sopra se vicino al fondo viewport
+- **1 click** per evidenziare: selezioni testo → popup appare → clicchi colore → fatto
+- **Tap esterno** per annullare: clicchi fuori, la selezione si cancella, il popup sparisce
+- **Pallino colore** nella menubar (desktop) e nel drawer hamburger (mobile) mostra il colore attivo
+- Listener `selectionchange` iniettato nell'iframe per rilevare la cancellazione della selezione
+- Vecchio `readerHighlightMenu` mantenuto nascosto per compatibilità
+
+**File modificati:**
+- `noesis816-reader.html` (CDN) — redesign completo
+- `noesis816-full-reader.html` (Full) — stesso redesign
+
+---
+
 ## 📋 Prossimi sviluppi (Roadmap)
 
-1. ~~**Responsive Editor** — Modifica della UI di `noesis812-full-editor.html` in versione responsive (mobile-first).~~ ✅ **COMPLETATO** in v0.16 — Vedi sezione Editor v0.16.
+1. ~~**Responsive Editor** — Modifica della UI di `noesis812-full-editor.html` in versione responsive (mobile-first).~~ ✅ **COMPLETATO** in v0.16
 
-2. **Dropdown Reader v816** — Revisione del comportamento dei dropdown modali e non modali nell'ambiente reader di `noesis816-reader.html` e `noesis816-full-reader.html`.
-   - Gestione coerente di apertura/chiusura: un solo dropdown aperto alla volta.
-   - Comportamento modale (backdrop + Escape) vs non modale (click esterno chiude).
-   - Interessati: Navigate popover, Extract dropdown, Display panel, Themes dropdown, Annotate.
+2. ~~**Dropdown Reader v816** — Revisione del comportamento dei dropdown modali e non modali nell'ambiente reader.~~ ✅ **COMPLETATO** in v0.16.1
 
-3. **Test Annotate** — Test e verifica del funzionamento completo della funzione Annotate (highlight) nell'ambiente reader di v816 (sia CDN che Full).
-   - Selezione testo → creazione highlight (yellow/green/pink).
-   - Rimozione selettiva highlight.
-   - Persistenza in IndexedDB e ripristino al reload.
-   - Compatibilità con Page Mode e Scroll Mode.
+3. ~~**Test Annotate** — Test e verifica del funzionamento completo della funzione Annotate (highlight).~~ ✅ **COMPLETATO** in v0.16.1 — redesign con popup contestuale
 
 ---
 
@@ -106,7 +133,7 @@ Voci presenti:
 | **Bookmarks** | Apre il pannello segnalibri |
 | **Display** | Apre il pannello impostazioni visualizzazione |
 | **Navigate** | Dropdown modalità di navigazione (vedi sotto) |
-| **Annotate** | Attiva la modalità evidenziazione |
+| **Annotate** | Attiva il popup contestuale per evidenziare il testo |
 | **Extract** | Apre il menu estrazione capitolo |
 | **Help** | Apre la guida contestuale del reader |
 
