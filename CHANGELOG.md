@@ -13,6 +13,15 @@
 ### Sidebar TOC si chiude al click nel viewer (desktop)
 
 - In modalità desktop, cliccando nell'area del viewer la sidebar TOC ora si chiude.
+
+### Bug fix: SyntaxError e scope issue (CDN)
+
+- **SyntaxError "Unexpected end of input"** nella versione CDN — mancava `})();`
+  di chiusura dell'IIFE del pulsante highlight. Causava IndexedDB e ADD BOOKS rotti.
+- **Scope issue** in entrambe le versioni: il popup contestuale era fuori dall'IIFE
+  highlight ma chiamava `getIframeSelection()`, `apply/removeReaderHighlight()`
+  definite dentro quell'IIFE → ReferenceError silenzioso, popup non compariva.
+- Fix: nesting del popup dentro l'IIFE highlight, chiusura dopo il popup.
 - In mobile il comportamento era già corretto (backdrop overlay).
 - Fix applicato in `_injectIframeCloseHandler`: `toggleSidebarBtn.click()` se `sidebarVisible` e `width > 768`.
 

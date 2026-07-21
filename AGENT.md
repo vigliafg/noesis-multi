@@ -239,4 +239,4 @@ Prima di procedere, chiedi conferma esplicita se la modifica:
 
 ---
 
-**Ultimo aggiornamento del presente file:** 2026-07-21 (v0.16.1 — contextual annotate popup, dropdown fix)
+**Ultimo aggiornamento del presente file:** 2026-07-21 (bug fix SyntaxError + scope issue, popup annotate)

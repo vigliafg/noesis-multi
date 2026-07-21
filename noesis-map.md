@@ -1,6 +1,6 @@
 # NOESIS-MAP — Mappa Completa della Basecodice
 
-> **Ultimo aggiornamento:** 2026-07-21
+> **Ultimo aggiornamento:** 2026-07-21 (bug fix SyntaxError + scope issue)
 > **Versione di riferimento:** noesis816-full-reader / noesis816-full-editor (v0.16.1)
 > **Scopo:** Documento di riferimento completo per qualsiasi futura implementazione di codice sul repository noesis-multi.
 >
