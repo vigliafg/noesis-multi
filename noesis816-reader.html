@@ -2012,6 +2012,67 @@
     #readerHighlightBtn.hl-remove { background: #ffffff !important; color: #ef4444 !important; border: 2px solid #ef4444 !important; }
 
     /* ═══════════════════════════════════════════════
+       CONTEXTUAL ANNOTATE POPUP — v816-ctx
+       ═══════════════════════════════════════════════ */
+    .ctx-annotate-popup {
+      position: fixed;
+      z-index: 10000;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.08);
+      padding: 6px;
+      display: flex;
+      gap: 4px;
+      opacity: 0;
+      transform: translateY(6px) scale(0.92);
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      pointer-events: none;
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+    .ctx-annotate-popup.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+    .ctx-annotate-option {
+      width: 34px; height: 34px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.12s;
+      border: 2px solid transparent;
+    }
+    .ctx-annotate-option:hover {
+      background: rgba(0,0,0,0.06);
+    }
+    .ctx-annotate-option.active {
+      border-color: #3b82f6;
+      background: rgba(59,130,246,0.08);
+    }
+    .ctx-color-dot {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+    .ctx-color-dot.yellow { background: #ffeb3b; }
+    .ctx-color-dot.green  { background: #a5d6a7; }
+    .ctx-color-dot.pink   { background: #f8bbd9; }
+    .ctx-color-dot.remove {
+      background: #fff;
+      border: 2px solid #ef4444;
+      position: relative;
+    }
+    .ctx-color-dot.remove::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(45deg, transparent 43%, #ef4444 44%, #ef4444 56%, transparent 57%);
+    }
+    .ctx-annotate-label {
+      display: none;
+    }
+
+    /* ═══════════════════════════════════════════════
        HELP SYSTEM — tooltip, banner, overlay, panel
        ═══════════════════════════════════════════════ */
 
@@ -2389,6 +2450,16 @@
     .rmb-item.rmb-active {
       background: rgba(255,255,255,0.22);
       color: #fff;
+    }
+
+    /* Annotate colour indicator dot in menubar */
+    #rmbAnnotateColor {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      margin-left: 4px;
+      vertical-align: middle;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }
 
     .rmb-item-wrap {
@@ -2849,7 +2920,7 @@
     <div class="hamburger-item hmb-rdr" id="hmbBookmarks"><i class="bi bi-bookmark"></i> Bookmarks</div>
     <div class="hamburger-item hmb-rdr" id="hmbDisplay"><i class="bi bi-palette"></i> Display</div>
     <div class="hamburger-item hmb-rdr" id="hmbNavigate"><i class="bi bi-arrow-left-right"></i> Navigate</div>
-    <div class="hamburger-item hmb-rdr" id="hmbAnnotate"><i class="bi bi-highlighter"></i> Annotate</div>
+    <div class="hamburger-item hmb-rdr" id="hmbAnnotate"><i class="bi bi-highlighter"></i> Annotate<span id="hmbAnnotateColor" class="rmb-annotate-color" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ffeb3b;margin-left:6px;vertical-align:middle;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></span></div>
     <div class="hamburger-item hmb-rdr" id="hmbExtract"><i class="bi bi-box-arrow-up-right"></i> Extract</div>
     <div class="hamburger-item" id="hmbHelp"><i class="bi bi-question-circle"></i> Help</div>
   </div>
@@ -3102,30 +3173,32 @@
           </div>
         </div>
 
-        <!-- Annotate: wrapper con il menu highlight dentro -->
-        <div class="rmb-item-wrap" id="rmbAnnotateWrap">
-          <span class="rmb-item" id="rmbAnnotate">Annotate</span>
-          <div class="reader-highlight-menu" id="readerHighlightMenu">
-            <div class="reader-highlight-option" data-color="yellow">
-              <input type="radio" name="readerHlColor" value="yellow" id="rhlYellow" checked>
-              <div class="reader-hl-color-dot yellow"></div>
-              <label for="rhlYellow">Yellow</label>
-            </div>
-            <div class="reader-highlight-option" data-color="green">
-              <input type="radio" name="readerHlColor" value="green" id="rhlGreen">
-              <div class="reader-hl-color-dot green"></div>
-              <label for="rhlGreen">Green</label>
-            </div>
-            <div class="reader-highlight-option" data-color="pink">
-              <input type="radio" name="readerHlColor" value="pink" id="rhlPink">
-              <div class="reader-hl-color-dot pink"></div>
-              <label for="rhlPink">Pink</label>
-            </div>
-            <div class="reader-highlight-option" data-color="remove">
-              <input type="radio" name="readerHlColor" value="remove" id="rhlRemove">
-              <div class="reader-hl-color-dot remove"></div>
-              <label for="rhlRemove">Remove</label>
-            </div>
+        <!-- Annotate: indicatore colore (popup contestuale appare su selezione) -->
+        <span class="rmb-item" id="rmbAnnotate">
+          Annotate
+          <span id="rmbAnnotateColor" class="rmb-annotate-color" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ffeb3b;margin-left:4px;vertical-align:middle;"></span>
+        </span>
+        <!-- vecchio menu highlight mantenuto nascosto per compatibilità JS -->
+        <div class="reader-highlight-menu" id="readerHighlightMenu" style="display:none;">
+          <div class="reader-highlight-option" data-color="yellow">
+            <input type="radio" name="readerHlColor" value="yellow" id="rhlYellow" checked>
+            <div class="reader-hl-color-dot yellow"></div>
+            <label for="rhlYellow">Yellow</label>
+          </div>
+          <div class="reader-highlight-option" data-color="green">
+            <input type="radio" name="readerHlColor" value="green" id="rhlGreen">
+            <div class="reader-hl-color-dot green"></div>
+            <label for="rhlGreen">Green</label>
+          </div>
+          <div class="reader-highlight-option" data-color="pink">
+            <input type="radio" name="readerHlColor" value="pink" id="rhlPink">
+            <div class="reader-hl-color-dot pink"></div>
+            <label for="rhlPink">Pink</label>
+          </div>
+          <div class="reader-highlight-option" data-color="remove">
+            <input type="radio" name="readerHlColor" value="remove" id="rhlRemove">
+            <div class="reader-hl-color-dot remove"></div>
+            <label for="rhlRemove">Remove</label>
           </div>
         </div>
 
@@ -3149,6 +3222,14 @@
 
       </nav>
       <!-- ═══════════ END MENUBAR ═══════════ -->
+
+      <!-- ═══════════ CONTEXTUAL ANNOTATE POPUP ═══════════ -->
+      <div id="ctxAnnotatePopup" class="ctx-annotate-popup" style="display:none;">
+        <div class="ctx-annotate-option" data-color="yellow" title="Yellow"><span class="ctx-color-dot yellow"></span></div>
+        <div class="ctx-annotate-option" data-color="green" title="Green"><span class="ctx-color-dot green"></span></div>
+        <div class="ctx-annotate-option" data-color="pink" title="Pink"><span class="ctx-color-dot pink"></span></div>
+        <div class="ctx-annotate-option" data-color="remove" title="Remove"><span class="ctx-color-dot remove"></span></div>
+      </div>
 
       <!-- ELEMENTI ORIGINALI NASCOSTI (compatibilità JS) -->
       <button id="backToLibraryBtn" class="rmb-compat-hidden">
@@ -5257,6 +5338,8 @@ ${htmlContent}
             ? 'Click to remove highlight'
             : 'Click to apply highlight';
         }
+        /* Show contextual annotate popup near selection */
+        setTimeout(function() { if (typeof _showCtxAnnotatePopup === 'function') _showCtxAnnotatePopup(); }, 60);
       });
 
       rendition.hooks.content.register((contents) => {
@@ -6484,50 +6567,24 @@ ${htmlContent}
           }
         }
 
-        // Smart click: if epub.js reported a selection (via 'selected' event), apply action;
-        // otherwise open the colour picker menu
+        // v816-ctx: Simplified click — just apply/remove if selection exists.
+        // The contextual popup handles colour picking.
         hlBtn.addEventListener('click', (e) => {
           e.stopPropagation();
-          // Re-check live selection too, in case selectionchange fired after 'selected'
-          const sel = getIframeSelection();
-          const hasSelection = !!_readerPendingCfi ||
-            !!(sel && !sel.isCollapsed && sel.toString().trim().length > 0);
-
+          const hasSelection = !!_readerPendingCfi || (function() {
+            var s = getIframeSelection();
+            return !!(s && !s.isCollapsed && s.toString().trim().length > 0);
+          })();
           if (hasSelection) {
-            hlMenu.classList.remove('show');
             if (currentReaderHighlightColor === 'remove') {
               removeReaderHighlight();
             } else {
               applyReaderHighlight();
             }
-          } else {
-            hlMenu.classList.toggle('show');
           }
         });
 
-        // Close menu on outside click
-        document.addEventListener('click', (e) => {
-          if (!hlMenu.contains(e.target) && e.target !== hlBtn && !hlBtn.contains(e.target)) {
-            hlMenu.classList.remove('show');
-          }
-        });
-
-        // Color option selection
-        hlMenu.querySelectorAll('.reader-highlight-option').forEach(opt => {
-          opt.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const color = opt.dataset.color;
-            const radio = opt.querySelector('input[type="radio"]');
-            if (radio) radio.checked = true;
-            currentReaderHighlightColor = color;
-            hlMenu.classList.remove('show');
-            hlBtn.style.outline = '';
-            hlBtn.title = 'Highlight text';
-            setHlBtnColor(color);
-          });
-        });
-
-        // When selection is cleared (click away), reset pending state
+        // When selection is cleared, reset pending state and hide popup
         document.addEventListener('selectionchange', () => {
           const sel = getIframeSelection();
           _readerHlHasSelection = !!(sel && !sel.isCollapsed && sel.toString().trim().length > 0);
@@ -6535,11 +6592,103 @@ ${htmlContent}
             _readerPendingCfi = null;
             hlBtn.style.outline = '';
             hlBtn.title = 'Highlight text';
+            if (typeof _hideCtxAnnotatePopup === 'function') _hideCtxAnnotatePopup();
           }
         });
 
+      /* ═══════════════════════════════════════════════════════
+         CONTEXTUAL ANNOTATE POPUP — v816-ctx
+         (inside highlight IIFE — has access to applyReaderHighlight)
+         ═══════════════════════════════════════════════════════ */
+      (function initCtxAnnotatePopup() {
+        var popup = document.getElementById('ctxAnnotatePopup');
+        if (!popup) return;
+        var viewer = document.getElementById('viewer');
+
+        function _colorDot(c) {
+          var m = { yellow: '#ffeb3b', green: '#a5d6a7', pink: '#f8bbd9' };
+          return c === 'remove' ? '#fff' : (m[c] || '#ffeb3b');
+        }
+
+        function _updateActiveState(color) {
+          popup.querySelectorAll('.ctx-annotate-option').forEach(function(o) {
+            o.classList.toggle('active', o.dataset.color === color);
+          });
+          var dot = document.getElementById('rmbAnnotateColor');
+          if (dot) dot.style.background = _colorDot(color);
+          var hmbDot = document.getElementById('hmbAnnotateColor');
+          if (hmbDot) hmbDot.style.background = _colorDot(color);
+        }
+
+        function _getIframeOffset() {
+          try {
+            var iframe = viewer ? viewer.querySelector('iframe') : null;
+            if (iframe) { var r = iframe.getBoundingClientRect(); return { top: r.top, left: r.left }; }
+          } catch(e) {}
+          return { top: 0, left: 0 };
+        }
+
+        window._showCtxAnnotatePopup = function() {
+          var sel = getIframeSelection();
+          if (!sel || sel.isCollapsed || sel.toString().trim().length === 0) return;
+          try {
+            var range = sel.getRangeAt(0);
+            var rect = range.getBoundingClientRect();
+            var iframeOff = _getIframeOffset();
+            var top = rect.bottom + iframeOff.top + 8;
+            /* Center popup under the selected text line */
+            var left = rect.left + iframeOff.left + (rect.width / 2) - 76; /* half of ~152px popup width */
+            if (left < 8) left = 8;
+            if (left + 160 > window.innerWidth - 8) left = window.innerWidth - 168;
+            /* If too close to bottom, show above the selection */
+            if (top + 52 > window.innerHeight) top = rect.top + iframeOff.top - 52;
+            popup.style.top = top + 'px';
+            popup.style.left = left + 'px';
+            popup.style.display = 'flex';
+            popup.classList.add('visible');
+            _updateActiveState(currentReaderHighlightColor);
+          } catch(e) {}
+        };
+
+        window._hideCtxAnnotatePopup = function() {
+          popup.classList.remove('visible');
+          setTimeout(function() { if (!popup.classList.contains('visible')) popup.style.display = 'none'; }, 180);
+        };
+
+        popup.querySelectorAll('.ctx-annotate-option').forEach(function(opt) {
+          opt.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var color = opt.dataset.color;
+            currentReaderHighlightColor = color;
+            var hlBtn = document.getElementById('readerHighlightBtn');
+            if (hlBtn) {
+              ['hl-yellow','hl-green','hl-pink','hl-remove'].forEach(function(c) { hlBtn.classList.remove(c); });
+              hlBtn.style.outline = ''; hlBtn.title = 'Highlight text';
+              if (color === 'yellow') hlBtn.classList.add('hl-yellow');
+              else if (color === 'green') hlBtn.classList.add('hl-green');
+              else if (color === 'pink') hlBtn.classList.add('hl-pink');
+              else if (color === 'remove') hlBtn.classList.add('hl-remove');
+            }
+            _updateActiveState(color);
+            window._hideCtxAnnotatePopup();
+            if (color === 'remove') {
+              removeReaderHighlight();
+            } else {
+              applyReaderHighlight();
+            }
+          });
+        });
+
+        document.addEventListener('click', function(e) {
+          if (popup.style.display !== 'none' && !popup.contains(e.target)) {
+            window._hideCtxAnnotatePopup();
+          }
+        });
+
+        _updateActiveState(currentReaderHighlightColor);
+
       })();
-      // --- END READER HIGHLIGHT BUTTON LOGIC ---
+      /* ── END CONTEXTUAL ANNOTATE POPUP ── */
 
       // Extract Chapter Dropdown
       const extractMenu = document.getElementById('extractMenu');
@@ -6737,8 +6886,6 @@ ${htmlContent}
       });
       var em = document.getElementById('extractMenu');
       if (em) { em.classList.remove('show'); em.style.display = ''; }
-      var hm = document.getElementById('readerHighlightMenu');
-      if (hm) { hm.classList.remove('show'); hm.style.display = ''; }
       /* Navigate dropdown */
       var nm = document.getElementById('rmbNavigateMenu');
       if (nm) nm.classList.remove('show');
@@ -6776,8 +6923,23 @@ ${htmlContent}
         if (iframe._noesisCloseHandler) {
           idoc.removeEventListener('click', iframe._noesisCloseHandler);
         }
-        iframe._noesisCloseHandler = function() { _closeAllReaderMenus(); if (window.innerWidth > 768 && typeof sidebarVisible !== 'undefined' && sidebarVisible) { var tsb = document.getElementById('toggleSidebarBtn'); if (tsb) tsb.click(); } };
+        if (iframe._noesisSelHandler) {
+          idoc.removeEventListener('selectionchange', iframe._noesisSelHandler);
+        }
+        iframe._noesisCloseHandler = function() { _closeAllReaderMenus(); /* Hide contextual popup only if no text is selected (otherwise user just finished selecting and popup should stay) */ if (typeof _hideCtxAnnotatePopup === 'function' && !_readerHlHasSelection && !_readerPendingCfi) { _hideCtxAnnotatePopup(); } if (window.innerWidth > 768 && typeof sidebarVisible !== 'undefined' && sidebarVisible) { var tsb = document.getElementById('toggleSidebarBtn'); if (tsb) tsb.click(); } };
         idoc.addEventListener('click', iframe._noesisCloseHandler);
+        /* Also listen for selection clearing inside iframe to hide contextual popup */
+        iframe._noesisSelHandler = function() {
+          var sel = idoc.getSelection ? idoc.getSelection() : null;
+          _readerHlHasSelection = !!(sel && !sel.isCollapsed && sel.toString().trim().length > 0);
+          if (!_readerHlHasSelection) {
+            _readerPendingCfi = null;
+            var hb = document.getElementById('readerHighlightBtn');
+            if (hb) { hb.style.outline = ''; hb.title = 'Highlight text'; }
+            if (typeof _hideCtxAnnotatePopup === 'function') _hideCtxAnnotatePopup();
+          }
+        };
+        idoc.addEventListener('selectionchange', iframe._noesisSelHandler);
       } catch(e) { /* cross-origin guard */ }
     }
 
@@ -6786,11 +6948,9 @@ ${htmlContent}
       var target = e.target;
       var dm = document.getElementById('displayMenu');
       var em = document.getElementById('extractMenu');
-      var hm = document.getElementById('readerHighlightMenu');
       var nm = document.getElementById('rmbNavigateMenu');
       var nw = document.getElementById('rmbNavigateWrap');
       var xb = document.getElementById('extractChapterBtn');
-      var hb = document.getElementById('readerHighlightBtn');
       var db = document.getElementById('displayBtn');
       var dw = document.getElementById('displayDropdownWrap');
       var rd = document.getElementById('rmbDisplay');
@@ -6800,7 +6960,6 @@ ${htmlContent}
       var anyOpen = false;
       if (dm && dm.classList.contains('open')) anyOpen = true;
       if (em && em.classList.contains('show')) anyOpen = true;
-      if (hm && hm.classList.contains('show')) anyOpen = true;
       if (nm && nm.classList.contains('show')) anyOpen = true;
       if (typeof navModePopover !== 'undefined' && navModePopover && navModePopover.classList.contains('open')) anyOpen = true;
       if (!anyOpen) return;
@@ -6808,7 +6967,6 @@ ${htmlContent}
       var inside = false;
       if ((dm && dm.contains(target)) || (db && db.contains(target)) || target === rd || (dw && dw.contains(target))) inside = true;
       if ((em && em.contains(target)) || (xb && xb.contains(target)) || target === re || (rw && rw.contains(target))) inside = true;
-      if ((hm && hm.contains(target)) || (hb && hb.contains(target))) inside = true;
       if ((nm && nm.contains(target)) || (nw && nw.contains(target))) inside = true;
       if (typeof navModePopover !== 'undefined' && navModePopover && navModePopover.contains(target)) inside = true;
 
@@ -7053,6 +7211,8 @@ ${htmlContent}
       }
 
       // ── Annotate ──
+      // v816-ctx: il popup contestuale appare su selezione testo.
+      // Il click su Annotate applica/rimuove highlight (via readerHighlightBtn).
       if (rmbAnnotate) {
         rmbAnnotate.addEventListener('click', function(e) {
           e.stopPropagation();
@@ -7060,6 +7220,15 @@ ${htmlContent}
           _closeAllReaderMenus();
           var btn = document.getElementById('readerHighlightBtn');
           if (btn) btn.click();
+          /* Update menubar + hamburger indicator dots after highlight action */
+          setTimeout(function() {
+            var cm = { yellow: '#ffeb3b', green: '#a5d6a7', pink: '#f8bbd9' };
+            var bg = currentReaderHighlightColor === 'remove' ? '#fff' : (cm[currentReaderHighlightColor] || '#ffeb3b');
+            var dot = document.getElementById('rmbAnnotateColor');
+            if (dot) dot.style.background = bg;
+            var hmbDot = document.getElementById('hmbAnnotateColor');
+            if (hmbDot) hmbDot.style.background = bg;
+          }, 50);
         });
       }
 
