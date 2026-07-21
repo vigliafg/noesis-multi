@@ -6776,7 +6776,7 @@ ${htmlContent}
         if (iframe._noesisCloseHandler) {
           idoc.removeEventListener('click', iframe._noesisCloseHandler);
         }
-        iframe._noesisCloseHandler = function() { _closeAllReaderMenus(); };
+        iframe._noesisCloseHandler = function() { _closeAllReaderMenus(); if (window.innerWidth > 768 && typeof sidebarVisible !== 'undefined' && sidebarVisible) { var tsb = document.getElementById('toggleSidebarBtn'); if (tsb) tsb.click(); } };
         idoc.addEventListener('click', iframe._noesisCloseHandler);
       } catch(e) { /* cross-origin guard */ }
     }
@@ -7057,6 +7057,7 @@ ${htmlContent}
         rmbAnnotate.addEventListener('click', function(e) {
           e.stopPropagation();
           _closeNavigate();
+          _closeAllReaderMenus();
           var btn = document.getElementById('readerHighlightBtn');
           if (btn) btn.click();
         });
@@ -7067,6 +7068,7 @@ ${htmlContent}
         rmbExtract.addEventListener('click', function(e) {
           e.stopPropagation();
           _closeNavigate();
+          _closeAllReaderMenus();
           var btn = document.getElementById('extractChapterBtn');
           if (btn) btn.click();
         });
