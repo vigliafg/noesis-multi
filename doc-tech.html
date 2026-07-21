@@ -850,5 +850,3577 @@ function showReader() {
   window.addEventListener('scroll', onScroll, {passive: true});
 })();
 </script>
+
+
+<hr />
+<h2 id="doc-editor-tech">Noesis Editor — Architettura</h2>
+<a href="approfondimenti.html" class="doc-back">← Tutti gli approfondimenti</a>
+    <h1 id="1-panoramica-generale">✏️ Noesis Editor (sn56.x) — Documentazione Tecnica Completa</h1>
+<blockquote>
+<p><strong>Versione di riferimento:</strong> noesis810.html<br />
+<strong>Data documento:</strong> 2026-03-27</p>
+</blockquote>
+<hr />
+<h2 id="1-panoramica-generale">1. Panoramica generale</h2>
+<p><strong>Noesis Editor</strong> (codename <strong>sn56.x</strong>, talvolta riferito come "Summernote Editor") è l'ambiente di annotazione e studio di Noesis. È un editor WYSIWYG HTML completo, basato su <strong>Summernote-lite 0.9.1</strong>, che opera in una finestra separata (contesto <code>blob:null</code>) aperta dinamicamente da <code>noesis810.html</code>.</p>
+<p>Caratteristiche principali:</p>
+<ul>
+<li><strong>Zero-server, zero-installazione.</strong> Il codice sorgente dell'editor è interamente contenuto all'interno di <code>noesis810.html</code> come stringa JSON dentro un <code>&lt;script type="application/json" id="sn56Source"&gt;</code>. Viene estratto a runtime e iniettato in un Blob URL.</li>
+<li><strong>Due modalità operative:</strong> <code>chapter</code> (capitolo estratto da un EPUB, con chapterId e contesto bibliografico) e <code>standalone</code> (editor vuoto senza contesto, aperto direttamente dalla Library).</li>
+<li><strong>Raccolta chunks:</strong> sistema di selezione e accumulo di frammenti di testo, immagini e tabelle in una collezione in-memory, esportabile in più formati.</li>
+<li><strong>Doppio snapshot simultaneo:</strong> ogni salvataggio produce due versioni del documento (clean e annotated) scaricate automaticamente come coppia di file HTML, e salvate contemporaneamente in IndexedDB.</li>
+<li><strong>IDB Bridge:</strong> poiché il contesto <code>blob:null</code> blocca l'accesso diretto a IndexedDB in alcuni browser (Chrome desktop), tutte le operazioni IDB vengono delegate al parent window tramite <code>postMessage</code>.</li>
+</ul>
+<hr />
+<h2 id="2-architettura-tecnica-e-struttura-del-file">2. Architettura tecnica e struttura del file</h2>
+<h3>2.1 Embedding come JSON data island</h3>
+<p>L'intero HTML di sn56.x è embedded in <code>noesis810.html</code> tra i marker:</p>
+<pre><code>&lt;!-- SN56_SOURCE_START --&gt;
+&lt;script type="application/json" id="sn56Source"&gt;"&lt;!DOCTYPE html&gt;…"&lt;/script&gt;
+&lt;!-- SN56_SOURCE_END --&gt;
+</code></pre>
+<p>Il contenuto è una stringa JSON (con escape di tutti i caratteri speciali: backtick → <code>\</code>, <code>&lt;/script&gt;</code> → <code>&lt;\/script&gt;</code>, newline → <code>\n</code>). Questo elimina qualsiasi problema di nesting nei template literal.</p>
+<p>Un file ausiliario <code>build.py</code> automatizza l'aggiornamento della stringa quando sn56.x viene modificato separatamente.</p>
+<h3>2.2 Funzione di lancio: <code>_openSn56(payload)</code></h3>
+<pre><code class="language-javascript">function _openSn56(payload) {
+  const src = JSON.parse(document.getElementById('sn56Source').textContent);
+  const island = payload
+    ? '&lt;script type="application/json" id="noesisPayload"&gt;'
+      + JSON.stringify(payload) + '&lt;\/script&gt;'
+    : '';
+  const html = src.replace('&lt;!-- SN56_PAYLOAD_SLOT --&gt;', island);
+  const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+  const w = window.open(url, '_blank', '');
+  if (w) setTimeout(() => URL.revokeObjectURL(url), 60000);
+  else alert('Please allow popups.');
+}
+</code></pre>
+<p><strong>Meccanismo:</strong></p>
+<ol>
+<li>Decodifica la stringa JSON per ottenere l'HTML sorgente di sn56.x.</li>
+<li>Se c'è un payload, lo serializza in un <code>&lt;script type="application/json" id="noesisPayload"&gt;</code> e lo inserisce nel placeholder <code>&lt;!-- SN56_PAYLOAD_SLOT --&gt;</code>.</li>
+<li>Crea un Blob URL dall'HTML risultante.</li>
+<li>Apre la finestra con <code>window.open(url, '_blank', '')</code> — il terzo argomento esplicito è necessario per preservare <code>window.opener</code> su Chrome.</li>
+<li>Revoca il Blob URL dopo 60 secondi (la finestra è già caricata).</li>
+</ol>
+<h3>2.3 Lettura del payload all'avvio (boot dell'editor)</h3>
+<p>All'interno di sn56.x, dopo che Summernote è inizializzato (<code>initEditor()</code>), viene eseguita la funzione <code>_bootPayload()</code>:</p>
+<pre><code class="language-javascript">function _bootPayload() {
+  var payloadEl = document.getElementById('noesisPayload');
+  if (!payloadEl) return; // standalone: editor vuoto
+  var payload = JSON.parse(payloadEl.textContent);
+  _mode        = payload.mode        || 'standalone';
+  _bookName    = payload.bookName    || '';
+  _chapterName = payload.chapterName || '';
+  _chapterId   = payload.chapterId   || '';
+  if (payload.htmlContent) {
+    $('#editor').summernote('code', payload.htmlContent);
+  }
+  // Aggiorna titolo header
+  // In modalità chunks: disabilita snapshot export
+  // Toast informativo (una volta per sessione, in chapter mode)
+}
+</code></pre>
+<h3>2.4 Caricamento dinamico di jQuery e Summernote</h3>
+<p>sn56.x non include jQuery e Summernote inline: li carica dinamicamente via CDN in cascata:</p>
+<pre><code class="language-javascript">loadScript('https://code.jquery.com/jquery-3.7.1.min.js', function() {
+  loadScript('https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.js', function() {
+    initEditor();
+  });
+});
+</code></pre>
+<hr />
+<h2 id="3-i-tre-percorsi-di-accesso-alleditor">3. I tre percorsi di accesso all'editor</h2>
+<h3>3.1 Percorso 1 — Library → Open Editor (payload null)</h3>
+<p><strong>Trigger:</strong> clic sul pulsante <strong>"Open Editor"</strong> (<code>#libOpenEditorBtn</code>, icona <code>bi-pencil-square</code>) nella toolbar della Library.</p>
+<p><strong>Codice:</strong></p>
+<pre><code class="language-javascript">openEditorBtn.addEventListener('click', function() { _openSn56(null); });
+</code></pre>
+<p><strong>Comportamento:</strong></p>
+<ul>
+<li><code>_openSn56</code> riceve <code>null</code> come payload.</li>
+<li>Il placeholder <code>&lt;!-- SN56_PAYLOAD_SLOT --&gt;</code> rimane vuoto nell'HTML generato.</li>
+<li>In <code>_bootPayload()</code>, <code>payloadEl</code> è <code>null</code> → la funzione esce immediatamente.</li>
+<li>Le variabili globali mantengono i valori di default: <code>_mode = 'standalone'</code>, <code>_bookName = ''</code>, <code>_chapterName = ''</code>, <code>_chapterId = ''</code>.</li>
+<li>L'editor si apre <strong>vuoto</strong> con titolo header <code>"Noesis Editor"</code>.</li>
+<li>Il pulsante <strong>Save</strong> (export clean + annotated) è abilitato ma non salverà in IDB (nessun <code>_chapterId</code>).</li>
+<li>L'utente può importare manualmente un file HTML dall'Import dialog.</li>
+</ul>
+<p><strong>Caso d'uso:</strong> scrittura libera, note personali, documenti indipendenti dai libri.</p>
+<hr />
+<h3>3.2 Percorso 2 — Library → capitolo estratto → snapshot specifico (payload chapter)</h3>
+<p><strong>Trigger:</strong> clic su un <strong>nome di capitolo</strong> nella sezione estratta di un libro (apre il più recente snapshot) oppure clic su uno <strong>snapshot specifico</strong> nella lista sotto il capitolo.</p>
+<p><strong>Codice:</strong></p>
+<pre><code class="language-javascript">// Clic su nome capitolo → snapshot più recente
+entry.querySelector('.chapter-name-btn').onclick = () => {
+  _openExtractedEnv(ch, null);
+};
+
+// Clic su snapshot specifico
+btn.onclick = () => _openExtractedEnv(ch, snap.snapshotId);
+</code></pre>
+<p><strong>Funzione intermediaria <code>_openExtractedEnv</code>:</strong></p>
+<pre><code class="language-javascript">function _openExtractedEnv(chapterRecord, snapshotId) {
+  // Ordina: isOrigin in fondo, gli altri dal più recente
+  const snaps = (chapterRecord.snapshots || []).slice().sort(...);
+  const targetSnap = snapshotId
+    ? snaps.find(s => s.snapshotId === snapshotId)
+    : snaps[0] || null;
+  const htmlContent = targetSnap ? targetSnap.content : '&lt;p&gt;&lt;em&gt;No snapshots yet.&lt;/em&gt;&lt;/p&gt;';
+  _openSn56({
+    mode:        'chapter',
+    htmlContent: htmlContent,
+    bookName:    chapterRecord.bookName    || '',
+    chapterName: chapterRecord.chapterName || '',
+    chapterId:   chapterRecord.chapterId   || ''
+  });
+}
+</code></pre>
+<p><strong>Payload trasmesso:</strong></p>
+<pre><code class="language-json">{
+  "mode": "chapter",
+  "htmlContent": "&lt;p&gt;Contenuto HTML del capitolo/snapshot...&lt;/p&gt;",
+  "bookName": "Nome del libro",
+  "chapterName": "Nome del capitolo",
+  "chapterId": "ch_1234567890_987654"
+}
+</code></pre>
+<p><strong>Comportamento nell'editor:</strong></p>
+<ul>
+<li>Il contenuto HTML viene caricato in Summernote.</li>
+<li>L'header mostra <code>chapterName</code> (o <code>bookName</code> come fallback).</li>
+<li><code>_chapterId</code> è valorizzato → Save salva in IDB + filesystem.</li>
+<li>L'Import dialog mostrerà la lista degli snapshot IDB filtrata per questo <code>chapterId</code>.</li>
+</ul>
+<p><strong>Caso d'uso:</strong> riaprire un capitolo precedentemente annotato per continuare il lavoro, confrontare snapshot, riprendere da un punto specifico.</p>
+<hr />
+<h3>3.3 Percorso 3 — Reader → estrazione capitolo (payload chapter immediato)</h3>
+<p><strong>Trigger:</strong> clic sul pulsante <strong>"Extract"</strong> (<code>#extractChapterBtn</code>) nel Reader, che apre il menu di estrazione (solo capitolo corrente oppure + livelli annidati).</p>
+<p><strong>Codice (estratto dalla funzione di estrazione):</strong></p>
+<pre><code class="language-javascript">// Crea chapterId univoco
+const _chapterId = 'ch_' + Date.now() + '_' + Math.floor(Math.random() * 1e6);
+
+// Salva in IDB con snapshot origin
+const _firstSnapshot = {
+  snapshotId: 'snap_' + ts + '_' + random,
+  createdAt: now.toISOString(),
+  description: 'origin-' + timestamp,
+  isOrigin: true,
+  content: htmlContent
+};
+const _chapterRecord = {
+  chapterId: _chapterId,
+  bookName: currentBookTitle,
+  chapterName: chapterTitle,
+  createdAt: new Date().toISOString(),
+  snapshots: [_firstSnapshot]
+};
+await saveExtractedChapterToDB(_chapterRecord);
+
+// Scarica coppia file HTML
+_autoDownloadHTML(`noesis-extract-${book}__${ch}__${ts}.html`, ...);
+setTimeout(() => _autoDownloadHTML(`noesis-origin-${book}__${ch}__${ts}.html`, ...), 1500);
+
+// Apre l'editor
+_openSn56({
+  mode: 'chapter',
+  htmlContent: htmlContent,
+  bookName: currentBookTitle,
+  chapterName: chapterTitle,
+  chapterId: _chapterId
+});
+</code></pre>
+<p><strong>Sequenza di azioni simultanee al momento dell'estrazione:</strong></p>
+<ol>
+<li>Viene generato un <code>chapterId</code> univoco (<code>ch_</code> + timestamp + random).</li>
+<li>Un record <code>chapterRecord</code> viene scritto in <code>noesisDB</code> con il primo snapshot contrassegnato <code>isOrigin: true</code>.</li>
+<li>Due file HTML vengono scaricati automaticamente nella cartella Download:
+<ul>
+<li><code>noesis-extract-…html</code> (leggibile offline, senza meta tag noesis)</li>
+<li><code>noesis-origin-…html</code> (con meta tag noesis, reimportabile in Library) — scaricato con 1,5s di ritardo per evitare conflitti</li>
+</ul>
+</li>
+<li>L'editor viene aperto con il contenuto del capitolo e il <code>chapterId</code> fresco.</li>
+</ol>
+<p><strong>Caso d'uso:</strong> il flusso primario di Noesis — leggo un EPUB nel Reader, estraggo un capitolo interessante, l'editor si apre immediatamente con il testo pronto per l'annotazione.</p>
+<hr />
+<h2 id="4-interfaccia-utente--layout-e-componenti">4. Interfaccia utente — layout e componenti</h2>
+<h3>4.1 Struttura visiva</h3>
+<pre><code>┌─────────────────────────────────────────────┐
+│ HEADER (blu #0a84ff)                        │
+│ "Nome capitolo / Noesis Editor"    [?]      │
+├─────────────────────────────────────────────┤
+│                                             │
+│   SUMMERNOTE TOOLBAR (generata da Summ.)    │
+│                                             │
+├─────────────────────────────────────────────┤
+│                                             │
+│   AREA EDITOR WYSIWYG (.note-editable)      │
+│   (altezza dinamica, occupa tutto lo spazio │
+│   disponibile tra toolbar e bottom bar)     │
+│                                             │
+├─────────────────────────────────────────────┤
+│ BOTTOM TOOLBAR (nero #111)                  │
+│ [CHAPTER section] [COLLECTION section]      │
+│                   [TOOLS section]           │
+└─────────────────────────────────────────────┘
+</code></pre>
+<h3>4.2 Header</h3>
+<ul>
+<li><strong>Colore:</strong> <code>#0a84ff</code> (blu iOS)</li>
+<li><strong>Titolo (<code>#appHeaderTitle</code>):</strong> in modalità chapter mostra <code>chapterName</code> o <code>bookName</code>; in standalone mostra <code>"Noesis Editor"</code>.</li>
+<li><strong>Pulsante <code>?</code> (<code>#editorHelpBtn</code>):</strong> apre l'overlay di aiuto contestuale con la descrizione di tutti i pulsanti.</li>
+</ul>
+<h3>4.3 Help overlay</h3>
+<p>Overlay modale a schermo intero (sfondo scuro, box dark) con sezioni collassate per:</p>
+<ul>
+<li>Chapter (New, Import, Save, More formats)</li>
+<li>Collection (Add, Import JSON, Export JSON, More formats, Inspect, Clear)</li>
+<li>Inspect Panel</li>
+<li>Tools</li>
+</ul>
+<hr />
+<h2 id="5-bottoniera-inferiore--sezione-chapter">5. Bottoniera inferiore — sezione Chapter</h2>
+<p>La sezione <strong>Chapter</strong> è identificata visivamente da un bordo giallo-arancio e label verticale "CHAPTER" in giallo.</p>
+<h3>5.1 New — <code>#chNewBtn</code> (grigio scuro)</h3>
+<p><strong>Icona:</strong> <code>bi-plus-square</code></p>
+<p><strong>Comportamento:</strong></p>
+<ul>
+<li>Se l'editor è vuoto: resetta immediatamente.</li>
+<li>Se l'editor ha contenuto: mostra <code>confirm("Salvare il documento corrente prima di crearne uno nuovo?")</code>.
+<ul>
+<li>Se confermato: invoca programmaticamente <code>chExportMainBtn.click()</code> per eseguire il doppio salvataggio.</li>
+</ul>
+</li>
+<li>Dopo: svuota Summernote, azzera <code>_bookName</code>, <code>_chapterName</code>, <code>_chapterId</code>, <code>_mode = 'standalone'</code>, svuota la collezione, aggiorna il titolo header.</li>
+</ul>
+<hr />
+<h3>5.2 Import — <code>#chImportBtn</code> (arancione <code>#ff9f0a</code>)</h3>
+<p><strong>Icona:</strong> <code>bi-folder2-open</code></p>
+<p><strong>Comportamento:</strong> apre l'<strong>Import Chapter Dialog</strong> (<code>#chImportOverlay</code>).</p>
+<h4>Import Chapter Dialog</h4>
+<p>Il dialog è un overlay modale con:</p>
+<p><strong>Sezione IDB (se <code>_chapterId</code> è valorizzato):</strong></p>
+<ul>
+<li>Chiama <code>_idbPost('get', { chapterId: _chapterId })</code> per recuperare il record IDB.</li>
+<li>Divide gli snapshot in due gruppi tramite <code>_groupSnapshots()</code>:
+<ul>
+<li><strong>ANNOTATED:</strong> snapshot la cui <code>description</code> non inizia con "clean" (include <code>annot-</code>, <code>origin-</code>, ecc.)</li>
+<li><strong>CLEAN:</strong> snapshot la cui <code>description</code> inizia con "clean"</li>
+</ul>
+</li>
+<li>Entrambi i gruppi sono ordinati per data decrescente (più recente in cima).</li>
+<li>Ogni riga mostra: punto colorato (verde se più recente), timestamp formattato <code>DD/MM/YY HH:MM</code>, descrizione (con ★ se <code>isOrigin</code>).</li>
+<li>Clic su una riga → <code>_loadFromSnapshot(snap)</code> carica il contenuto nel editor e aggiorna le variabili di contesto.</li>
+</ul>
+<p><strong>Sezione file da disco:</strong></p>
+<ul>
+<li>Pulsante "Import from file (any HTML)" in fondo al dialog.</li>
+<li>Apre il file picker (<code>#chImportFileInput</code>, accetta <code>.html,.htm</code>).</li>
+<li>Il file viene letto come testo; vengono estratti i meta tag <code>noesis-*</code> per ricostruire il contesto (bookName, chapterName, chapterId).</li>
+<li>Il meta <code>noesis-snapshot-variant</code> determina se applicare la pulizia dei background-color (<code>clean</code>) o preservarli (<code>annotated</code>).</li>
+</ul>
+<hr />
+<h3>5.3 Save — <code>#chExportMainBtn</code> (verde <code>#30d158</code>)</h3>
+<p><strong>Icona:</strong> <code>bi-file-earmark-arrow-down</code></p>
+<p>Questo è il pulsante centrale del sistema di memorizzazione. Genera <strong>due file HTML simultanei</strong> e <strong>due record snapshot in IDB</strong>. Descritto in dettaglio nella sezione 8 e 9.</p>
+<hr />
+<h3>5.4 More formats — <code>#chMoreBtn</code> (rosso <code>#ff453a</code>)</h3>
+<p><strong>Icona:</strong> <code>bi-three-dots</code></p>
+<p>Apre un dropdown menu con esportazioni alternative del documento completo:</p>
+<table>
+<thead>
+<tr>
+<th>Voce</th>
+<th>Funzione</th>
+<th>Formato</th>
+<th>Mime</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Export TXT</td>
+<td><code>exportTXT()</code></td>
+<td><code>.txt</code></td>
+<td><code>text/plain</code></td>
+</tr>
+<tr>
+<td>Export Markdown</td>
+<td><code>exportMD()</code></td>
+<td><code>.md</code></td>
+<td><code>text/markdown</code></td>
+</tr>
+<tr>
+<td>Export MD + images ZIP</td>
+<td><code>exportMDZip()</code></td>
+<td><code>.zip</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Export JSON doc</td>
+<td><code>exportDocJSON()</code></td>
+<td><code>.json</code></td>
+<td><code>application/json</code></td>
+</tr>
+<tr>
+<td>Print / PDF</td>
+<td><code>exportPDF()</code></td>
+<td>browser print</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Export DOCX</td>
+<td><code>exportDOCX()</code></td>
+<td><code>.docx</code></td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Naming:</strong> tutti usano <code>_promptCustom(tipo, ext)</code> che mostra un prompt con la parte automatica <code>noesis-{tipo}-book__chapter__TS</code> e permette di aggiungere un'etichetta custom.</p>
+<p><strong>Dettagli implementativi:</strong></p>
+<ul>
+<li><code>exportTXT()</code>: estrae il testo da tutti i tag <code>p, h1-h6, li</code> con newline tra i paragrafi.</li>
+<li><code>exportMD()</code>: usa la libreria <strong>TurndownService</strong> per convertire l'HTML in Markdown.</li>
+<li><code>exportMDZip()</code>: converte in Markdown, estrae le immagini base64 in <code>images/img_001.png</code> ecc., crea uno ZIP con JSZip.</li>
+<li><code>exportDocJSON()</code>: wrappa l'HTML grezzo in <code>{ "html": "…" }</code> come JSON.</li>
+<li><code>exportPDF()</code>: copia il contenuto in <code>#print-container</code> (visibile solo in print), applica normalizzazioni CSS su tabelle/immagini, lancia <code>window.print()</code>.</li>
+<li><code>exportDOCX()</code>: usa la libreria <strong>html-docx-js</strong> (<code>window.htmlDocx.asBlob()</code>).</li>
+</ul>
+<hr />
+<h2 id="6-bottoniera-inferiore--sezione-collection">6. Bottoniera inferiore — sezione Collection</h2>
+<p>La sezione <strong>Collection</strong> è identificata da un bordo azzurro-ciano e label verticale "COLLECTION" in azzurro.</p>
+<h3>6.1 Add <code>[+ N]</code> — <code>#addChunkBtn</code></h3>
+<p><strong>Colore:</strong> definito inline (sfondo con bordo)<br />
+<strong>Etichetta:</strong> <code>+</code> con badge numerico <code>#chunkCounter</code> (rosso, posizionato in alto a destra del pulsante)</p>
+<p>Aggiunge alla collezione il contenuto attualmente selezionato. Supporta tre modalità di selezione:</p>
+<p><strong>Caso 1 — Immagine:</strong></p>
+<ul>
+<li>L'immagine deve essere stata preventivamente "tracciata" tramite un <code>mousedown</code> (desktop) o <code>touchstart</code> (Android) sull'<code>&lt;img&gt;</code> nell'area <code>.note-editable</code>. Il riferimento è tenuto in <code>_selectedImg</code>.</li>
+<li>Al clic di <code>[+]</code>: usa <code>_selectedImg.outerHTML</code>.</li>
+</ul>
+<p><strong>Caso 2 — Tabella:</strong></p>
+<ul>
+<li>Analogamente, il <code>mousedown</code> su <code>TD</code>, <code>TH</code>, <code>TABLE</code>, <code>TR</code> o qualsiasi elemento dentro <code>table</code> imposta <code>_selectedTable</code>.</li>
+<li>Al clic di <code>[+]</code>: usa <code>_selectedTable.parentElement.outerHTML</code> se il wrapper non è l'editor stesso, altrimenti <code>_selectedTable.outerHTML</code>.</li>
+</ul>
+<p><strong>Caso 3 — Selezione testo:</strong></p>
+<ul>
+<li>Usa <code>window.getSelection()</code> con <code>getRangeAt(0).cloneContents()</code> per estrarre l'HTML della selezione.</li>
+</ul>
+<p><strong>Shortcut gestuali (Android):</strong></p>
+<ul>
+<li><strong>Doppio tap su immagine:</strong> aggiunge direttamente senza passare da <code>[+]</code>.</li>
+<li><strong>Long press su immagine (600ms):</strong> aggiunge direttamente.</li>
+</ul>
+<p><strong>Funzione <code>_enrichChunk(chunk)</code>:</strong></p>
+<ul>
+<li>Determina il tipo: <code>'table'</code> se <code>/&lt;table[\s&gt;]/i</code>, <code>'image'</code> se <code>/&lt;img[\s&gt;]/i</code>, altrimenti <code>'text'</code>.</li>
+<li>Aggiunge <code>bookName</code>, <code>chapterName</code>, <code>timestamp</code>.</li>
+</ul>
+<p><strong>Funzione <code>_saveChunk(chunk)</code>:</strong></p>
+<ul>
+<li>Assegna un <code>id</code> univoco: <code>Date.now() + '_' + random</code>.</li>
+<li>Aggiunge al array <code>_collection</code>.</li>
+</ul>
+<hr />
+<h3>6.2 Import JSON — pulsante blu <code>#0a84ff</code></h3>
+<p><strong>Icona:</strong> <code>bi-upload</code></p>
+<p>Apre il file picker <code>#collectionImportInput</code> (accetta <code>.json</code>).</p>
+<p>Il file JSON può essere:</p>
+<ul>
+<li>Un array diretto di chunks: <code>[{...}, {...}]</code></li>
+<li>Un oggetto con campo <code>chunks</code>: <code>{ "version": 1, "chunks": [...] }</code></li>
+</ul>
+<p>I chunks importati vengono <strong>aggiunti</strong> alla collezione esistente (non sostituiti). Ogni chunk riceve un nuovo <code>id</code> univoco.</p>
+<hr />
+<h3>6.3 Export JSON — pulsante verde <code>#32d74b</code></h3>
+<p><strong>Icona:</strong> <code>bi-download</code></p>
+<p>Chiama <code>_exportCollectionJson()</code>. Produce:</p>
+<pre><code class="language-json">{
+  "version": 1,
+  "exportedAt": "2026-03-27T10:00:00.000Z",
+  "bookName": "…",
+  "chapterName": "…",
+  "chunks": [
+    {
+      "id": "1711530000000_123456789",
+      "content": "&lt;p&gt;Testo selezionato&lt;/p&gt;",
+      "type": "text",
+      "bookName": "…",
+      "chapterName": "…",
+      "timestamp": 1711530000000
+    }
+  ]
+}
+</code></pre>
+<hr />
+<h3>6.4 More formats collection — <code>#colMoreBtn</code> (arancione <code>#ff9f0a</code>)</h3>
+<p><strong>Icona:</strong> <code>bi-three-dots</code></p>
+<p>Dropdown con tre opzioni:</p>
+<table>
+<thead>
+<tr>
+<th>Voce</th>
+<th>Funzione</th>
+<th>Formato</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Export Markdown</td>
+<td><code>_exportCollectionMd()</code></td>
+<td><code>.md</code></td>
+<td>Immagini omesse, tabelle come HTML raw</td>
+</tr>
+<tr>
+<td>Export MD + images ZIP</td>
+<td><code>_exportCollectionMdZip()</code></td>
+<td><code>.zip</code></td>
+<td>Immagini base64 estratte in <code>images/</code></td>
+</tr>
+<tr>
+<td>Export HTML collection</td>
+<td><code>_exportCollectionHtml()</code></td>
+<td><code>.html</code></td>
+<td>Pagina HTML standalone con tutti i chunk</td>
+</tr>
+</tbody>
+</table>
+<p><code>_exportCollectionHtml()</code> produce una pagina HTML autonoma con tutti i chunk come <code>&lt;div class="chunk"&gt;</code>, con stile CSS inline per leggibilità.</p>
+<hr />
+<h3>6.5 Inspect — pulsante viola <code>#5e5ce6</code></h3>
+<p><strong>Icona:</strong> <code>bi-eye</code></p>
+<p>Apre il pannello <code>#inspectPanel</code> (float non modale). Descritto in dettaglio nella sezione 11.</p>
+<hr />
+<h3>6.6 Clear — pulsante rosso <code>#ff453a</code></h3>
+<p><strong>Icona:</strong> <code>bi-trash</code></p>
+<ul>
+<li>Se la collezione è vuota: mostra toast "Collection already empty".</li>
+<li>Se non vuota: <code>confirm("Clear the collection? (N chunks)")</code> → <code>_clearCollection()</code> → aggiorna contatore.</li>
+</ul>
+<hr />
+<h2 id="7-bottoniera-summernote-toolbar-wysiwyg">7. Bottoniera Summernote (toolbar WYSIWYG)</h2>
+<p>La toolbar di Summernote-lite è posizionata sopra l'area di editing. È generata automaticamente da Summernote secondo la configurazione passata in <code>initEditor()</code>.</p>
+<h3>7.1 Configurazione gruppi toolbar</h3>
+<pre><code class="language-javascript">toolbar: [
+  ['style',    ['style']],             // Stile paragrafo: p, h1-h6, blockquote, pre
+  ['font',     ['bold', 'italic', 'underline', 'strikethrough',
+                'superscript', 'subscript', 'clear']],
+  ['fontname', ['fontname']],          // Famiglia font
+  ['fontsize', ['fontsize']],          // Dimensione font
+  ['color',    ['color']],             // Colore testo e sfondo
+  ['para',     ['ul', 'ol', 'paragraph']], // Liste e allineamento
+  ['height',   ['height']],            // Interlinea
+  ['table',    ['table']],             // Inserimento e modifica tabelle
+  ['insert',   ['link', 'picture', 'video', 'hr']],
+  ['view',     ['fullscreen', 'codeview', 'help']]
+]
+</code></pre>
+<h3>7.2 Stili paragrafo disponibili</h3>
+<p><code>['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre']</code></p>
+<h3>7.3 Font disponibili</h3>
+<p><code>Arial, Arial Black, Comic Sans MS, Courier New, Georgia, Times New Roman, Verdana, system-ui</code></p>
+<h3>7.4 Altezza dinamica dell'editor</h3>
+<p>La funzione <code>_calcEditorHeight()</code> calcola l'altezza disponibile per <code>.note-editable</code> sottraendo dall'altezza della finestra:</p>
+<ul>
+<li>Altezza header app</li>
+<li>Altezza toolbar Summernote</li>
+<li>Altezza statusbar Summernote</li>
+<li>Altezza bottom toolbar</li>
+<li>Padding container (16px)</li>
+</ul>
+<p>Il ricalcolo avviene automaticamente al <code>resize</code> e al cambio di orientamento.</p>
+<h3>7.5 Upload immagini inline</h3>
+<p>Il callback <code>onImageUpload</code> di Summernote converte ogni file caricato in base64 via <code>FileReader</code> e lo inserisce direttamente nell'HTML come <code>&lt;img src="data:image/...;base64,..."&gt;</code>. Le immagini sono quindi completamente embedded nel documento.</p>
+<hr />
+<h2 id="8-doppia-memorizzazione-degli-snapshot-clean-e-annotated">8. Doppia memorizzazione degli snapshot: clean e annotated</h2>
+<p>Ogni volta che l'utente preme il pulsante <strong>Save</strong> (<code>#chExportMainBtn</code>), vengono prodotti <strong>simultaneamente</strong> due snapshot distinti.</p>
+<h3>8.1 Il prompt e la costruzione dei nomi file</h3>
+<p>Prima di qualsiasi export viene mostrato un <strong>unico prompt</strong> che mostra la base automatica del nome file:</p>
+<pre><code>noesis-clean-TitoloLibro__NomeCapitolo__20260327_142530  →  aggiungi etichetta (invio per saltare):
+</code></pre>
+<p>Il risultato dell'etichetta (può essere vuoto) viene usato per entrambi i file.</p>
+<h3>8.2 Schema di naming</h3>
+<pre><code>noesis-{tipo}-{bookSlug}__{chapterSlug}__{YYYYMMDD_HHMMSS}[_{etichetta}].html
+</code></pre>
+<p>Esempi:</p>
+<pre><code>noesis-clean-Ulysses__Proteus__20260327_142530.html
+noesis-annot-Ulysses__Proteus__20260327_142530.html
+noesis-clean-Ulysses__Proteus__20260327_142530_primaLettura.html
+noesis-annot-Ulysses__Proteus__20260327_142530_primaLettura.html
+</code></pre>
+<h3>8.3 Differenza clean vs annotated</h3>
+<p><strong>Clean (<code>noesis-clean-</code>):</strong></p>
+<ul>
+<li>Il contenuto del documento viene processato con due regex che rimuovono tutti gli stili <code>background-color</code> inline:
+<pre><code class="language-javascript">.replace(/background-color\s*:[^;'"]+[;]/gi, '')
+.replace(/background-color\s*:[^"']+(?=["'])/gi, '')
+</code></pre>
+</li>
+<li>Risultato: testo privo di evidenziazioni colorate, adatto alla lettura e alla reimportazione "pulita".</li>
+<li>Contiene il meta tag <code>&lt;meta name="noesis-snapshot-variant" content="clean"&gt;</code>.</li>
+</ul>
+<p><strong>Annotated (<code>noesis-annot-</code>):</strong></p>
+<ul>
+<li>Il contenuto viene usato esattamente com'è, inclusi tutti i colori di evidenziazione, grassetti, corsivi e qualsiasi stile applicato durante l'annotazione.</li>
+<li>Contiene il meta tag <code>&lt;meta name="noesis-snapshot-variant" content="annot"&gt;</code>.</li>
+</ul>
+<h3>8.4 Struttura HTML comune (sharedHead)</h3>
+<p>Entrambi i file condividono lo stesso <code>&lt;head&gt;</code>:</p>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang="it"&gt;&lt;head&gt;
+&lt;meta charset="UTF-8"&gt;
+&lt;meta name="noesis-chapter-id"    content="{_chapterId}"&gt;
+&lt;meta name="noesis-book-name"     content="{_bookName}"&gt;
+&lt;meta name="noesis-chapter-name"  content="{_chapterName}"&gt;
+&lt;title&gt;{chapterName || bookName || 'Chapter'}&lt;/title&gt;
+&lt;style&gt;
+body{max-width:750px;margin:auto;padding:20px;font-family:system-ui;line-height:1.6;}
+img,figure{max-width:100%;height:auto;}
+table{width:100%;table-layout:fixed;border-collapse:collapse;}
+td,th{border:1px solid #ccc;padding:6px;word-break:break-word;}
+&lt;/style&gt;
+</code></pre>
+<p>I meta tag <code>noesis-*</code> sono fondamentali: permettono la <strong>reimportazione dei file nella Library</strong> tramite il sistema "Import Snapshots" (sezione 15).</p>
+<h3>8.5 I due snapshot in IDB</h3>
+<p>In parallelo al download dei file, vengono creati e salvati in IDB due oggetti snapshot:</p>
+<pre><code class="language-javascript">var _snapAnnot = {
+  snapshotId: 'snap_' + ts + '_' + random1,
+  createdAt: now,
+  bookName: _bookName,
+  chapterName: _chapterName,
+  description: 'annot-' + tsStr + descSuffix,  // es: 'annot-20260327-142530-primaLettura'
+  content: docContent   // HTML annotato as-is
+};
+var _snapClean = {
+  snapshotId: 'snap_' + (ts+1) + '_' + random2,
+  createdAt: now,
+  bookName: _bookName,
+  chapterName: _chapterName,
+  description: 'clean-' + tsStr + descSuffix,  // es: 'clean-20260327-142530-primaLettura'
+  content: cleanContent  // HTML con background rimossi
+};
+</code></pre>
+<p>L'ordine di inserimento nell'array <code>record.snapshots</code>:</p>
+<pre><code class="language-javascript">record.snapshots.unshift(_snapClean);   // inserito secondo
+record.snapshots.unshift(_snapAnnot);   // inserito primo → appare in cima
+</code></pre>
+<p><strong>Il snapshot annotated è sempre più in cima del clean</strong> perché è il più "ricco" e tipicamente quello che si vuole riaprire per continuare ad annotare.</p>
+<hr />
+<h2 id="9-memorizzazione-simultanea-idb--filesystem">9. Memorizzazione simultanea IDB + filesystem</h2>
+<h3>9.1 Il doppio output del pulsante Save</h3>
+<p>Ogni pressione del pulsante Save produce <strong>quattro output simultanei</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Destinazione</th>
+<th>File/Oggetto</th>
+<th>Tipo</th>
+<th>Descrizione</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Filesystem (Download)</td>
+<td><code>noesis-clean-…html</code></td>
+<td>HTML</td>
+<td>Versione senza background-color</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Filesystem (Download)</td>
+<td><code>noesis-annot-…html</code></td>
+<td>HTML</td>
+<td>Versione annotata as-is</td>
+</tr>
+<tr>
+<td>3</td>
+<td>IndexedDB (<code>noesisDB</code>)</td>
+<td>snapshot <code>annot-…</code></td>
+<td>JSON in IDB</td>
+<td>Stesso contenuto del file annot</td>
+</tr>
+<tr>
+<td>4</td>
+<td>IndexedDB (<code>noesisDB</code>)</td>
+<td>snapshot <code>clean-…</code></td>
+<td>JSON in IDB</td>
+<td>Stesso contenuto del file clean</td>
+</tr>
+</tbody>
+</table>
+<p>Gli output 1 e 2 avvengono tramite <code>download(filename, '﻿' + html, 'text/html;charset=utf-8')</code> (BOM UTF-8 preposto).<br />
+Gli output 3 e 4 avvengono tramite <code>_idbPost('put', { record: record })</code>.</p>
+<h3>9.2 Perché la doppia memorizzazione?</h3>
+<ul>
+<li><strong>IDB</strong> permette la navigazione rapida nella Library senza doversi ricordare dove si trovano i file su disco. Gli snapshot sono immediatamente accessibili dall'interfaccia Library.</li>
+<li><strong>Filesystem</strong> è la copia di backup persistente e portabile. Se l'IDB viene cancellato (pulizia del browser, cambio device, migrazione), i file su disco permettono la <strong>reimportazione</strong> tramite il meccanismo "Import Snapshots".</li>
+<li>I due sistemi si completano: IDB per la fluidità di workflow, filesystem per la resilienza e la portabilità.</li>
+</ul>
+<h3>9.3 Gestione del caso <code>!_chapterId</code></h3>
+<p>Se l'editor è in modalità <code>standalone</code> (nessun <code>_chapterId</code>), il blocco IDB viene saltato:</p>
+<pre><code class="language-javascript">if (_chapterId) {
+  // ... logica IDB
+}
+</code></pre>
+<p>Il save produce solo i file su filesystem, senza salvare in IDB. L'utente vede il toast <code>"⚠️ Saved to disk only — Library not updated"</code> se il save IDB fallisce per altri motivi.</p>
+<h3>9.4 Gestione errori IDB</h3>
+<p>In caso di fallimento del save IDB (timeout postMessage, opener non disponibile, errore IndexedDB), viene mostrato il toast <code>"⚠️ Saved to disk only — Library not updated"</code>. I file su disco vengono comunque scaricati (il download avviene prima della chiamata IDB).</p>
+<hr />
+<h2 id="10-gestione-della-collezione-di-chunks">10. Gestione della collezione di chunks</h2>
+<h3>10.1 Struttura dati in memoria</h3>
+<p>La collezione è tenuta in un array JavaScript globale <code>_collection</code>:</p>
+<pre><code class="language-javascript">var _collection = []; // Array di chunk objects
+
+// Struttura di un chunk:
+{
+  id:          "1711530000000_123456789",  // univoco, generato al momento del salvataggio
+  content:     "&lt;p&gt;HTML del chunk&lt;/p&gt;",    // HTML grezzo
+  type:        "text" | "image" | "table", // auto-rilevato
+  bookName:    "Nome del libro",
+  chapterName: "Nome del capitolo",
+  timestamp:   1711530000000,             // Date.now()
+  label:       "Etichetta opzionale"      // non usata nell'UI corrente
+}
+</code></pre>
+<p>La collezione è <strong>in-memory only</strong>: non viene persistita in IDB né in localStorage tra sessioni. Viene resettata ad ogni apertura di sn56.x. La persistenza è delegata all'export JSON.</p>
+<h3>10.2 Ciclo di vita di un chunk</h3>
+<pre><code>Selezione nell'editor
+       ↓
+Clic [+] / doppio tap immagine / long press
+       ↓
+_enrichChunk() — aggiunge type, bookName, chapterName, timestamp
+       ↓
+_saveChunk()   — assegna id, push in _collection
+       ↓
+_updateCounter() — aggiorna badge numerico
+       ↓
+[Opzionale] _openInspect() per visualizzare/gestire
+       ↓
+[Export] JSON / MD / HTML
+       ↓
+[Opzionale] Inject in editor / Delete
+</code></pre>
+<h3>10.3 Aggiunta alla collezione — tutti i metodi</h3>
+<p><strong>Metodo 1: pulsante <code>[+]</code></strong></p>
+<ul>
+<li>Testo: via <code>window.getSelection()</code>.</li>
+<li>Immagine: via <code>_selectedImg</code> (tracciato da mousedown/touchstart).</li>
+<li>Tabella: via <code>_selectedTable</code> (tracciato da mousedown su elementi tabella).</li>
+</ul>
+<p><strong>Metodo 2: doppio clic su immagine</strong></p>
+<ul>
+<li>Gestito da <code>dblclick</code> su <code>.note-editable</code>.</li>
+<li>Funziona su desktop e su Android Chrome.</li>
+</ul>
+<p><strong>Metodo 3: long press su immagine (600ms)</strong></p>
+<ul>
+<li>Timer avviato su <code>touchstart</code>, cancellato su <code>touchend</code>/<code>touchmove</code>.</li>
+<li>Pensato per Android dove il doppio tap può essere interpretato diversamente.</li>
+</ul>
+<h3>10.4 Export della collezione — tutti i formati</h3>
+<table>
+<thead>
+<tr>
+<th>Formato</th>
+<th>Funzione</th>
+<th>Nome file</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JSON</td>
+<td><code>_exportCollectionJson()</code></td>
+<td><code>noesis-collection-…json</code></td>
+<td>Struttura completa con metadati</td>
+</tr>
+<tr>
+<td>Markdown</td>
+<td><code>_exportCollectionMd()</code></td>
+<td><code>noesis-colmd-…md</code></td>
+<td>Immagini omesse, tabelle come HTML</td>
+</tr>
+<tr>
+<td>MD + ZIP</td>
+<td><code>_exportCollectionMdZip()</code></td>
+<td><code>noesis-colzip-…zip</code></td>
+<td>Immagini estratte in <code>images/</code></td>
+</tr>
+<tr>
+<td>HTML standalone</td>
+<td><code>_exportCollectionHtml()</code></td>
+<td><code>noesis-colhtml-…html</code></td>
+<td>Pagina pronta per il browser</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="11-pannello-inspect--gestione-visuale-dei-chunks">11. Pannello Inspect — gestione visuale dei chunks</h2>
+<h3>11.1 Caratteristiche del pannello</h3>
+<p>Il pannello <code>#inspectPanel</code> è un elemento <strong>fixed non modale</strong> (non blocca l'editor sottostante):</p>
+<ul>
+<li>Posizionato al centro schermo alla prima apertura.</li>
+<li><strong>Draggable</strong> tramite l'header (<code>#inspectHeader</code>, cursor grab).</li>
+<li><strong>Resizable</strong> tramite handle nell'angolo basso-destra (<code>#inspectResizeHandle</code>, icona ⊞).</li>
+<li>Dimensioni iniziali: <code>min(90vw, 720px)</code> × <code>85vh</code>, minimo <code>260px</code> × <code>200px</code>.</li>
+<li>Supporta sia mouse che touch per drag e resize (gestione unificata con <code>e.touches[0]</code>).</li>
+</ul>
+<h3>11.2 Struttura visiva</h3>
+<pre><code>┌─────────────────────────────────────────────┐ ← drag header
+│ 🔵 Collection — N chunks            [✕]    │
+├─────────────────────────────────────────────┤
+│ Chunk #1 — Text · NomeLibro › NomeCapitolo  │
+│ [☐] [preview testo]           [↓] [⛶] [✕] │
+│ Chunk #2 — Image                            │
+│ [☐] [preview immagine]        [↓] [⛶] [✕] │
+│ Chunk #3 — Table                            │
+│ [☐] [preview tabella]         [↓] [⛶] [✕] │
+├─────────────────────────────────────────────┤
+│ N selected  [All] [None]  [→ Inject in Ed.] │ ← footer
+└──────────────────────────────────────────── ⊞ ← resize handle
+</code></pre>
+<h3>11.3 Azioni per ogni chunk</h3>
+<p>Ogni chunk ha tre pulsanti nella colonna destra (<code>chunk-actions</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Pulsante</th>
+<th>Classe CSS</th>
+<th>Colore</th>
+<th>Azione</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>↓ (Inserisci qui)</td>
+<td><code>chunk-insert-here</code></td>
+<td>verde <code>#30d158</code></td>
+<td>Inject al cursore salvato</td>
+</tr>
+<tr>
+<td>⛶ (Fullscreen)</td>
+<td><code>chunk-fs</code></td>
+<td>giallo <code>#ffd60a</code></td>
+<td>Apre overlay fullscreen</td>
+</tr>
+<tr>
+<td>✕ (Delete)</td>
+<td><code>chunk-del</code></td>
+<td>giallo <code>#ffd60a</code></td>
+<td>Rimuove dalla collezione</td>
+</tr>
+</tbody>
+</table>
+<h3>11.4 Inject al cursore</h3>
+<p>Il pulsante "↓" (<code>chunk-insert-here</code>) usa un sistema di salvataggio/ripristino del cursore:</p>
+<ol>
+<li>All'apertura del pannello Inspect: <code>$('#editor').summernote('saveRange')</code> salva la posizione del cursore.</li>
+<li>Al clic di "↓" per un chunk specifico:
+<ul>
+<li><code>$('#editor').summernote('restoreRange')</code> ripristina il cursore.</li>
+<li>Crea un <code>&lt;div&gt;</code> temporaneo con <code>innerHTML = chunk.content</code>.</li>
+<li>Itera sui <code>childNodes</code> in ordine inverso e li inserisce con <code>insertNode</code>.</li>
+<li><code>$('#editor').summernote('saveRange')</code> aggiorna il cursore alla nuova posizione.</li>
+</ul>
+</li>
+</ol>
+<p>Il pulsante "Inject into Editor" nel footer inserisce <strong>tutti i chunks selezionati</strong> in sequenza.</p>
+<h3>11.5 Chunk fullscreen</h3>
+<p>L'overlay <code>#chunkFsOverlay</code> apre il contenuto di un singolo chunk in fullscreen (sfondo nero, contenuto bianco con scroll). Chiudibile con il pulsante ✕ o clic fuori dall'overlay.</p>
+<h3>11.6 Selezione multipla e inject di gruppo</h3>
+<ul>
+<li>Checkbox per ogni chunk (accent-color <code>#0a84ff</code>).</li>
+<li>Pulsanti <strong>All</strong> / <strong>None</strong> per selezione rapida.</li>
+<li>Il footer mostra "N selected".</li>
+<li>"Inject into Editor" è disabilitato finché almeno un chunk non è selezionato.</li>
+<li>L'inject di gruppo concatena i contenuti con <code>\n</code> e li assegna tramite <code>summernote('code', current + html)</code>.</li>
+</ul>
+<hr />
+<h2 id="12-idb-bridge--comunicazione-postmessage-con-il-parent">12. IDB Bridge — comunicazione postMessage con il parent</h2>
+<h3>12.1 Il problema</h3>
+<p>Il contesto <code>blob:null</code> (finestre aperte con Blob URL) in Chrome desktop ha restrizioni su IndexedDB che causano un <code>SecurityError</code>. È quindi impossibile accedere direttamente a <code>noesisDB</code> dall'editor.</p>
+<h3>12.2 Architettura del bridge</h3>
+<p><strong>Lato sn56.x (child)</strong> — <code>_idbPost(op, payload)</code>:</p>
+<pre><code class="language-javascript">function _idbPost(op, payload) {
+  return new Promise(function(resolve, reject) {
+    var target = window.opener || window.parent;
+    if (!target || target === window) { reject(new Error('No opener/parent')); return; }
+    var id = ++_idbCallbackId;
+    _idbCallbacks[id] = { resolve, reject };
+    target.postMessage({ __noesisIDB: true, id: id, op: op, payload: payload }, '*');
+    setTimeout(function() {
+      if (_idbCallbacks[id]) { delete _idbCallbacks[id]; reject(new Error('IDB timeout')); }
+    }, 8000);
+  });
+}
+</code></pre>
+<p><strong>Lato noesis810.html (parent)</strong> — handler <code>message</code>:</p>
+<pre><code class="language-javascript">window.addEventListener('message', function(e) {
+  var d = e.data;
+  if (!d || !d.__noesisIDB) return;
+  var { id, op, payload } = d;
+  function reply(result, error) {
+    try { e.source.postMessage({ __noesisIDBResponse: true, id, result: result || null, error: error || null }, '*'); }
+    catch(err) {}
+  }
+  if (op === 'get') {
+    getExtractedChapterFromDB(payload.chapterId).then(r => reply(r)).catch(err => reply(null, err.message));
+  } else if (op === 'put') {
+    saveExtractedChapterToDB(payload.record).then(r => reply(r)).catch(err => reply(null, err.message));
+  } else {
+    reply(null, 'Unknown op: ' + op);
+  }
+});
+</code></pre>
+<h3>12.3 Operazioni supportate</h3>
+<table>
+<thead>
+<tr>
+<th>Operazione</th>
+<th>Payload</th>
+<th>Descrizione</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>get</code></td>
+<td><code>{ chapterId: "ch_…" }</code></td>
+<td>Recupera un chapterRecord da noesisDB</td>
+</tr>
+<tr>
+<td><code>put</code></td>
+<td><code>{ record: {...} }</code></td>
+<td>Salva/aggiorna un chapterRecord in noesisDB</td>
+</tr>
+</tbody>
+</table>
+<h3>12.4 Timeout e gestione errori</h3>
+<p>Il bridge ha un timeout di <strong>8 secondi</strong>. Se entro 8s non arriva risposta, la Promise viene rifiettata con <code>Error('IDB timeout')</code>. In tal caso l'editor mostra il toast di warning e il save va solo su filesystem.</p>
+<hr />
+<h2 id="13-strutture-dati-in-memoria-e-in-indexeddb">13. Strutture dati in memoria e in IndexedDB</h2>
+<h3>13.1 Database <code>noesisDB</code> (IndexedDB)</h3>
+<ul>
+<li><strong>Nome:</strong> <code>noesisDB</code></li>
+<li><strong>Versione:</strong> 1</li>
+<li><strong>Object store:</strong> <code>extractedChapters</code>
+<ul>
+<li><strong>keyPath:</strong> <code>chapterId</code></li>
+<li><strong>Indici:</strong> <code>bookName</code> (non unique), <code>chapterName</code> (non unique)</li>
+</ul>
+</li>
+</ul>
+<h3>13.2 <code>chapterRecord</code> (la struttura in IDB)</h3>
+<pre><code class="language-javascript">{
+  chapterId:   "ch_1711530000000_987654",   // chiave primaria, generata all'estrazione
+  bookName:    "Ulysses",
+  chapterName: "Proteus",
+  createdAt:   "2026-03-27T14:25:30.000Z",  // ISO 8601
+
+  snapshots: [
+    // Snapshot più recente per primo (eccetto isOrigin che è in fondo)
+    {
+      snapshotId:  "snap_1711530000001_111222",
+      createdAt:   "2026-03-27T15:00:00.000Z",
+      bookName:    "Ulysses",          // ridondante ma utile
+      chapterName: "Proteus",
+      description: "annot-20260327-150000-primaLettura",
+      isOrigin:    false,              // assente o false per snapshot normali
+      content:     "&lt;p&gt;HTML…&lt;/p&gt;"
+    },
+    {
+      snapshotId:  "snap_1711530000002_333444",
+      description: "clean-20260327-150000-primaLettura",
+      isOrigin:    false,
+      content:     "&lt;p&gt;HTML senza background…&lt;/p&gt;"
+    },
+    {
+      snapshotId:  "snap_1711530000000_000001",
+      description: "origin-20260327_142530",
+      isOrigin:    true,               // snapshot automatico all'estrazione
+      content:     "&lt;p&gt;HTML originale non modificato…&lt;/p&gt;"
+    }
+  ]
+}
+</code></pre>
+<h3>13.3 Ordine di visualizzazione degli snapshot nella Library</h3>
+<p>L'ordinamento applicato in <code>_openExtractedEnv</code> e nella Library è:</p>
+<ol>
+<li>Snapshot con <code>isOrigin: false</code> prima (più recenti in cima per data).</li>
+<li>Snapshot con <code>isOrigin: true</code> in fondo (snapshot originale all'estrazione).</li>
+</ol>
+<p>Nella Library, l'ultimo snapshot in ordine (primo nell'array dopo l'ordinamento) è contrassegnato con la classe CSS <code>latest</code> e un punto verde.</p>
+<h3>13.4 Database <code>EpubLibraryDB</code> (IndexedDB)</h3>
+<ul>
+<li><strong>Nome:</strong> <code>EpubLibraryDB</code></li>
+<li><strong>Versione:</strong> 1</li>
+<li><strong>Object store:</strong> <code>books</code>
+<ul>
+<li><strong>keyPath:</strong> <code>id</code> (timestamp string)</li>
+<li>Nessun indice</li>
+</ul>
+</li>
+</ul>
+<p><strong>Struttura record libro:</strong></p>
+<pre><code class="language-javascript">{
+  id:       "1711530000000",         // Date.now().toString()
+  title:    "Ulysses",
+  author:   "James Joyce",
+  data:     ArrayBuffer,             // file EPUB grezzo
+  cover:    "data:image/jpeg;base64,…",  // copertina in base64
+  addedAt:  1711530000000
+}
+</code></pre>
+<h3>13.5 Variabili globali sn56.x</h3>
+<pre><code class="language-javascript">var _collection  = [];         // Array chunks in memoria
+var _bookName    = '';         // Nome libro corrente
+var _chapterName = '';         // Nome capitolo corrente
+var _chapterId   = '';         // ID univoco del capitolo in IDB
+var _mode        = 'standalone'; // 'chapter' | 'standalone'
+var _toastShown  = false;      // guard per toast one-time
+
+var _selectedImg   = null;     // Ultima immagine tracciata da mousedown
+var _selectedTable = null;     // Ultima tabella tracciata da mousedown
+
+var _inspectSelected = {};     // { chunkId: boolean } selezioni nel panel
+var _savedRange = null;        // Range Summernote salvato prima di Inspect
+
+var _idbCallbacks  = {};       // Callback pending per IDB bridge
+var _idbCallbackId = 0;        // Counter per ID messaggi IDB bridge
+</code></pre>
+<hr />
+<h2 id="14-workflow-completo--dalla-library-alleditor-e-ritorno">14. Workflow completo — dalla Library all'editor e ritorno</h2>
+<h3>14.1 Workflow tipico di studio (percorso Reader)</h3>
+<pre><code>1. Library: clic sulla copertina del libro
+      ↓
+2. Reader: lettura del testo con epub.js
+      ↓
+3. Reader: clic "Extract" → scelta tipo estrazione
+      ↓
+4. Automaticamente (in parallelo):
+   a) noesisDB: scritto chapterRecord con snapshot "origin-..."
+   b) Download: noesis-extract-…html (leggibile offline)
+   c) Download: noesis-origin-…html (con meta tag, 1.5s ritardo)
+   d) nuova tab: sn56.x aperto con payload chapter
+      ↓
+5. Editor: lavoro di annotazione (WYSIWYG Summernote)
+   - Highlight testo con colori
+   - Aggiunte note, commenti
+   - Raccolta chunks nella collezione
+      ↓
+6. Editor: clic Save
+   a) Prompt etichetta opzionale
+   b) Download: noesis-clean-…html
+   c) Download: noesis-annot-…html
+   d) IDB bridge: salva snapshots clean + annot in noesisDB
+      ↓
+7. Library (dopo reload): il capitolo mostra N snapshots
+   - snap "annot-…" (il più recente, punto verde)
+   - snap "clean-…"
+   - snap "origin-…" (in fondo, origine della sessione)
+      ↓
+8. Ritorno al lavoro: clic su snap nella Library
+   → _openExtractedEnv() → _openSn56() con payload del snap
+</code></pre>
+<h3>14.2 Workflow standalone</h3>
+<pre><code>1. Library: clic "Open Editor"
+      ↓
+2. sn56.x si apre vuoto (mode: standalone)
+      ↓
+3. Import dialog: importa file HTML da disco
+   - Se file ha meta tag noesis-*: contesto ricostruito automaticamente
+   - Altrimenti: prompt per bookName e chapterName
+      ↓
+4. Lavoro nell'editor
+      ↓
+5. Save: produce clean + annot
+   - Se _chapterId è stato estratto dai meta tag: anche IDB
+   - Altrimenti: solo filesystem
+</code></pre>
+<hr />
+<h2 id="15-import-di-snapshot-da-disco-nella-library">15. Import di snapshot da disco nella Library</h2>
+<p>Il sistema <strong>Import Snapshots</strong> (<code>#importSnapshotsBtn</code> nella Library) permette di reimportare file HTML salvati su disco in <code>noesisDB</code>, ricostruendo la struttura della Library.</p>
+<h3>15.1 File accettati</h3>
+<p>Il filtro regex sui nomi file è:</p>
+<pre><code>/^noesis-(clean|annot|origin)-.*\.html?$/i
+</code></pre>
+<p>Sono quindi accettati: <code>noesis-clean-…html</code>, <code>noesis-annot-…html</code>, <code>noesis-origin-…html</code>.</p>
+<h3>15.2 Metodo di selezione file</h3>
+<ul>
+<li><strong>Desktop Chrome/Edge</strong> (con <code>window.showDirectoryPicker</code>): apre un <strong>folder picker</strong> che scansiona tutti i file della cartella.</li>
+<li><strong>Android / Safari</strong> (senza <code>showDirectoryPicker</code>): apre il file picker standard (<code>#importSnapshotsInput</code>, <code>multiple</code>).</li>
+</ul>
+<h3>15.3 Logica di processing (<code>_processSnapshotFiles</code>)</h3>
+<p>Per ogni file:</p>
+<ol>
+<li><strong>Parsing HTML:</strong> usa <code>DOMParser</code> per estrarre meta tag <code>noesis-chapter-id</code>, <code>noesis-book-name</code>, <code>noesis-chapter-name</code>, <code>noesis-snapshot-variant</code>.</li>
+<li><strong>Estrazione timestamp dal nome file:</strong> regex <code>noesis-{tipo}-{book}__{ch}__{YYYYMMDD_HHMMSS}[_{custom}].html</code>.</li>
+<li><strong>Costruzione snapshot object</strong> con <code>snapshotId</code> nuovo (non riusa quello originale, per evitare conflitti).</li>
+<li><strong>Match su chapterRecord esistente:</strong>
+<ul>
+<li>Prima per <code>chapterId</code> (match esatto).</li>
+<li>Fallback: match case-insensitive su <code>bookName + chapterName</code>.</li>
+</ul>
+</li>
+<li><strong>Se record trovato:</strong> aggiunge snapshot (se non già presente per description). Origin va in fondo, altri in cima.</li>
+<li><strong>Se record non trovato:</strong> crea nuovo <code>chapterRecord</code> con il file come primo snapshot.</li>
+<li><strong>Deduplicazione:</strong> non importa snapshot con <code>description</code> identica a uno già presente.</li>
+</ol>
+<h3>15.4 Lo snapshot "origin"</h3>
+<p>Il file <code>noesis-origin-…html</code> è lo snapshot automatico generato al momento dell'estrazione. È contrassegnato con <code>isOrigin: true</code> nell'IDB. È sempre posizionato in fondo alla lista e serve come punto di partenza immutabile del testo originale (prima di qualsiasi annotazione).</p>
+<hr />
+<h2 id="16-sistema-di-naming-dei-file">16. Sistema di naming dei file</h2>
+<h3>16.1 Funzioni di costruzione nome</h3>
+<p><strong><code>_buildTimestamp()</code>:</strong></p>
+<pre><code>YYYYMMDD_HHMMSS  (es: 20260327_142530)
+</code></pre>
+<p><strong><code>_buildFileBase(tipo, custom)</code>:</strong></p>
+<pre><code>noesis-{tipo}-{bookSlug}__{chapterSlug}__{timestamp}[_{custom}]
+</code></pre>
+<ul>
+<li><code>bookSlug</code>: max 40 caratteri, solo <code>[a-zA-Z0-9_]</code></li>
+<li><code>chapterSlug</code>: max 40 caratteri, solo <code>[a-zA-Z0-9_]</code></li>
+<li><code>custom</code>: opzionale, solo <code>[a-zA-Z0-9_\-]</code></li>
+</ul>
+<h3>16.2 Tipi di file per categoria</h3>
+<table>
+<thead>
+<tr>
+<th>Tipo</th>
+<th>Suffisso</th>
+<th>Contesto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>clean</code></td>
+<td><code>.html</code></td>
+<td>Chapter export — versione senza background</td>
+</tr>
+<tr>
+<td><code>annot</code></td>
+<td><code>.html</code></td>
+<td>Chapter export — versione annotata</td>
+</tr>
+<tr>
+<td><code>extract</code></td>
+<td><code>.html</code></td>
+<td>Estrazione automatica dal Reader (no meta)</td>
+</tr>
+<tr>
+<td><code>origin</code></td>
+<td><code>.html</code></td>
+<td>Estrazione automatica dal Reader (con meta)</td>
+</tr>
+<tr>
+<td><code>text</code></td>
+<td><code>.txt</code></td>
+<td>Chapter export TXT</td>
+</tr>
+<tr>
+<td><code>markdown</code></td>
+<td><code>.md</code></td>
+<td>Chapter export Markdown</td>
+</tr>
+<tr>
+<td><code>mdzip</code></td>
+<td><code>.zip</code></td>
+<td>Chapter export MD + immagini</td>
+</tr>
+<tr>
+<td><code>jsondoc</code></td>
+<td><code>.json</code></td>
+<td>Chapter export JSON</td>
+</tr>
+<tr>
+<td><code>docx</code></td>
+<td><code>.docx</code></td>
+<td>Chapter export DOCX</td>
+</tr>
+<tr>
+<td><code>collection</code></td>
+<td><code>.json</code></td>
+<td>Collection export JSON</td>
+</tr>
+<tr>
+<td><code>colmd</code></td>
+<td><code>.md</code></td>
+<td>Collection export Markdown</td>
+</tr>
+<tr>
+<td><code>colzip</code></td>
+<td><code>.zip</code></td>
+<td>Collection export MD + immagini</td>
+</tr>
+<tr>
+<td><code>colhtml</code></td>
+<td><code>.html</code></td>
+<td>Collection export HTML</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="17-dipendenze-esterne">17. Dipendenze esterne</h2>
+<h3>17.1 Incluse via CDN (caricate dinamicamente all'avvio di sn56.x)</h3>
+<table>
+<thead>
+<tr>
+<th>Libreria</th>
+<th>Versione</th>
+<th>URL</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>jQuery</td>
+<td>3.7.1</td>
+<td><code>code.jquery.com</code></td>
+<td>Base per Summernote</td>
+</tr>
+<tr>
+<td>Summernote-lite</td>
+<td>0.9.1</td>
+<td><code>cdn.jsdelivr.net/npm/summernote@0.9.1</code></td>
+<td>Editor WYSIWYG</td>
+</tr>
+<tr>
+<td>Bootstrap Icons</td>
+<td>1.11.3</td>
+<td><code>cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3</code></td>
+<td>Icone UI (condivisa con noesis810)</td>
+</tr>
+<tr>
+<td>TurndownService</td>
+<td>latest</td>
+<td><code>cdn.jsdelivr.net/npm/turndown</code></td>
+<td>HTML→Markdown</td>
+</tr>
+<tr>
+<td>JSZip</td>
+<td>latest</td>
+<td><code>cdn.jsdelivr.net/npm/jszip@latest</code></td>
+<td>Generazione ZIP</td>
+</tr>
+<tr>
+<td>html-docx-js</td>
+<td>latest</td>
+<td><code>cdn.jsdelivr.net/npm/html-docx-js</code></td>
+<td>Esportazione DOCX</td>
+</tr>
+</tbody>
+</table>
+<h3>17.2 Incluse in noesis810.html (usate anche dal Reader)</h3>
+<table>
+<thead>
+<tr>
+<th>Libreria</th>
+<th>Versione</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JSZip</td>
+<td>3.10.1</td>
+<td>Già presente nel parent</td>
+</tr>
+<tr>
+<td>epub.js</td>
+<td>0.3.93</td>
+<td>Reader EPUB</td>
+</tr>
+<tr>
+<td>Bootstrap Icons</td>
+<td>1.11.3</td>
+<td>Icone Library e Reader</td>
+</tr>
+</tbody>
+</table>
+<h3>17.3 Strumento opzionale integrato (Tools section)</h3>
+<table>
+<thead>
+<tr>
+<th>Strumento</th>
+<th>URL</th>
+<th>Descrizione</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Noesis Excalidraw</td>
+<td><code>noesis-excalidraw.vercel.app</code></td>
+<td>Fork di Excalidraw per diagrammi e mappe mentali</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Fine documentazione — noesis-editor-sn56-documentation.md</em></p>
+  </div>
+</div>
+<script src="approfondimenti.js"></script>
+
+<hr />
+<h2 id="doc-reader-tech">Noesis Reader — Architettura</h2>
+<a href="approfondimenti.html" class="doc-back">← Tutti gli approfondimenti</a>
+    <h1 id="1-panoramica-generale">📖 Noesis Reader — Documentazione Tecnica Completa</h1>
+<blockquote>
+<p><strong>Versione di riferimento:</strong> noesis810.html<br />
+<strong>Data documento:</strong> 2026-03-27</p>
+</blockquote>
+<hr />
+<h2 id="1-panoramica-generale">1. Panoramica generale</h2>
+<p>Il <strong>Noesis Reader</strong> è l'ambiente di lettura EPUB integrato in <code>noesis810.html</code>. Opera nella stessa finestra dell'applicazione, in alternativa alla Library (le due viste si escludono a vicenda tramite <code>display: none / block</code>).</p>
+<p>Caratteristiche principali:</p>
+<ul>
+<li><strong>Rendering EPUB via epub.js 0.3.93</strong>: pagine EPUB renderizzate all'interno di iframe, con gestione completa di spine, TOC, CFI (Canonical Fragment Identifier) e rendition hooks.</li>
+<li><strong>Zero-server, zero-upload</strong>: tutto avviene nel browser. I file EPUB sono letti da IndexedDB (dove sono stati salvati dalla Library) e ricostruiti in memoria.</li>
+<li><strong>Stato di lettura persistente</strong>: posizione, tema, tipografia, highlights, bookmarks e impostazioni di interfaccia vengono salvati per ciascun libro in IndexedDB e ripristinati automaticamente alla riapertura.</li>
+<li><strong>Due modalità di lettura</strong>: paginata (← →) e scroll continuo, entrambe con piena compatibilità touch/Android.</li>
+<li><strong>Estrazione capitoli</strong>: funzione principale del Reader che esporta il capitolo corrente (o un albero di capitoli annidati) come documento HTML autonomo con immagini embedded in base64, aprendo contemporaneamente l'editor sn56.x.</li>
+</ul>
+<hr />
+<h2 id="2-architettura-e-layout-dellinterfaccia">2. Architettura e layout dell'interfaccia</h2>
+<h3>2.1 Struttura DOM del Reader</h3>
+<pre><code>#reader-view
+├── &lt;header&gt;                         ← toolbar principale (gradient viola)
+│   ├── #backToLibraryBtn            ← ← Library
+│   ├── &lt;strong&gt;EPUB Reader&lt;/strong&gt;
+│   ├── #fileName                    ← nome libro corrente
+│   ├── .toolbar                     ← gruppo pulsanti
+│   │   ├── #toggleSidebarBtn        ← sidebar TOC
+│   │   ├── #userBookmarksBtn        ← bookmarks personali
+│   │   ├── .reader-highlight-dropdown
+│   │   │   ├── #readerHighlightBtn  ← evidenzia
+│   │   │   └── #readerHighlightMenu ← picker colore
+│   │   ├── #displayBtn              ← menu Display (accordion)
+│   │   │   └── #displayMenu
+│   │   │       ├── #displaySecTypo  → #displayBodyTypo
+│   │   │       ├── #displaySecThemes → #displayBodyThemes
+│   │   │       └── #displaySecInterface → #displayBodyInterface
+│   │   ├── #scrollModeBtn           ← toggle pagine/scroll
+│   │   ├── #zoomBtn + #zoomPopupMain ← zoom toolbar
+│   │   ├── #saveStateBtn            ← salva stato
+│   │   ├── .extract-dropdown
+│   │   │   ├── #extractChapterBtn   ← estrai capitolo
+│   │   │   └── #extractMenu         ← current / tree
+│   │   └── #readerHelpBtn           ← ?
+│   │
+│   │  [Popup DOM — presenti nell'&lt;header&gt; ma nascosti]:
+│   ├── #typographyPopupMain         ← popup tipografia (legacy)
+│   └── #interfacePopupMain          ← popup interfaccia (legacy)
+│
+├── #readerHelpBanner                ← banner primo avvio
+├── #readerHelpOverlay               ← overlay guida pulsanti
+├── #container
+│   ├── #bookmarks (nav)             ← sidebar TOC (laterale sinistra)
+│   └── #viewer                     ← area rendering EPUB (iframe)
+├── #floatingPrevBtn                 ← ← pagina (sovrapposta)
+├── #floatingNextBtn                 ← pagina → (sovrapposta)
+├── #userBookmarksDrawer             ← pannello bookmark personali (slide)
+└── #status                          ← barra di stato inferiore
+    ├── #statusMsg
+    ├── #statusSep
+    └── #statusPath
+</code></pre>
+<h3>2.2 Il popup DOM nascoste (Legacy Architecture)</h3>
+<p>Il codice contiene tre popup originariamente autonomi (<code>typographyPopupMain</code>, <code>themePopupMain</code>, <code>interfacePopupMain</code>) che ancora esistono nel DOM ma sono stati integrati nel menu <strong>Display</strong> accordion. L'architettura è la seguente:</p>
+<ul>
+<li>I popup originali rimangono nel DOM con <code>display: none !important</code> via CSS.</li>
+<li><code>initDisplayMenu()</code> li "adotta" dinamicamente: quando una sezione dell'accordion viene aperta per la prima volta, il popup corrispondente viene fisicamente spostato (<code>appendChild</code>) nel <code>displayBodyXxx</code> e i suoi stili vengono azzerati per adattarsi al contenitore.</li>
+<li>Tutta la logica JavaScript dei popup (event listeners, valori, aggiornamenti) rimane intatta senza modifiche.</li>
+</ul>
+<h3>2.3 Barra di stato</h3>
+<p>La barra <code>#status</code> in fondo al Reader mostra:</p>
+<ul>
+<li><code>#statusMsg</code>: messaggio di stato corrente (es. "Book opened: …", "Extracting chapter…")</li>
+<li><code>#statusSep</code> + <code>#statusPath</code>: breadcrumb gerarchico del capitolo corrente (es. <code>Parte II › Capitolo 3 › Sezione 3.1</code>). Se il percorso ha più di 2 livelli viene condensato: <code>Parte II › … › Sezione 3.1</code>.</li>
+</ul>
+<hr />
+<h2 id="3-ciclo-di-vita-dalla-library-al-reader">3. Ciclo di vita: dalla Library al Reader</h2>
+<h3>3.1 Apertura di un libro</h3>
+<pre><code>Utente clicca copertina libro in Library
+      ↓
+openBookFromLibrary(bookData)
+      ↓
+showLoading('Opening Book...')
+      ↓
+showReader()  ←  nasconde #library-view, mostra #reader-view
+      ↓
+currentBookId = bookData.id
+currentBookTitle = bookData.title
+      ↓
+loadAndApplyBookState(currentBookId)
+  → Ripristina: fontSize, lineHeight, currentTheme, scrollMode,
+    dualPageMode, sidebarVisible, buttonZoom, interfaceSettings,
+    readerHighlights, positionCFI
+      ↓
+loadUserBookmarksFromDB(currentBookId)
+renderUbmList()
+      ↓
+Applica zoom toolbar, scroll mode btn, dual page btn,
+font info, interface settings
+      ↓
+book = ePub(bookData.data)   ← crea istanza epub.js dall'ArrayBuffer in IDB
+await book.ready
+      ↓
+recreateRendition()
+  → Crea rendition nel #viewer
+  → Registra hooks.content per stili, highlights, tabelle, media
+  → Ripristina posizione (CFI → href → currentLocation → start)
+  → applyTheme()
+      ↓
+Carica TOC, renderizza sidebar
+      ↓
+Abilita extractChapterBtn, saveStateBtn
+      ↓
+Mostra/nasconde floating nav buttons
+      ↓
+hideLoading()
+</code></pre>
+<h3>3.2 Chiusura del Reader (ritorno alla Library)</h3>
+<pre><code>Utente clicca "← Library"  (#backToLibraryBtn)
+      ↓
+showLibrary()
+  → nasconde #reader-view
+  → mostra #library-view
+  → loadLibraryBooks()  (ricarica la lista)
+</code></pre>
+<p>Non viene eseguito alcun salvataggio automatico al ritorno. Il salvataggio è esclusivamente manuale (pulsante <strong>Save State</strong>).</p>
+<h3>3.3 Inizializzazione della rendition — <code>recreateRendition()</code></h3>
+<p>Questa funzione è il cuore del rendering. Viene chiamata:</p>
+<ul>
+<li>All'apertura del libro</li>
+<li>Al cambio modalità scroll (paginate ↔ scroll)</li>
+<li>Al toggle sidebar (per aggiornare il padding)</li>
+<li>Al cambio dual page mode</li>
+</ul>
+<pre><code class="language-javascript">rendition = book.renderTo('viewer', {
+  width: '100%',
+  height: '100%',
+  spread: (dualPageMode &amp;&amp; !scrollMode) ? 'auto' : 'none',
+  flow: scrollMode ? 'scrolled' : 'paginated',
+  manager: 'default'  // Sempre 'default' — previene scroll offset issues
+});
+</code></pre>
+<p><strong>Hooks registrati su ogni pagina:</strong></p>
+<pre><code class="language-javascript">rendition.hooks.content.register((contents) => {
+  // 1. Stili CSS inline: max-width immagini, padding laterale, tabelle scroll-wrap, classi highlight
+  // 2. Ripristino highlights salvati (readerHighlights array) con timeout 120ms
+  // 3. Wrapping di tutte le &lt;table&gt; in .epub-table-scroll-wrap per scroll orizzontale
+  // 4. Listener tap/click su immagini → postMessage({epubMediaTap: true, type:'img', data:{src,alt}})
+  // 5. Listener tap su .epub-table-scroll-wrap → postMessage({epubMediaTap: true, type:'table', data:{html}})
+  // 6. setTimeout(applyTheme, 50) → applica tema dopo il layout
+});
+</code></pre>
+<p><strong>Padding laterale dinamico:</strong></p>
+<p>Il padding del corpo del libro è calcolato a seconda dello stato dell'interfaccia:</p>
+<pre><code>basePadding = 40px   (margine bianco sempre presente)
+buttonWidth = 25px   (aggiunto se floating buttons visibili, cioè !scrollMode &amp;&amp; !sidebarVisible)
+totalPadding = 40 o 65 px
+</code></pre>
+<hr />
+<h2 id="4-mappa-completa-della-toolbar-del-reader">4. Mappa completa della toolbar del Reader</h2>
+<p>La toolbar è un <code>&lt;header&gt;</code> con <code>background: linear-gradient(135deg, #667eea, #764ba2)</code> (personalizzabile dall'utente). I pulsanti sono della classe <code>.btn</code> con varianti di colore.</p>
+<h3>Layout lineare da sinistra a destra</h3>
+<pre><code>[← Library] [EPUB Reader] [fileName]  |  [Sidebar] [Bookmarks] [Highlight] [Display] | [Scroll] [% Zoom] | [Save State] | [Extract ▾] [?]
+</code></pre>
+<hr />
+<h3>4.1 <code>#backToLibraryBtn</code> — Torna alla Library</h3>
+<table>
+<thead>
+<tr>
+<th>Proprietà</th>
+<th>Valore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Classe CSS</td>
+<td><code>.btn</code> (background <code>#3b82f6</code>)</td>
+</tr>
+<tr>
+<td>Icona</td>
+<td><code>bi-arrow-left</code></td>
+</tr>
+<tr>
+<td>Etichetta</td>
+<td>"Library"</td>
+</tr>
+<tr>
+<td>Azione</td>
+<td><code>showLibrary()</code> — ritorno alla Library senza salvataggio</td>
+</tr>
+<tr>
+<td>Stato</td>
+<td>Sempre abilitato</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>4.2 <code>#toggleSidebarBtn</code> — Sidebar TOC</h3>
+<table>
+<thead>
+<tr>
+<th>Proprietà</th>
+<th>Valore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Classe CSS</td>
+<td><code>.btn .btn-icon .btn-primary</code> (min-width 64px)</td>
+</tr>
+<tr>
+<td>Icona</td>
+<td><code>bi-layout-sidebar</code></td>
+</tr>
+<tr>
+<td>Azione</td>
+<td>Toggle visibilità sidebar <code>#bookmarks</code></td>
+</tr>
+<tr>
+<td>Effetto collaterale</td>
+<td>Nasconde/mostra floating nav buttons; ricrea rendition per aggiornare padding</td>
+</tr>
+<tr>
+<td>Stato</td>
+<td>Disabilitato finché nessun libro è aperto</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Dettaglio comportamento:</strong></p>
+<pre><code class="language-javascript">sidebarVisible = !sidebarVisible;
+bookmarks.classList.toggle('hidden', !sidebarVisible);
+// Se non in scroll mode: toggle floating buttons, ricrea rendition
+// rendition.resize() via requestAnimationFrame + setTimeout(50ms)
+</code></pre>
+<p>La sidebar è posizionata dinamicamente tramite <code>ResizeObserver</code> sull'header: <code>bookmarks.style.top = (headerHeight + 20) + 'px'</code>.</p>
+<hr />
+<h3>4.3 <code>#userBookmarksBtn</code> — Bookmarks personali</h3>
+<table>
+<thead>
+<tr>
+<th>Proprietà</th>
+<th>Valore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Classe CSS</td>
+<td><code>.btn .btn-icon</code> (background <code>rgba(251,191,36,0.25)</code>)</td>
+</tr>
+<tr>
+<td>Icona</td>
+<td><code>bi-bookmark-star</code> (giallo ambra)</td>
+</tr>
+<tr>
+<td>Badge</td>
+<td><code>#ubmBadge</code> — contatore bookmarks salvati (nascosto se 0)</td>
+</tr>
+<tr>
+<td>Azione</td>
+<td>Toggle drawer <code>#userBookmarksDrawer</code></td>
+</tr>
+<tr>
+<td>Stato</td>
+<td>Sempre visibile, interazioni attive solo con libro aperto</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>4.4 <code>#readerHighlightBtn</code> — Evidenziazione testo</h3>
+<table>
+<thead>
+<tr>
+<th>Proprietà</th>
+<th>Valore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Classe CSS</td>
+<td><code>.btn .btn-icon</code> con classe dinamica <code>hl-yellow/hl-green/hl-pink/hl-remove</code></td>
+</tr>
+<tr>
+<td>Icona</td>
+<td><code>bi-highlighter</code></td>
+</tr>
+<tr>
+<td>Colore pulsante</td>
+<td>Riflette il colore corrente selezionato</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comportamento smart:</strong></p>
+<ul>
+<li>Se c'è una selezione attiva (<code>_readerPendingCfi</code> valorizzato da evento <code>selected</code> di epub.js): applica o rimuove l'highlight immediatamente.</li>
+<li>Se non c'è selezione: apre il menu picker <code>#readerHighlightMenu</code>.</li>
+</ul>
+<p><strong>Menu picker colori:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Opzione</th>
+<th>Classe CSS</th>
+<th>Classe highlight</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Yellow</td>
+<td><code>hl-yellow</code></td>
+<td><code>epub-hl-yellow</code> → <code>background: #ffeb3b</code></td>
+</tr>
+<tr>
+<td>Green</td>
+<td><code>hl-green</code></td>
+<td><code>epub-hl-green</code> → <code>background: #a5d6a7</code></td>
+</tr>
+<tr>
+<td>Pink</td>
+<td><code>hl-pink</code></td>
+<td><code>epub-hl-pink</code> → <code>background: #f8bbd9</code></td>
+</tr>
+<tr>
+<td>Remove</td>
+<td><code>hl-remove</code></td>
+<td>Rimuove annotation</td>
+</tr>
+</tbody>
+</table>
+<p>Il picker si chiude automaticamente al clic fuori. Il bordo blu del pulsante (<code>outline: 2px solid #3b82f6</code>) indica che c'è una selezione pending.</p>
+<hr />
+<h3>4.5 <code>#displayBtn</code> — Menu Display (accordion)</h3>
+<table>
+<thead>
+<tr>
+<th>Proprietà</th>
+<th>Valore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Classe CSS</td>
+<td><code>.btn .btn-icon</code></td>
+</tr>
+<tr>
+<td>Icona</td>
+<td><code>bi-eye</code></td>
+</tr>
+<tr>
+<td>Azione</td>
+<td>Toggle menu <code>#displayMenu</code> (dropdown accordion dark)</td>
+</tr>
+<tr>
+<td>Contenuto</td>
+<td>Tre sezioni collassabili: Typography, Themes, Interface</td>
+</tr>
+</tbody>
+</table>
+<p>Il menu è un dropdown <code>position: absolute</code>, sfondo <code>#1e293b</code>, bordo radius 10px. Le tre sezioni sono accordion: clic sull'header → apre il body corrispondente (chiudendo gli altri). Il contenuto delle sezioni viene "adottato" dai popup legacy al primo utilizzo.</p>
+<h4>Sezione Typography</h4>
+<p>Controlli:</p>
+<table>
+<thead>
+<tr>
+<th>Controllo</th>
+<th>ID pulsanti</th>
+<th>Range</th>
+<th>Default</th>
+<th>Azione</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Font Size</td>
+<td><code>fontMinus1</code> / <code>fontPlus1</code> / <code>fontReset</code></td>
+<td>50% – 200%, step 1%</td>
+<td>100%</td>
+<td><code>applyTheme()</code></td>
+</tr>
+<tr>
+<td>Line Height</td>
+<td><code>lineHeightMinus</code> / <code>lineHeightPlus</code> / <code>lineHeightReset</code></td>
+<td>[1.0, 1.2, 1.4, 1.5, 1.6, 1.8, 2.0, 2.5, 3.0]</td>
+<td>1.2</td>
+<td><code>applyTheme()</code></td>
+</tr>
+<tr>
+<td>Page View</td>
+<td><code>singlePageBtn</code> / <code>dualPageBtn</code></td>
+<td>single / dual</td>
+<td>single</td>
+<td><code>recreateRendition()</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Dual page mode</strong>: disponibile solo in modalità paginata (non scroll). Usa <code>spread: 'auto'</code> nella rendition.</li>
+<li>Il valore corrente è mostrato nei badge <code>#fontInfo</code> e <code>#lineHeightInfo</code>.</li>
+<li>Tutti i reset riportano ai default e ricalcolano il tema.</li>
+</ul>
+<h4>Sezione Themes</h4>
+<p>Griglia di 15 swatch di colore organizzati in 5 gruppi. Descritti nel dettaglio nella <a href="#10-sistema-di-temi-di-lettura">sezione 10</a>.</p>
+<h4>Sezione Interface</h4>
+<table>
+<thead>
+<tr>
+<th>Controllo</th>
+<th>ID</th>
+<th>Default</th>
+<th>Effetto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Toolbar Color</td>
+<td><code>toolbarColorPicker</code></td>
+<td><code>#667eea</code></td>
+<td>Gradient header</td>
+</tr>
+<tr>
+<td>Sidebar Color</td>
+<td><code>sidebarColorPicker</code></td>
+<td><code>#ffffff</code></td>
+<td>Background sidebar</td>
+</tr>
+<tr>
+<td>Nav Buttons Color</td>
+<td><code>navButtonsColorPicker</td>
+<td><code>#667eea</code></td>
+<td>Floating nav buttons</td>
+</tr>
+<tr>
+<td>Nav Opacity</td>
+<td><code>navOpacitySlider</code></td>
+<td><code>0.7</code></td>
+<td>Opacity floating nav</td>
+</tr>
+<tr>
+<td>Bookmark Drawer Color</td>
+<td><code>ubmDrawerColorPicker</code></td>
+<td><code>#fffde7</code></td>
+<td>Background drawer</td>
+</tr>
+</tbody>
+</table>
+<p>Tutti hanno un pulsante reset (↺) che ripristina il valore di default. I cambiamenti sono applicati live tramite <code>applyInterfaceSettings()</code>.</p>
+<hr />
+<h3>4.6 <code>#scrollModeBtn</code> — Modalità scroll</h3>
+<table>
+<thead>
+<tr>
+<th>Proprietà</th>
+<th>Valore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Classe CSS</td>
+<td><code>.btn .btn-icon</code></td>
+</tr>
+<tr>
+<td>Icona</td>
+<td><code>bi-arrow-down-up</code></td>
+</tr>
+<tr>
+<td>Stato attivo</td>
+<td>Classe <code>.active</code> (verde)</td>
+</tr>
+<tr>
+<td>Azione</td>
+<td>Toggle <code>scrollMode</code> → <code>recreateRendition()</code></td>
+</tr>
+</tbody>
+</table>
+<p>Al toggle:</p>
+<ul>
+<li>Scroll mode ON: <code>flow: 'scrolled'</code>, floating nav buttons nascosti, dual page disabilitato.</li>
+<li>Scroll mode OFF: <code>flow: 'paginated'</code>, floating nav buttons visibili (se sidebar chiusa).</li>
+</ul>
+<hr />
+<h3>4.7 <code>#zoomBtn</code> + <code>#zoomPopupMain</code> — Zoom toolbar buttons</h3>
+<table>
+<thead>
+<tr>
+<th>Proprietà</th>
+<th>Valore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Etichetta</td>
+<td><code>%</code></td>
+</tr>
+<tr>
+<td>Popup</td>
+<td><code>#zoomPopupMain</code> (slider range)</td>
+</tr>
+<tr>
+<td>Range</td>
+<td>90% – 130%, step 10%</td>
+</tr>
+<tr>
+<td>Default</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Variabile CSS</td>
+<td><code>--toolbar-btn-scale</code> sulla <code>.toolbar</code></td>
+</tr>
+</tbody>
+</table>
+<p>Il popup si apre al clic e si chiude al clic fuori. Il valore viene applicato via CSS custom property che scala tutti i pulsanti della toolbar.</p>
+<hr />
+<h3>4.8 <code>#saveStateBtn</code> — Salva stato lettura</h3>
+<table>
+<thead>
+<tr>
+<th>Proprietà</th>
+<th>Valore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Classe CSS</td>
+<td><code>.btn .btn-icon .btn-warning</code> (arancione, min-width 80px)</td>
+</tr>
+<tr>
+<td>Icona</td>
+<td><code>bi-floppy</code></td>
+</tr>
+<tr>
+<td>Azione</td>
+<td><code>saveBookState()</code></td>
+</tr>
+<tr>
+<td>Feedback</td>
+<td>Toast <code>#saveToast</code></td>
+</tr>
+<tr>
+<td>Stato</td>
+<td>Disabilitato finché nessun libro è aperto</td>
+</tr>
+</tbody>
+</table>
+<p>Descritto in dettaglio nella <a href="#13-save-state--salvataggio-stato-di-lettura">sezione 13</a>.</p>
+<hr />
+<h3>4.9 <code>#extractChapterBtn</code> — Estrai capitolo</h3>
+<table>
+<thead>
+<tr>
+<th>Proprietà</th>
+<th>Valore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Classe CSS</td>
+<td><code>.btn .btn-icon .btn-success</code> (verde)</td>
+</tr>
+<tr>
+<td>Icona</td>
+<td><code>bi-file-earmark-arrow-down</code> + <code>bi-chevron-down</code></td>
+</tr>
+<tr>
+<td>Azione</td>
+<td>Toggle dropdown <code>#extractMenu</code></td>
+</tr>
+<tr>
+<td>Stato</td>
+<td>Disabilitato finché nessun libro è aperto</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Dropdown menu <code>#extractMenu</code>:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Opzione</th>
+<th><code>data-mode</code></th>
+<th>Funzione</th>
+<th>Descrizione</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Current chapter only</td>
+<td><code>current</code></td>
+<td><code>extractCurrentChapter()</code></td>
+<td>Estrae solo il capitolo foglia corrente</td>
+</tr>
+<tr>
+<td>Current + all sublevels</td>
+<td><code>tree</code></td>
+<td><code>collectAllSubchapters()</code> + <code>extractMultipleSections()</code></td>
+<td>Estrae il capitolo e tutti i sotto-capitoli annidati, mergiandoli in un unico documento</td>
+</tr>
+</tbody>
+</table>
+<p>Descritto in dettaglio nella <a href="#12-estrazione-capitolo--funzione-extract">sezione 12</a>.</p>
+<hr />
+<h3>4.10 <code>#readerHelpBtn</code> — Guida rapida</h3>
+<table>
+<thead>
+<tr>
+<th>Proprietà</th>
+<th>Valore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Classe CSS</td>
+<td><code>.btn .btn-icon .btn-help</code></td>
+</tr>
+<tr>
+<td>Etichetta</td>
+<td><code>?</code></td>
+</tr>
+<tr>
+<td>Azione</td>
+<td><code>openOverlay('readerHelpOverlay')</code></td>
+</tr>
+<tr>
+<td>Keyboard shortcut</td>
+<td>Tasto <code>?</code> (quando il Reader è visibile)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3>4.11 Floating nav buttons (fuori toolbar)</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Icona</th>
+<th>Azione</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>#floatingPrevBtn</code></td>
+<td><code>bi-chevron-left</code></td>
+<td><code>rendition.prev()</code></td>
+</tr>
+<tr>
+<td><code>#floatingNextBtn</code></td>
+<td><code>bi-chevron-right</code></td>
+<td><code>rendition.next()</code></td>
+</tr>
+</tbody>
+</table>
+<p>Visibili solo in modalità paginata <strong>e</strong> sidebar chiusa. Posizionati in overlay sovrapposto al viewer. Colore e opacità personalizzabili dal menu Interface.</p>
+<hr />
+<h2 id="5-sidebar-toc--indice-del-libro">5. Sidebar TOC — Indice del libro</h2>
+<h3>5.1 Struttura</h3>
+<p>Il <code>&lt;nav id="bookmarks"&gt;</code> è un pannello laterale sinistro con lista gerarchica dell'indice EPUB. È costruito dalla funzione <code>renderBookmarksSimple(toc)</code> dopo il caricamento del libro.</p>
+<h3>5.2 Rendering gerarchico</h3>
+<p>La funzione <code>createList(items, level, ancestorPath)</code> crea ricorsivamente una struttura <code>&lt;ul&gt;/&lt;li&gt;</code>:</p>
+<ul>
+<li><strong>Livello 1:</strong> <code>ul</code> senza classi</li>
+<li><strong>Livello 2:</strong> <code>ul.sub.level-2</code></li>
+<li><strong>Livello 3+:</strong> <code>ul.sub</code></li>
+</ul>
+<p>Ogni <code>&lt;li&gt;</code> ha:</p>
+<ul>
+<li>Classe <code>expandable</code> se ha sotto-voci, <code>leaf</code> se è foglia.</li>
+<li>Attributo <code>translate="yes"</code> per il supporto alla traduzione automatica del browser.</li>
+<li>Testo = <code>item.label</code> (nome del capitolo/sezione).</li>
+</ul>
+<p><strong>Clic su una voce TOC:</strong></p>
+<ol>
+<li>Se <code>item.href</code>: naviga tramite <code>navigateToHref(item.href)</code> e aggiorna <code>statusPath</code> con il breadcrumb completo.</li>
+<li>Se ha sotto-voci: toggle classe <code>open</code> per espandere/collassare.</li>
+</ol>
+<h3>5.3 Navigazione <code>navigateToHref(href)</code></h3>
+<p>La funzione gestisce due casi distinti:</p>
+<p><strong>In modalità paginata:</strong></p>
+<ul>
+<li>Prova direttamente <code>rendition.display(target)</code>.</li>
+<li>Se fallisce: smart resolution — estrae <code>fileName</code> dall'href, cerca nella spine per nome file, poi riprova con o senza anchor.</li>
+</ul>
+<p><strong>In modalità scroll:</strong></p>
+<ul>
+<li>La navigazione in scroll mode è problematica perché la ricreazione automatica della rendition causa backward-scroll.</li>
+<li>Soluzione: distrugge la rendition corrente, ricrea una nuova con <code>flow: 'scrolled'</code> ma sempre <code>manager: 'default'</code> (non <code>continuous</code>), naviga al <code>spineItem.href</code>.</li>
+<li>Questo previene il comportamento di auto-loading di capitoli adiacenti.</li>
+</ul>
+<h3>5.4 Posizionamento dinamico</h3>
+<p>Il top della sidebar viene calcolato dinamicamente tramite <code>ResizeObserver</code> sull'header e <code>window.resize</code> + <code>orientationchange</code>:</p>
+<pre><code class="language-javascript">bookmarks.style.top = (header.getBoundingClientRect().height + 20) + 'px';
+</code></pre>
+<hr />
+<h2 id="6-pannello-user-bookmarks-drawer">6. Pannello User Bookmarks (Drawer)</h2>
+<h3>6.1 Struttura</h3>
+<p>Il drawer <code>#userBookmarksDrawer</code> è un pannello che scivola dall'alto (con animazione CSS) subito sotto l'header, senza nascondere il contenuto sottostante. Il suo colore di sfondo è personalizzabile (default <code>#fffde7</code>, giallo pallido).</p>
+<pre><code>#userBookmarksDrawer
+├── #ubmHeader
+│   ├── &lt;h3&gt; My Bookmarks
+│   ├── #ubmNewBtn (+New Bookmark)
+│   └── #ubmCloseBtn (✕)
+└── #ubmList
+    ├── .ubm-item (per ogni bookmark)
+    │   ├── .ubm-item-body (cliccabile → naviga)
+    │   │   ├── .ubm-chapter  (titolo capitolo, max 55 char)
+    │   │   ├── .ubm-preview  (estratto testo, max 100 char)
+    │   │   ├── .ubm-label    (se presente: "🏷 etichetta")
+    │   │   └── .ubm-date     (data creazione)
+    │   └── .ubm-delete-btn (✕)
+    └── .ubm-empty  (se lista vuota)
+</code></pre>
+<h3>6.2 Creazione di un bookmark — <code>createUserBookmark()</code></h3>
+<p>La funzione raccoglie automaticamente:</p>
+<ol>
+<li><strong>CFI e href correnti</strong> tramite <code>rendition.currentLocation().start</code>.</li>
+<li><strong>Titolo del capitolo</strong>: ricerca nel TOC tramite <code>findBreadcrumbInToc()</code>, prende l'ultimo segmento del percorso.</li>
+<li><strong>Preview del testo</strong> (100 caratteri): estrae il testo completo del documento iframe, calcola l'offset basato sulla posizione della pagina (<code>loc.start.displayed.page / total</code>), prende 100 caratteri iniziando 400 posizioni dopo l'offset. Questo garantisce un preview del testo visibile alla posizione corrente.</li>
+<li><strong>Etichetta opzionale</strong>: <code>window.prompt('Optional label…')</code>.</li>
+</ol>
+<p><strong>Struttura di un bookmark:</strong></p>
+<pre><code class="language-javascript">{
+  id:        "1711530000000_abc12",    // timestamp + random
+  chapter:   "Capitolo III",           // nome capitolo (max 55 char)
+  preview:   "…testo del libro…",      // estratto testo (100 char)
+  label:     "Punto importante",        // etichetta utente (opzionale)
+  cfi:       "epubcfi(/6/4[s3]!/4/2)", // posizione CFI precisa
+  href:      "OEBPS/chapter3.xhtml",   // fallback href
+  createdAt: 1711530000000             // timestamp
+}
+</code></pre>
+<h3>6.3 Navigazione da un bookmark</h3>
+<p>Clic sul body del bookmark:</p>
+<ol>
+<li>Se <code>bm.cfi</code>: <code>rendition.display(bm.cfi)</code> — navigazione precisa alla posizione.</li>
+<li>Altrimenti se <code>bm.href</code>: <code>navigateToHref(bm.href)</code> — navigazione al capitolo.</li>
+<li>Chiude il drawer.</li>
+</ol>
+<h3>6.4 Persistenza</h3>
+<p>I bookmarks vengono salvati dentro il record del libro in <code>EpubLibraryDB</code>, come campo <code>userBookmarks: []</code> dell'oggetto book. Vengono caricati in memoria (<code>userBookmarks</code> array) all'apertura del libro e riscritti ad ogni modifica (aggiunta, eliminazione).</p>
+<p><strong>Non</strong> vengono inclusi nel <code>savedState</code> — hanno una propria logica di persistenza separata.</p>
+<h3>6.5 Badge sul pulsante</h3>
+<p>Il badge numerico <code>#ubmBadge</code> sul pulsante <code>#userBookmarksBtn</code> mostra il numero di bookmark. È nascosto (<code>display: none</code>) se <code>userBookmarks.length === 0</code>.</p>
+<hr />
+<h2 id="7-sistema-di-evidenziazione-highlight">7. Sistema di evidenziazione (Highlight)</h2>
+<h3>7.1 Principio di funzionamento</h3>
+<p>Il sistema di highlight usa le <strong>annotazioni di epub.js</strong> (<code>rendition.annotations.highlight()</code>) identificate da <strong>CFI</strong> (Canonical Fragment Identifier). I CFI sono forniti dall'evento <code>rendition.on('selected', ...)</code> che scatta quando l'utente seleziona testo nel viewer iframe.</p>
+<h3>7.2 Flusso di selezione e applicazione</h3>
+<pre><code>Utente seleziona testo nel viewer iframe
+      ↓
+epub.js emette evento 'selected' con cfiRange
+      ↓
+_readerPendingCfi = cfiRange
+_readerHlHasSelection = true
+→ Il pulsante Highlight mostra bordo blu
+      ↓
+Utente clicca pulsante Highlight
+      ↓
+Se hasSelection:
+  → applyReaderHighlight() OPPURE removeReaderHighlight()
+  → _readerPendingCfi = null
+  → Bordo blu rimosso
+Altrimenti:
+  → Apre il menu picker colori
+</code></pre>
+<h3>7.3 Applicazione e rimozione</h3>
+<p><strong>Applicazione (<code>applyReaderHighlight</code>):</strong></p>
+<pre><code class="language-javascript">// Deduplicazione: rimuove highlight preesistente stesso CFI
+readerHighlights = readerHighlights.filter(h => h.cfi !== cfi);
+rendition.annotations.remove(cfi, 'highlight');
+// Aggiunge nuovo
+readerHighlights.push({ cfi: cfi, color: currentReaderHighlightColor });
+rendition.annotations.highlight(cfi, {}, () => {}, 'epub-hl-' + currentReaderHighlightColor);
+// Pulisce selezione negli iframe
+</code></pre>
+<p><strong>Rimozione (<code>removeReaderHighlight</code>):</strong></p>
+<pre><code class="language-javascript">rendition.annotations.remove(cfi, 'highlight');
+readerHighlights = readerHighlights.filter(h => h.cfi !== cfi);
+</code></pre>
+<h3>7.4 Persistenza e ripristino</h3>
+<p>Gli highlight sono salvati nell'array <code>readerHighlights: [{cfi, color}]</code> e inclusi nel <code>savedState</code> del libro in IDB.</p>
+<p>Al ripristino (apertura libro o cambio pagina), l'hook <code>rendition.hooks.content.register</code> ripristina tutti gli highlight con un timeout di 120ms per garantire che epub.js abbia completato il layout:</p>
+<pre><code class="language-javascript">readerHighlights.forEach(hl => {
+  try {
+    rendition.annotations.remove(hl.cfi, 'highlight');
+    rendition.annotations.highlight(hl.cfi, {}, () => {}, 'epub-hl-' + hl.color);
+  } catch(e) { /* CFI stale — ignora */ }
+});
+</code></pre>
+<p>I CFI stale (non più validi, es. dopo ricompilazione del libro) vengono ignorati silenziosamente.</p>
+<h3>7.5 Classi CSS degli highlight</h3>
+<p>Iniettate nell'iframe via style tag nell'hook content:</p>
+<pre><code class="language-css">.epub-hl-yellow { background-color: #ffeb3b !important; }
+.epub-hl-green  { background-color: #a5d6a7 !important; }
+.epub-hl-pink   { background-color: #f8bbd9 !important; }
+</code></pre>
+<h3>7.6 Colore corrente del pulsante</h3>
+<p>Il pulsante Highlight cambia colore per riflettere la modalità corrente:</p>
+<ul>
+<li><code>hl-yellow</code>: background giallo (#ffeb3b)</li>
+<li><code>hl-green</code>: background verde (#a5d6a7)</li>
+<li><code>hl-pink</code>: background rosa (#f8bbd9)</li>
+<li><code>hl-remove</code>: stile "rimozione" (indicato visivamente)</li>
+</ul>
+<hr />
+<h2 id="8-menu-display--typography-themes-interface">8. Menu Display — Typography, Themes, Interface</h2>
+<h3>8.1 Architettura accordion</h3>
+<p>Il menu <code>#displayMenu</code> è un accordion a tre sezioni che si apre come dropdown dropdown dal pulsante <code>#displayBtn</code>. È implementato dalla funzione <code>initDisplayMenu()</code>.</p>
+<p><strong>Logica di apertura/chiusura:</strong></p>
+<pre><code class="language-javascript">// Apertura menu principale
+displayBtn.addEventListener('click', () => {
+  _closeAllReaderMenus(); // chiude tutti gli altri menu aperti
+  displayMenu.classList.toggle('open');
+});
+
+// Clic su header sezione
+headerEl.addEventListener('click', () => {
+  var isOpen = body.classList.contains('open');
+  SECTIONS.forEach(s => _toggle(s, false)); // chiude tutte
+  if (!isOpen) _toggle(sec, true);           // apre solo questa
+});
+</code></pre>
+<p><strong>Adozione dei popup legacy (<code>_embedPopup</code>):</strong></p>
+<p>Al primo utilizzo di ogni sezione, il popup legacy corrispondente viene "adottato":</p>
+<pre><code class="language-javascript">function _embedPopup(sec) {
+  if (sec._embedded) return; // già fatto
+  sec._embedded = true;
+  var popup = document.getElementById(sec.popupId);
+  var body  = document.getElementById(sec.bodyId);
+  // Reset tutti gli stili floating del popup
+  popup.style.display    = 'block';
+  popup.style.position   = 'relative';
+  popup.style.boxShadow  = 'none';
+  // ... altri reset
+  var h3 = popup.querySelector('h3');
+  if (h3) h3.style.display = 'none'; // nasconde titolo ridondante
+  body.appendChild(popup); // sposta fisicamente nel corpo accordion
+}
+</code></pre>
+<h3>8.2 Interazione con altri menu</h3>
+<p>La funzione <code>_closeAllReaderMenus()</code> chiude tutti i menu aperti contemporaneamente:</p>
+<ul>
+<li><code>typographyPopupMain</code>, <code>themePopupMain</code>, <code>interfacePopupMain</code></li>
+<li><code>extractMenu</code></li>
+<li><code>readerHighlightMenu</code></li>
+<li><code>displayMenu</code> (con tutti i corpi sezione)</li>
+</ul>
+<p>Viene chiamata:</p>
+<ul>
+<li>All'apertura del Display menu</li>
+<li>Quando il pulsante Extract viene cliccato (se Display era aperto)</li>
+<li>Quando il pulsante Highlight viene cliccato (se Display era aperto)</li>
+</ul>
+<hr />
+<h2 id="9-modalita-di-navigazione">9. Modalità di navigazione</h2>
+<h3>9.1 Navigazione paginata (default)</h3>
+<pre><code>flow: 'paginated', manager: 'default', spread: 'none' (o 'auto' se dual page)
+</code></pre>
+<ul>
+<li><strong>← / → frecce tastiera</strong>: <code>rendition.prev()</code> / <code>rendition.next()</code></li>
+<li><strong>Floating nav buttons</strong>: visibili se sidebar è chiusa</li>
+<li><strong>Dual page</strong>: spread 'auto' — epub.js distribuisce il contenuto su due colonne</li>
+<li>Breadcrumb aggiornato automaticamente sull'evento <code>rendition.on('relocated', ...)</code></li>
+</ul>
+<h3>9.2 Modalità scroll continuo</h3>
+<pre><code>flow: 'scrolled', manager: 'default'
+</code></pre>
+<ul>
+<li>Il contenuto si estende verticalmente senza interruzioni di pagina.</li>
+<li>I floating nav buttons vengono nascosti.</li>
+<li>Il dual page è disabilitato e forzato a single.</li>
+<li>La navigazione tramite TOC usa una procedura speciale (ricrea rendition con manager 'default') per evitare il backward-scroll.</li>
+</ul>
+<h3>9.3 Breadcrumb automatico</h3>
+<p>L'evento <code>rendition.on('relocated', (location) => {...})</code> scatta ad ogni cambio pagina. Usa <code>findBreadcrumbInToc(book.navigation.toc, location.start.href, '')</code> per costruire il percorso completo, che viene poi condensato in <code>statusPath</code>.</p>
+<p>Algoritmo di condensazione:</p>
+<ul>
+<li>≤ 2 livelli: mostra tutto (es. <code>Parte II › Capitolo 3</code>)</li>
+<li>> 2 livelli: <code>Parte II › … › Sezione 3.1</code></li>
+<li>Il full path è mantenuto in <code>data-full</code> per accessibilità.</li>
+</ul>
+<h3>9.4 Navigazione da link interni EPUB</h3>
+<p>I link interni all'EPUB (es. note a piè di pagina, rimandi) sono intercettati dall'evento <code>rendition.on('linkClicked', (href) => navigateToHref(href))</code>.</p>
+<h3>9.5 Keyboard shortcut</h3>
+<pre><code class="language-javascript">document.addEventListener('keydown', (e) => {
+  // ? → toggle overlay help Reader (solo se Reader visibile)
+});
+</code></pre>
+<p>Arrow keys (← →) per la navigazione pagine sono gestite nativamente da epub.js in modalità paginata.</p>
+<hr />
+<h2 id="10-sistema-di-temi-di-lettura">10. Sistema di temi di lettura</h2>
+<h3>10.1 Struttura dati <code>THEME_COLORS</code></h3>
+<p>15 temi definiti come oggetti <code>{bg, fg, label, group}</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Gruppo</th>
+<th>Temi</th>
+<th>Sfondo</th>
+<th>Testo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>White</td>
+<td>normal (White)</td>
+<td><code>#ffffff</code></td>
+<td><code>#000000</code></td>
+</tr>
+<tr>
+<td>White</td>
+<td>softwhite (Soft White)</td>
+<td><code>#fafafa</code></td>
+<td><code>#1a1a1a</code></td>
+</tr>
+<tr>
+<td>Cream / Sepia</td>
+<td>cream</td>
+<td><code>#fdf6e3</code></td>
+<td><code>#3b2e1a</code></td>
+</tr>
+<tr>
+<td>Cream / Sepia</td>
+<td>sepia</td>
+<td><code>#f4ecd8</code></td>
+<td><code>#3b2e1a</code></td>
+</tr>
+<tr>
+<td>Cream / Sepia</td>
+<td>parchment</td>
+<td><code>#eee5d3</code></td>
+<td><code>#33291a</code></td>
+</tr>
+<tr>
+<td>Light Gray</td>
+<td>gray</td>
+<td><code>#e5e7eb</code></td>
+<td><code>#1f2937</code></td>
+</tr>
+<tr>
+<td>Light Gray</td>
+<td>coolgray</td>
+<td><code>#dfe3e8</code></td>
+<td><code>#1c2530</code></td>
+</tr>
+<tr>
+<td>Light Gray</td>
+<td>warmgray</td>
+<td><code>#e8e4df</code></td>
+<td><code>#2c2419</code></td>
+</tr>
+<tr>
+<td>Medium Gray</td>
+<td>midgray</td>
+<td><code>#b0b8c1</code></td>
+<td><code>#1a1f26</code></td>
+</tr>
+<tr>
+<td>Medium Gray</td>
+<td>slate</td>
+<td><code>#94a3b8</code></td>
+<td><code>#0f172a</code></td>
+</tr>
+<tr>
+<td>Dark Gray</td>
+<td>darkgray</td>
+<td><code>#4b5563</code></td>
+<td><code>#f3f4f6</code></td>
+</tr>
+<tr>
+<td>Dark Gray</td>
+<td>charcoal</td>
+<td><code>#374151</code></td>
+<td><code>#e5e7eb</code></td>
+</tr>
+<tr>
+<td>Dark / Black</td>
+<td>dark</td>
+<td><code>#1a1a1a</code></td>
+<td><code>#d4d4d4</code></td>
+</tr>
+<tr>
+<td>Dark / Black</td>
+<td>midnight</td>
+<td><code>#0f1117</code></td>
+<td><code>#c8cdd3</code></td>
+</tr>
+<tr>
+<td>Dark / Black</td>
+<td>truedark (True Black)</td>
+<td><code>#000000</code></td>
+<td><code>#b8b8b8</code></td>
+</tr>
+</tbody>
+</table>
+<h3>10.2 Applicazione del tema — <code>applyTheme()</code></h3>
+<pre><code class="language-javascript">rendition.themes.register('custom', {
+  body: {
+    'background': `${active.bg} !important`,
+    'color': `${active.fg} !important`,
+    'font-size': `${fontSize}% !important`,
+    'line-height': `${lineHeight} !important`
+  },
+  'p, div, span, li, h1, h2, h3, h4, h5, h6': {
+    'font-size': `${fontSize}% !important`,
+    'color': `${active.fg} !important`,
+    'line-height': `${lineHeight} !important`
+  }
+});
+rendition.themes.select('custom');
+</code></pre>
+<p>Il tema è applicato all'interno dell'iframe via il sistema di theming di epub.js. Le variazioni di fontSize e lineHeight sono incluse nello stesso tema CSS.</p>
+<h3>10.3 Swatch attiva</h3>
+<p>Nella griglia temi la swatch attiva riceve la classe <code>.active</code> (bordo/indicatore). Aggiornata da <code>updateThemeSwatchActive()</code> al cambio tema.</p>
+<hr />
+<h2 id="11-interazione-con-media-immagini-e-tabelle">11. Interazione con media: immagini e tabelle</h2>
+<h3>11.1 Wrapping delle tabelle</h3>
+<p>Ogni <code>&lt;table&gt;</code> presente nel contenuto EPUB viene wrappata in un <code>&lt;div class="epub-table-scroll-wrap"&gt;</code> con:</p>
+<pre><code class="language-css">.epub-table-scroll-wrap {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.epub-table-scroll-wrap table {
+  table-layout: auto !important;
+  width: auto !important;
+}
+</code></pre>
+<p>Questo permette lo scroll orizzontale su mobile per tabelle larghe.</p>
+<h3>11.2 Sistema Media Tap (postMessage)</h3>
+<p>Quando l'utente tocca/clicca un'immagine o una tabella nell'iframe EPUB, viene inviato un <code>postMessage</code> al parent:</p>
+<pre><code class="language-javascript">window.parent.postMessage({
+  epubMediaTap: true,
+  type: 'img',    // o 'table'
+  data: { src, alt }  // o { html }
+}, '*');
+</code></pre>
+<p><strong>Nel parent (<code>noesis810.html</code>):</strong></p>
+<pre><code>postMessage ricevuto
+      ↓
+pending = { type, data }
+Mostra #readerMediaDialog (posizionato al centro viewport)
+  → [Preview] [Exit]
+</code></pre>
+<p>Clic <strong>Preview</strong>:</p>
+<ul>
+<li>Se immagine: <code>fsContent.innerHTML = &lt;img src="…"&gt;</code> in <code>#readerMediaFullscreen</code></li>
+<li>Se tabella: <code>fsContent.innerHTML = tableHTML</code> in <code>#readerMediaFullscreen</code></li>
+<li><code>fsCaption.textContent = alt</code> (per immagini)</li>
+<li>Apre overlay fullscreen</li>
+</ul>
+<p>Clic <strong>Exit</strong>: nasconde dialog, annulla pending.</p>
+<h3>11.3 Overlay fullscreen media</h3>
+<p><code>#readerMediaFullscreen</code> è un overlay a schermo intero (sfondo scuro) che mostra l'immagine o la tabella in dimensioni massime. Chiudibile tramite <code>#readerFsClose</code> (✕).</p>
+<p><strong>Prevenzione gesture iOS</strong>: le immagini nell'iframe hanno <code>webkitTouchCallout: 'none'</code> e <code>userSelect: 'none'</code> per evitare il menu contestuale iOS.</p>
+<p><strong>Gestione touchMoved</strong>: sia per immagini che per tabelle, un flag <code>touchMoved</code> previene che un drag/scroll venga interpretato come tap.</p>
+<hr />
+<h2 id="12-estrazione-capitolo--funzione-extract">12. Estrazione capitolo — funzione Extract</h2>
+<h3>12.1 Modalità "Current chapter only" — <code>extractCurrentChapter()</code></h3>
+<p><strong>Flusso:</strong></p>
+<pre><code>1. Ottieni posizione corrente: rendition.currentLocation()
+2. Ricava currentHref → currentSpineItem dalla spine
+3. Cerca nell'TOC: trovaTocEntry() → chapterTitle
+4. Carica la section: section.load(book.load.bind(book))
+5. Clona il documento: doc.cloneNode(true)
+6. Per ogni &lt;img&gt; nel clone:
+   - Skip se già base64 o URL assoluto
+   - findAndLoadImage(src, sectionPath):
+     * Costruisce percorso relativo dalla section
+     * Normalizza (risolve ../ e ./)
+     * Prova varianti: con/senza slash iniziale, path originale, match per filename
+     * Legge da zip: zip.files[normalizedPath].async('arraybuffer')
+   - Rilevamento MIME type dai magic bytes (PNG, GIF, JPEG, WebP, SVG)
+   - Converte in base64 (in chunk da 32KB per evitare stack overflow su mobile)
+   - Sostituisce src con data URL
+7. Estrae CSS:
+   - Tag &lt;style&gt; inline
+   - Fogli CSS linkati (caricati tramite book.archive.request())
+   - Computed styles (fontFamily, fontSize, lineHeight)
+8. htmlContent = clonedDoc.body.innerHTML
+9. Genera chapterId, firstSnapshot (isOrigin: true)
+10. Salva chapterRecord in noesisDB
+11. Scarica coppia file: noesis-extract-…html + noesis-origin-…html
+12. Apre sn56.x con payload chapter
+</code></pre>
+<h3>12.2 Modalità "Current + all sublevels" — <code>extractMultipleSections()</code></h3>
+<p><strong>Algoritmo:</strong></p>
+<pre><code>1. findTocEntry() → trova il capitolo corrente nel TOC
+2. collectAllSubchapters(tocEntry):
+   → Raccolta ricorsiva: [root, child1, child2, grandchild1, ...]
+3. extractMultipleSections(allEntries, overallTitle):
+   → Set&lt;baseHref&gt; per deduplicare sezioni (un file spine può apparire in più voci TOC)
+   → Per ogni tocEntry NON già processato:
+     * Stesso algoritmo di findAndLoadImage
+     * CSS estratto SOLO dalla prima sezione
+     * HTML del body aggiunto a combinedHTML
+     * Separatore: &lt;div class="section-divider"&gt;&lt;h2&gt;label&lt;/h2&gt;&lt;/div&gt;
+4. overallTitle = "NomeTitoloRoot (Complete)"
+5. Stesso finale: chapterId, IDB, file disk, sn56.x
+</code></pre>
+<p><strong>Deduplicazione sezioni:</strong> ogni <code>href</code> viene normalizzato rimuovendo l'anchor (<code>#</code>). Un Set mantiene traccia dei base path già elaborati, evitando di duplicare il contenuto di sezioni che appaiono più volte nel TOC sotto voci diverse.</p>
+<h3>12.3 Output dell'estrazione (identico per entrambe le modalità)</h3>
+<p>Ogni estrazione produce <strong>quattro output simultanei</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Output</th>
+<th>Descrizione</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>noesisDB</code> — chapterRecord con snapshot <code>origin-…</code></td>
+<td>Snapshot originale in IDB per accesso dalla Library</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>noesis-extract-…html</code></td>
+<td>File HTML leggibile offline, senza meta tag noesis</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>noesis-origin-…html</code> (con 1.5s delay)</td>
+<td>File HTML con meta tag noesis, reimportabile in Library</td>
+</tr>
+<tr>
+<td>4</td>
+<td>sn56.x in nuova tab</td>
+<td>Editor aperto con il contenuto estratto</td>
+</tr>
+</tbody>
+</table>
+<h3>12.4 Conversione immagini in base64</h3>
+<p>La conversione usa chunk da 32768 byte (<code>0x8000</code>) per evitare stack overflow su dispositivi Android con memoria limitata:</p>
+<pre><code class="language-javascript">const bytes = new Uint8Array(imgData);
+const chunkSize = 0x8000;
+let binary = '';
+for (let i = 0; i &lt; bytes.length; i += chunkSize) {
+  const chunk = bytes.subarray(i, i + chunkSize);
+  binary += String.fromCharCode.apply(null, chunk);
+}
+const base64 = btoa(binary);
+</code></pre>
+<hr />
+<h2 id="13-save-state--salvataggio-stato-di-lettura">13. Save State — salvataggio stato di lettura</h2>
+<h3>13.1 Cosa viene salvato</h3>
+<p>La funzione <code>saveBookState()</code> crea un oggetto <code>stateToSave</code> che comprende:</p>
+<pre><code class="language-javascript">{
+  // 1. Tipografia
+  fontSize: 100,           // 50-200%
+  lineHeight: 1.2,         // da array preset
+
+  // 2. Tema
+  theme: 'normal',         // chiave THEME_COLORS
+
+  // 3. Modalità navigazione
+  scrollMode: false,
+  dualPageMode: false,
+  sidebarVisible: false,
+
+  // 4. Zoom toolbar
+  buttonZoom: 100,         // 90-130%
+
+  // 5. Impostazioni interfaccia
+  interface: {
+    toolbarColor: '#667eea',
+    sidebarColor: '#ffffff',
+    navButtonsColor: '#667eea',
+    navOpacity: 0.7,
+    ubmDrawerColor: '#fffde7'
+  },
+
+  // 6. Posizione di lettura
+  position: {
+    cfi:  'epubcfi(/6/4[s3]!/4/2)',  // posizione CFI precisa
+    href: 'OEBPS/chapter3.xhtml',     // href fallback
+    timestamp: 1711530000000
+  },
+
+  // 7. Highlights
+  readerHighlights: [
+    { cfi: 'epubcfi(…)', color: 'yellow' },
+    { cfi: 'epubcfi(…)', color: 'green' }
+  ],
+
+  savedAt: 1711530000000
+}
+</code></pre>
+<h3>13.2 Dove viene salvato</h3>
+<p>Lo stato è scritto nel <strong>record del libro in <code>EpubLibraryDB</code></strong> come campo <code>savedState</code>:</p>
+<pre><code class="language-javascript">const updatedBook = {
+  id: bookData.id,
+  title: bookData.title,
+  author: bookData.author,
+  data: bookData.data,           // ArrayBuffer EPUB (non modificato)
+  cover: bookData.cover,
+  addedAt: bookData.addedAt,
+  savedState: stateToSave        // ← aggiunto/aggiornato
+};
+store.put(updatedBook);
+</code></pre>
+<p>I <code>userBookmarks</code> sono salvati separatamente (nella stessa store, ma aggiornati in un'operazione separata tramite <code>saveUserBookmarksToDB()</code>).</p>
+<h3>13.3 Toast di feedback</h3>
+<p>Il Save State usa il sistema toast <code>#saveToast</code>:</p>
+<ul>
+<li>"Saving…" (durante il salvataggio, con timeout 4s)</li>
+<li>"State saved ✓" (al completamento, 2.5s)</li>
+<li>"Save failed" (in caso di errore, 3s)</li>
+</ul>
+<h3>13.4 Ripristino — <code>loadAndApplyBookState(bookId)</code></h3>
+<p>Viene chiamato all'apertura del libro, <strong>prima</strong> di creare la rendition. Ripristina tutte le variabili di stato in memoria. Se non c'è <code>savedState</code> (primo accesso al libro), applica i default.</p>
+<p>La <strong>posizione CFI</strong> viene restituita come valore di ritorno e applicata dopo che la rendition è creata e pronta:</p>
+<pre><code class="language-javascript">const savedPosition = await loadAndApplyBookState(currentBookId);
+// ...crea rendition, applyTheme...
+if (savedPosition &amp;&amp; savedPosition.cfi) {
+  try { await rendition.display(savedPosition.cfi); }
+  catch (e) { await rendition.display(); } // fallback all'inizio
+}
+</code></pre>
+<hr />
+<h2 id="14-sistema-help--banner-overlay-tasto-">14. Sistema Help — banner, overlay, tasto ?</h2>
+<h3>14.1 Banner primo avvio</h3>
+<p>Il banner <code>#readerHelpBanner</code> è mostrato la prima volta che si entra nel Reader (primo accesso assoluto). Viene nascosto al clic di ✕ e la chiave <code>'noesis-help-seen-reader'</code> viene scritta in <code>localStorage</code> per non mostrarlo più.</p>
+<p><strong>Contenuto:</strong></p>
+<ul>
+<li>"☰ Sidebar — table of contents &amp; bookmarks"</li>
+<li>"👁 Display — typography, themes &amp; interface"</li>
+<li>"💾 Save State — save position &amp; settings"</li>
+<li>"📄 Extract — extract chapter for annotation"</li>
+<li>"? — open this guide at any time"</li>
+</ul>
+<h3>14.2 Help overlay completo</h3>
+<p>L'overlay <code>#readerHelpOverlay</code> si apre tramite il pulsante <code>?</code> o il tasto <code>?</code> da tastiera (solo se Reader visibile). È strutturato in gruppi:</p>
+<table>
+<thead>
+<tr>
+<th>Gruppo</th>
+<th>Contenuto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Navigation &amp; View</td>
+<td>Sidebar, Bookmarks, Scroll Mode, % Zoom</td>
+</tr>
+<tr>
+<td>Appearance &amp; Reading</td>
+<td>Display (Typography/Themes/Interface), Highlight</td>
+</tr>
+<tr>
+<td>Saving &amp; Extraction</td>
+<td>Save State, Extract (current / +sublevels)</td>
+</tr>
+<tr>
+<td>Keyboard</td>
+<td>← →, ?</td>
+</tr>
+</tbody>
+</table>
+<p>Chiudibile tramite pulsante ✕, clic fuori dall'overlay, o tasto <code>?</code>.</p>
+<h3>14.3 Tasto tastiera <code>?</code></h3>
+<pre><code class="language-javascript">document.addEventListener('keydown', function(e) {
+  if (e.key !== '?' || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  var readerVisible = !readerView.classList.contains('hidden');
+  if (readerVisible) {
+    var ro = document.getElementById('readerHelpOverlay');
+    if (ro.classList.contains('visible')) closeOverlay('readerHelpOverlay');
+    else openOverlay('readerHelpOverlay');
+  }
+});
+</code></pre>
+<hr />
+<h2 id="15-strutture-di-memorizzazione">15. Strutture di memorizzazione</h2>
+<h3>15.1 Database <code>EpubLibraryDB</code> — i libri</h3>
+<p><strong>Nome:</strong> <code>EpubLibraryDB</code> · <strong>Versione:</strong> 1 · <strong>Store:</strong> <code>books</code> (keyPath: <code>id</code>)</p>
+<pre><code class="language-javascript">// Record libro completo
+{
+  id:           "1711530000000",          // timestamp string (chiave)
+  title:        "Ulysses",
+  author:       "James Joyce",
+  data:         ArrayBuffer,              // file EPUB grezzo (~MB)
+  cover:        "data:image/jpeg;base64,…", // copertina base64
+  addedAt:      1711530000000,
+
+  // Aggiunto da saveBookState()
+  savedState: {
+    fontSize:       100,
+    lineHeight:     1.2,
+    theme:          'normal',
+    scrollMode:     false,
+    dualPageMode:   false,
+    sidebarVisible: false,
+    buttonZoom:     100,
+    interface: {
+      toolbarColor:    '#667eea',
+      sidebarColor:    '#ffffff',
+      navButtonsColor: '#667eea',
+      navOpacity:      0.7,
+      ubmDrawerColor:  '#fffde7'
+    },
+    position: {
+      cfi:       'epubcfi(/6/4[s3]!/4/2/10)',
+      href:      'OEBPS/chapter3.xhtml',
+      timestamp: 1711530000000
+    },
+    readerHighlights: [
+      { cfi: 'epubcfi(…)', color: 'yellow' }
+    ],
+    savedAt: 1711530000000
+  },
+
+  // Aggiunto da saveUserBookmarksToDB()
+  userBookmarks: [
+    {
+      id:        "1711530000001_abc12",
+      chapter:   "Capitolo III",
+      preview:   "…testo estratto…",
+      label:     "Nota importante",
+      cfi:       'epubcfi(/6/4[s3]!/4/2)',
+      href:      'OEBPS/chapter3.xhtml',
+      createdAt: 1711530000001
+    }
+  ]
+}
+</code></pre>
+<p><strong>Gestione errori di versione:</strong> se il database ha una versione incompatibile (<code>VersionError</code>), viene cancellato (<code>deleteDatabase()</code>) e ricreato automaticamente.</p>
+<h3>15.2 Database <code>noesisDB</code> — capitoli estratti</h3>
+<p><strong>Nome:</strong> <code>noesisDB</code> · <strong>Versione:</strong> 1 · <strong>Store:</strong> <code>extractedChapters</code> (keyPath: <code>chapterId</code>)</p>
+<p>Usato <strong>esclusivamente</strong> dall'estrazione: il Reader scrive qui alla fine di ogni estrazione, ma non legge mai da questo database durante la sessione di lettura. La Library legge questo database per mostrare i capitoli estratti e i loro snapshot.</p>
+<pre><code class="language-javascript">{
+  chapterId:   "ch_1711530000000_987654",
+  bookName:    "Ulysses",
+  chapterName: "Proteus",
+  createdAt:   "2026-03-27T14:25:30.000Z",
+  snapshots: [
+    {
+      snapshotId:  "snap_1711530000001_111222",
+      createdAt:   "2026-03-27T14:25:30.000Z",
+      bookName:    "Ulysses",
+      chapterName: "Proteus",
+      description: "origin-20260327-142530",
+      isOrigin:    true,
+      content:     "&lt;p&gt;…HTML capitolo estratto…&lt;/p&gt;"
+    }
+  ]
+}
+</code></pre>
+<h3>15.3 <code>localStorage</code></h3>
+<table>
+<thead>
+<tr>
+<th>Chiave</th>
+<th>Tipo</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>'noesis-help-seen-reader'</code></td>
+<td><code>'1'</code></td>
+<td>Flag primo accesso Reader (banner visto)</td>
+</tr>
+<tr>
+<td><code>'noesis-help-seen-library'</code></td>
+<td><code>'1'</code></td>
+<td>Flag primo accesso Library (banner visto)</td>
+</tr>
+<tr>
+<td><code>'noesis-lib-theme'</code></td>
+<td><code>'dark'</code> / <code>'light'</code></td>
+<td>Tema corrente della Library</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="16-variabili-globali-del-reader">16. Variabili globali del Reader</h2>
+<pre><code class="language-javascript">// ── Stato corrente libro ──
+let book = null;               // istanza epub.js Book
+let rendition = null;          // istanza epub.js Rendition
+
+// ── Tipografia ──
+let fontSize = 100;            // percentuale, 50-200
+let lineHeight = 1.2;          // da preset array
+let lineHeights = [1, 1.2, 1.4, 1.6, 1.8, 2.0]; // stepped values
+
+// ── Modalità navigazione ──
+let scrollMode = false;        // false = paginato, true = scroll
+let dualPageMode = false;      // spread: 'auto' in paginate
+let sidebarVisible = false;    // visibilità sidebar TOC
+
+// ── Tema ──
+let currentTheme = 'normal';   // chiave THEME_COLORS
+
+// ── Posizione ──
+let currentLocation = null;    // { start: { cfi, href } }
+
+// ── Interfaccia ──
+let buttonZoom = 100;          // zoom pulsanti toolbar, 90-130%
+let interfaceSettings = {
+  toolbarColor: '#667eea',
+  sidebarColor: '#ffffff',
+  navButtonsColor: '#667eea',
+  navOpacity: 0.7,
+  ubmDrawerColor: '#fffde7'
+};
+let defaultInterfaceSettings = { ...interfaceSettings }; // immutabile
+
+// ── Libro corrente ──
+let currentBookId = null;      // id del libro in EpubLibraryDB
+let currentBookTitle = '';     // titolo per estrazione e UI
+
+// ── Highlights ──
+let readerHighlights = [];           // [{cfi, color}] - persistiti
+let currentReaderHighlightColor = 'yellow';
+let _readerHlHasSelection = false;   // selezione attiva in iframe
+let _readerPendingCfi = null;        // CFI dalla selezione corrente
+
+// ── User Bookmarks ──
+let userBookmarks = [];        // [{id, chapter, preview, label, cfi, href, createdAt}]
+</code></pre>
+<hr />
+<h2 id="17-dipendenze-tecniche">17. Dipendenze tecniche</h2>
+<h3>17.1 Librerie esterne (caricate in noesis810.html)</h3>
+<table>
+<thead>
+<tr>
+<th>Libreria</th>
+<th>Versione</th>
+<th>URL</th>
+<th>Uso nel Reader</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>epub.js</td>
+<td>0.3.93</td>
+<td><code>cdn.jsdelivr.net/npm/epubjs@0.3.93</code></td>
+<td>Rendering EPUB, spine, TOC, CFI, annotations</td>
+</tr>
+<tr>
+<td>JSZip</td>
+<td>3.10.1</td>
+<td><code>cdn.jsdelivr.net/npm/jszip@3.10.1</code></td>
+<td>Accesso agli asset del file EPUB (immagini, CSS)</td>
+</tr>
+<tr>
+<td>Bootstrap Icons</td>
+<td>1.11.3</td>
+<td><code>cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3</code></td>
+<td>Tutte le icone dell'interfaccia</td>
+</tr>
+</tbody>
+</table>
+<h3>17.2 API Browser utilizzate</h3>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>IndexedDB</code></td>
+<td><code>EpubLibraryDB</code> (libri, stato, bookmarks) e <code>noesisDB</code> (capitoli estratti)</td>
+</tr>
+<tr>
+<td><code>localStorage</code></td>
+<td>Flag help banner, tema Library</td>
+</tr>
+<tr>
+<td><code>URL.createObjectURL / Blob</code></td>
+<td>Creazione Blob URL per sn56.x</td>
+</tr>
+<tr>
+<td><code>window.open(url, '_blank', '')</code></td>
+<td>Apertura sn56.x (terzo argomento esplicito per preservare opener)</td>
+</tr>
+<tr>
+<td><code>postMessage</code></td>
+<td>Comunicazione Reader→parent per media tap; IDB bridge sn56.x→parent</td>
+</tr>
+<tr>
+<td><code>ResizeObserver</code></td>
+<td>Aggiornamento dinamico top sidebar al resize header</td>
+</tr>
+<tr>
+<td><code>FileReader</code></td>
+<td>Non usato nel Reader direttamente (usato in Library per import EPUB)</td>
+</tr>
+<tr>
+<td><code>DOMParser</code></td>
+<td>Import snapshot da file HTML</td>
+</tr>
+<tr>
+<td><code>window.showDirectoryPicker</code></td>
+<td>Folder picker per import snapshot (solo desktop Chrome/Edge)</td>
+</tr>
+</tbody>
+</table>
+<h3>17.3 epub.js — eventi utilizzati</h3>
+<table>
+<thead>
+<tr>
+<th>Evento</th>
+<th>Handler</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rendition.on('relocated', ...)</code></td>
+<td><code>setStatusPath</code></td>
+<td>Aggiornamento breadcrumb ad ogni cambio pagina</td>
+</tr>
+<tr>
+<td><code>rendition.on('selected', ...)</code></td>
+<td><code>_readerPendingCfi = cfiRange</code></td>
+<td>Cattura selezione per highlight</td>
+</tr>
+<tr>
+<td><code>rendition.on('linkClicked', ...)</code></td>
+<td><code>navigateToHref</code></td>
+<td>Intercettazione link interni EPUB</td>
+</tr>
+<tr>
+<td><code>rendition.hooks.content.register(...)</code></td>
+<td>Styles, highlights, tabelle, media</td>
+<td>Injector per ogni pagina caricata</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Fine documentazione — noesis-reader-documentation.md</em></p>
+  </div>
+</div>
+<script src="approfondimenti.js"></script>
+
+<hr />
+<h2 id="doc-library-tech">Noesis Library — Architettura</h2>
+<a href="approfondimenti.html" class="doc-back">← Tutti gli approfondimenti</a>
+    <h1 id="panoramica-generale">📚 Noesis Library — Documentazione Tecnica Completa</h1>
+<blockquote>
+<p><strong>Versione di riferimento:</strong> noesis810.html<br />
+<strong>Data documento:</strong> 2026-03-28</p>
+</blockquote>
+<hr />
+<h2 id="panoramica-generale">1. Panoramica generale</h2>
+<p>La <strong>Noesis Library</strong> è la schermata principale (home) di <code>noesis810.html</code>. È il punto di ingresso dell'applicazione: la prima vista mostrata all'avvio, il luogo da cui si accede a tutte le altre funzionalità, e il registro centrale di tutto il lavoro di lettura e annotazione.</p>
+<p>La Library è progettata come un <strong>archivio editoriale gerarchico</strong> con tre livelli di profondità:</p>
+<pre><code>Libro (EpubLibraryDB)
+  └── Capitolo estratto (noesisDB)
+        └── Snapshot (embedded in chapterRecord)</code></pre>
+<p>Caratteristiche fondamentali:</p>
+<ul>
+<li><strong>Zero-server</strong>: tutto è locale. Nessun file viene caricato su server. I libri EPUB sono memorizzati come <code>ArrayBuffer</code> in IndexedDB, le copertine come base64, le annotazioni come HTML in <code>noesisDB</code>.</li>
+<li><strong>Dual-theme CSS</strong>: tema light editoriale (sfondo <code>#f7f6f3</code>, ispirato alla carta) e tema dark gray (<code>#1a1a20</code>), entrambi governati da CSS custom properties. Il tema scelto persiste in <code>localStorage</code>.</li>
+<li><strong>Rendering gerarchico dinamico</strong>: <code>loadLibraryBooks()</code> interroga entrambi i database in parallelo (<code>Promise.all</code>), aggrega i capitoli per libro (case-insensitive), e costruisce l'intera struttura DOM a runtime.</li>
+<li><strong>Font editoriale</strong>: l'interfaccia Library usa <code>Georgia, 'Times New Roman', serif</code> per titoli e etichette, differenziandosi dal Reader e dall'Editor.</li>
+</ul>
+<hr />
+<h2 id="architettura-dom-e-struttura-visiva">2. Architettura DOM e struttura visiva</h2>
+<pre><code>#library-view
+├── .library-header                  ← sticky, backdrop-blur, z-index 10
+│   ├── .library-header-left
+│   │   ├── .library-title           ← "Noesis" (italic, serif, 22px)
+│   │   └── .library-subtitle        ← "Your reading archive…"
+│   └── .library-header-right        ← flex row, gap 10px
+│       ├── #libraryInput            ← &lt;input file hidden&gt; (accept .epub)
+│       ├── #importLabel             ← "Add Book" (label → libraryInput)
+│       ├── #importSnapshotsInput    ← &lt;input file hidden, multiple&gt; (.html,.htm)
+│       ├── #importSnapshotsBtn      ← icona bi-cloud-arrow-up
+│       ├── #libOpenEditorBtn        ← icona bi-pencil-square
+│       ├── #libThemeToggle          ← icona bi-moon / bi-sun
+│       ├── .lib-tools-dropdown
+│       │   ├── #libToolsBtn         ← "Tools" con bi-wrench
+│       │   └── #libToolsMenu        ← dropdown con 3 link esterni
+│       └── #libHelpBtn              ← "?"
+│
+├── #bookGrid (.library-grid)        ← contenitore libri (max-width 1100px)
+│   ├── .book-row                    ← per ogni libro
+│   │   ├── .book-header
+│   │   │   ├── .book-cover-thumb    ← 64×88px, cliccabile → Reader
+│   │   │   ├── .book-meta
+│   │   │   │   ├── .book-meta-title
+│   │   │   │   ├── .book-meta-author
+│   │   │   │   └── .book-meta-stats ← badges (N chapters, N snapshots)
+│   │   │   └── .book-actions
+│   │   │       └── .book-delete-btn ← trash icon
+│   │   └── .chapters-section        ← rientrata 82px da sinistra
+│   │       ├── .no-chapters-note    ← se nessun capitolo estratto
+│   │       └── .chapter-entry       ← per ogni capitolo
+│   │           ├── .chapter-entry-header
+│   │           │   ├── .chapter-name-btn   ← cliccabile → Editor
+│   │           │   ├── .chapter-snap-count ← "N snapshots"
+│   │           │   └── .chapter-delete-btn ← appare su hover
+│   │           └── .snapshots-list
+│   │               └── .snapshot-item      ← per ogni snapshot
+│   │                   ├── .snapshot-item-dot    ← punto colorato
+│   │                   ├── .snapshot-item-desc   ← descrizione
+│   │                   ├── .snapshot-item-date   ← data/ora
+│   │                   └── .snapshot-delete-btn  ← appare su hover
+│   └── .empty-state                 ← se libreria vuota
+│
+├── #libHelpBanner                   ← banner primo avvio (nascosto dopo)
+└── #libHelpOverlay                  ← overlay guida pulsanti</code></pre>
+<h3 id="caratteristiche-dellheader">2.1 Caratteristiche dell'header</h3>
+<p>L'header <code>.library-header</code> è <strong>sticky</strong> (<code>position: sticky; top: 0</code>) con <code>backdrop-filter: blur(12px)</code> e sfondo semi-trasparente (<code>rgba(247,246,243,0.92)</code> in light, <code>rgba(26,26,32,0.92)</code> in dark). <code>z-index: 10</code> garantisce che rimanga sopra il testo dei libri durante lo scroll.</p>
+<h3 id="griglia-libri">2.2 Griglia libri</h3>
+<p><code>.library-grid</code> è un flex container verticale (<code>flex-direction: column</code>), con padding <code>28px 28px 48px</code>, larghezza massima <code>1100px</code> centrata con <code>margin: 0 auto</code>. I libri sono separati da bordi orizzontali.</p>
+<h3 id="stato-vuoto">2.3 Stato vuoto</h3>
+<p>Se <code>EpubLibraryDB</code> non contiene libri, <code>#bookGrid</code> mostra un empty state con icona e messaggio.</p>
+<hr />
+<h2 id="sistema-di-temi-light-e-dark">3. Sistema di temi: light e dark</h2>
+<p>La Library implementa un sistema di temi basato interamente su <strong>CSS custom properties</strong>. Il toggle di tema aggiunge/rimuove la classe <code>.lib-dark</code> su <code>#library-view</code>.</p>
+<h3 id="variabili-css-confronto-light-vs-dark">3.1 Variabili CSS — confronto light vs dark</h3>
+<table>
+<thead>
+<tr>
+<th>Variabile</th>
+<th>Light</th>
+<th>Dark</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--lib-bg</code></td>
+<td><code>#f7f6f3</code></td>
+<td><code>#1a1a20</code></td>
+</tr>
+<tr>
+<td><code>--lib-header-bg</code></td>
+<td><code>rgba(247,246,243,0.92)</code></td>
+<td><code>rgba(26,26,32,0.92)</code></td>
+</tr>
+<tr>
+<td><code>--lib-title-color</code></td>
+<td><code>#000000</code></td>
+<td><code>#e8e4dc</code></td>
+</tr>
+<tr>
+<td><code>--lib-snap-dot-latest</code></td>
+<td><code>#10b981</code></td>
+<td><code>#10b981</code> (identico)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="logica-del-toggle-tema">3.2 Logica del toggle tema</h3>
+<p>Il toggle tema usa <code>localStorage</code> per persistere la preferenza. La transizione <code>background 0.25s</code> rende il cambio visivamente fluido.</p>
+<hr />
+<h2 id="mappa-completa-della-toolbar-header">4. Mappa completa della toolbar (header)</h2>
+<h3 id="importlabel--libraryinput--add-book">4.1 #importLabel / #libraryInput — Add Book</h3>
+<table>
+<thead>
+<tr>
+<th>Proprietà</th>
+<th>Valore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Elemento</td>
+<td><code>&lt;label for="libraryInput"&gt;</code> (styled as button)</td>
+</tr>
+<tr>
+<td>File input</td>
+<td><code>#libraryInput</code> (hidden, <code>accept=".epub"</code>)</td>
+</tr>
+<tr>
+<td>Icona</td>
+<td><code>bi-plus-lg</code></td>
+</tr>
+<tr>
+<td>Etichetta</td>
+<td>"Add Book"</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comportamento al clic:</strong> Apre file picker → <code>saveBookToDB(file)</code> → <code>loadLibraryBooks()</code></p>
+<h3 id="importsnapshotsbtn--import-snapshots">4.2 #importSnapshotsBtn — Import Snapshots</h3>
+<p>Apre il flusso di import snapshot da disco. Supporta folder picker (Chrome/Edge) o file picker standard.</p>
+<h3 id="libopeneditorbtn--open-editor">4.3 #libOpenEditorBtn — Open Editor</h3>
+<table>
+<thead>
+<tr>
+<th>Proprietà</th>
+<th>Valore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Icona</td>
+<td><code>bi-pencil-square</code></td>
+<tr>
+<td>Azione</td>
+<td><code>_openSn56(null)</code></td>
+</tr>
+</tbody>
+</table>
+<p>Apre sn56.x in modalità <strong>standalone</strong> (editor vuoto, senza contesto libro/capitolo).</p>
+<h3 id="libthemetoggle--toggle-tema">4.4 #libThemeToggle — Toggle tema</h3>
+<p>Icona: <code>bi-moon</code> (light) / <code>bi-sun</code> (dark). Persistenza in <code>localStorage</code> → chiave <code>'noesis-lib-theme'</code>.</p>
+<h3 id="libtoolsbtn--libtoolsmenu--tools-dropdown">4.5 #libToolsBtn / #libToolsMenu — Tools dropdown</h3>
+<p>Dropdown con link esterni (<code>target="_blank"</code>):</p>
+<ul>
+<li><strong>noesis-epub-tools</strong> — Web app per editing e gestione di file EPUB</li>
+<li><strong>Pandoc Online</strong> — Convertitore universale di formati documento</li>
+<li><strong>Mozilla PDF Viewer</strong> — PDF.js browser-based</li>
+</ul>
+<h3 id="libhelpbtn--guida-rapida">4.6 #libHelpBtn — Guida rapida</h3>
+<p>Apre l'overlay di guida completa che descrive tutti i controlli della Library.</p>
+<hr />
+<h2 id="la-griglia-dei-libri-book-row">5. La griglia dei libri — book-row</h2>
+<h3 id="struttura-di-una-book-row">5.1 Struttura di una .book-row</h3>
+<p>Ogni libro in biblioteca genera un <code>.book-row</code> costruito dinamicamente da <code>loadLibraryBooks()</code>.</p>
+<h3 id="copertina-del-libro">5.2 Copertina del libro</h3>
+<p>Se <code>book.cover</code> è valorizzato (base64): immagine con <code>object-fit: cover</code>. Se non c'è copertina: icona <code>bi-book</code>.</p>
+<h3 id="badges-statistiche">5.3 Badges statistiche</h3>
+<table>
+<thead>
+<tr>
+<th>Condizione</th>
+<th>Badge</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0 capitoli estratti</td>
+<td>"no extractions"</td>
+</tr>
+<tr>
+<td>N > 0 capitoli</td>
+<td>"N chapter" / "N chapters"</td>
+</tr>
+<tr>
+<td>N > 0 snapshot totali</td>
+<td>"N snapshot" / "N snapshots"</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ordinamento-libri">5.4 Ordinamento libri</h3>
+<p>I libri sono ordinati per <strong>data di aggiunta decrescente</strong> (<code>addedAt</code> desc).</p>
+<h3 id="associazione-libri-capitoli">5.5 Associazione libri↔capitoli</h3>
+<p>L'associazione tra libri (<code>EpubLibraryDB</code>) e capitoli estratti (<code>noesisDB</code>) avviene per <strong>corrispondenza del titolo del libro</strong> (case-insensitive, trimmed).</p>
+<hr />
+<h2 id="la-sezione-capitoli-estratti-chapters-section">6. La sezione capitoli estratti — chapters-section</h2>
+<p><code>.chapters-section</code> è rientrata di <code>82px</code> da sinistra. Crea visivamente una gerarchia chiara: i capitoli appaiono "sotto" il loro libro.</p>
+<h3 id="header-del-capitolo-chapter-entry-header">6.2 Header del capitolo — .chapter-entry-header</h3>
+<p><code>.chapter-name-btn</code>: clic → <code>_openExtractedEnv(ch, null)</code> → apre snapshot più recente nell'Editor.</p>
+<p><code>.chapter-snap-count</code>: badge inline con "N snapshots" o "no snapshots".</p>
+<h3 id="ordinamento-snapshot-per-capitolo">6.3 Ordinamento snapshot per capitolo</h3>
+<p>Snapshot <code>isOrigin: true</code> → sempre <strong>in fondo</strong> alla lista. Tutti gli altri snapshot → <strong>dal più recente al più vecchio</strong>.</p>
+<hr />
+<h2 id="la-lista-degli-snapshot-per-capitolo">7. La lista degli snapshot per capitolo</h2>
+<h3 id="struttura-di-uno-snapshot-item">7.1 Struttura di uno snapshot-item</h3>
+<pre><code>.snapshot-item [classe "latest" se il primo della lista]
+├── .snapshot-item-dot   (cerchietto 5×5px)
+├── .snapshot-item-desc  (descrizione testuale, ellipsis)
+├── .snapshot-item-date  (data breve "Mar 27 14:25")
+└── .snapshot-delete-btn (🗑, appare su hover)</code></pre>
+<h3 id="indicatore-latest">7.2 Indicatore "latest"</h3>
+<p>Il primo elemento dell'array ordinato riceve la classe <code>.latest</code> con punto verde <code>#10b981</code>.</p>
+<h3 id="clic-su-uno-snapshot">7.5 Clic su uno snapshot</h3>
+<p><code>btn.onclick = () => _openExtractedEnv(ch, snap.snapshotId)</code></p>
+<h3 id="delete-dello-snapshot">7.6 Delete dello snapshot</h3>
+<p>Elimina lo snapshot da <code>noesisDB</code> e ricarica la lista.</p>
+<hr />
+<h2 id="workflow-aggiunta-di-un-libro">8. Workflow: aggiunta di un libro</h2>
+<pre><code>Utente clicca "Add Book"
+      ↓
+File picker si apre (accept .epub)
+      ↓
+Utente seleziona file .epub
+      ↓
+saveBookToDB(file):
+  1. file.arrayBuffer()          ← legge il file come ArrayBuffer
+  2. ePub(arrayBuffer)           ← crea istanza epub.js temporanea
+  3. await book.ready
+  4. book.loaded.metadata        ← estrae title, creator (author)
+  5. book.coverUrl()             ← ottiene blob URL copertina
+  6. fetch(coverUrl) → blob → FileReader → base64
+  7. Costruisce bookRecord:
+     { id, title, author, data: ArrayBuffer, cover: base64, addedAt }
+  8. store.add(bookRecord)       ← scrive in EpubLibraryDB
+      ↓
+loadLibraryBooks()              ← ricarica la griglia</code></pre>
+<hr />
+<h2 id="workflow-apertura-di-un-libro-nel-reader">9. Workflow: apertura di un libro nel Reader</h2>
+<p>Clic sul <code>.book-cover-thumb</code> (copertina miniatura) di qualsiasi libro nella griglia: <code>openBookFromLibrary(book)</code>.</p>
+<p>Il libro non viene "riaperto" ma "ricostruito": l'<code>ArrayBuffer</code> memorizzato in IDB viene passato direttamente a <code>ePub()</code> che lo elabora in memoria.</p>
+<hr />
+<h2 id="workflow-apertura-di-un-capitolo-nelleditor">10. Workflow: apertura di un capitolo nell'Editor</h2>
+<h3 id="funzione-openextractedenv">10.3 Funzione _openExtractedEnv(chapterRecord, snapshotId)</h3>
+<pre><code>function _openExtractedEnv(chapterRecord, snapshotId) {
+  // Ordina: isOrigin in fondo, gli altri dal più recente
+  const snaps = (chapterRecord.snapshots || []).slice().sort(...);
+  const targetSnap = snapshotId
+    ? snaps.find(s => s.snapshotId === snapshotId)
+    : snaps[0] || null;
+  const htmlContent = targetSnap ? targetSnap.content : '&lt;p&gt;&lt;em&gt;No snapshots yet.&lt;/em&gt;&lt;/p&gt;';
+  _openSn56({
+    mode:        'chapter',
+    htmlContent: htmlContent,
+    bookName:    chapterRecord.bookName    || '',
+    chapterName: chapterRecord.chapterName || '',
+    chapterId:   chapterRecord.chapterId   || ''
+  });
+}</code></pre>
+<h3 id="funzione-opensn56">10.4 Funzione _openSn56(payload)</h3>
+<p>L'editor sn56.x viene aperto in una nuova scheda come Blob URL, con il payload del capitolo/snapshot embedded in un data island JSON.</p>
+<hr />
+<h2 id="workflow-eliminazione-di-libri-capitoli-e-snapshot">11. Workflow: eliminazione di libri, capitoli e snapshot</h2>
+<h3 id="eliminazione-libro">11.1 Eliminazione libro</h3>
+<p><strong>Trigger:</strong> clic su <code>.book-delete-btn</code> nella <code>.book-actions</code>.</p>
+<p><strong>Importante:</strong> l'eliminazione del libro <strong>non</strong> elimina i capitoli estratti in <code>noesisDB</code>.</p>
+<h3 id="eliminazione-capitolo">11.2 Eliminazione capitolo (con tutti i suoi snapshot)</h3>
+<p><strong>Trigger:</strong> clic su <code>.chapter-delete-btn</code> (visibile solo su hover).</p>
+<h3 id="eliminazione-snapshot-singolo">11.3 Eliminazione snapshot singolo</h3>
+<p><strong>Trigger:</strong> clic su <code>.snapshot-delete-btn</code> (visibile solo su hover).</p>
+<hr />
+<h2 id="import-snapshots-da-disco">12. Import Snapshots da disco</h2>
+<p>La funzione <strong>Import Snapshots</strong> permette di reimportare in <code>noesisDB</code> i file HTML di snapshot precedentemente salvati dall'editor.</p>
+<h3 id="file-accettati">12.3 File accettati</h3>
+<p>Il filtro regex: <code>/^noesis-(clean|annot|origin)-.*\.html?$/i</code></p>
+<ul>
+<li><code>noesis-clean-…html</code></li>
+<li><code>noesis-annot-…html</code></li>
+<li><code>noesis-origin-…html</code></li>
+</ul>
+<h3 id="metodi-di-selezione-file">12.2 Metodi di selezione file</h3>
+<ul>
+<li><strong>Desktop Chrome/Edge</strong>: <code>window.showDirectoryPicker</code> — folder picker</li>
+<li><strong>Android / Safari</strong>: file picker standard con <code>multiple</code></li>
+</ul>
+<h3 id="meccanismo-di-deduplicazione">12.5 Meccanismo di deduplicazione</h3>
+<p>La deduplicazione avviene per <strong>corrispondenza esatta della <code>description</code></strong> dello snapshot.</p>
+<hr />
+<h2 id="sistema-help-banner-overlay-pulsante">13. Sistema Help — banner, overlay, pulsante ?</h2>
+<h3 id="banner-primo-avvio---libhelpbanner">13.1 Banner primo avvio — #libHelpBanner</h3>
+<p>Il banner mostra all'utente le azioni chiave della Library. Viene mostrato la <strong>prima volta</strong> che l'utente accede alla Library (verifica via <code>localStorage</code>).</p>
+<h3 id="overlay-guida-completa---libhelpoverlay">13.2 Overlay guida completa — #libHelpOverlay</h3>
+<p><strong>Apertura:</strong> clic su <code>#libHelpBtn</code> → <code>openOverlay('libHelpOverlay')</code></p>
+<hr />
+<h2 id="loading-overlay">14. Loading overlay</h2>
+<p>Il <code>#loading-overlay</code> è un overlay fisso che copre l'intera viewport durante le operazioni asincrone.</p>
+<p><strong>Messaggi usati:</strong></p>
+<ul>
+<li><code>'Adding book to library...'</code> — durante import EPUB</li>
+<li><code>'Opening Book...'</code> — durante apertura dal click sulla copertina</li>
+</ul>
+<hr />
+<h2 id="switch-tra-library-e-reader">15. Switch tra Library e Reader</h2>
+<p>La Library e il Reader condividono lo stesso documento HTML. La visibilità alternata è gestita con la classe <code>.hidden</code>.</p>
+<h3 id="showlibrary">15.1 showLibrary()</h3>
+<p>Distrugge le istanze epub.js, pulisce DOM residuo del Reader, resetta stato globale, ricarica la griglia libri.</p>
+<h3 id="showreader">15.2 showReader()</h3>
+<p>Minima — solo switch visivo senza reset. Tutta la logica di inizializzazione Reader è in <code>openBookFromLibrary()</code>.</p>
+<hr />
+<h2 id="strutture-di-memorizzazione">16. Strutture di memorizzazione</h2>
+<h3 id="database-epublibrarydb">16.1 Database EpubLibraryDB</h3>
+<table>
+<thead>
+<tr>
+<th>Proprietà</th>
+<th>Valore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nome</td>
+<td><code>EpubLibraryDB</code></td>
+</tr>
+<tr>
+<td>Versione</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Object Store</td>
+<td><code>books</code></td>
+</tr>
+<tr>
+<td>keyPath</td>
+<td><code>id</code> (timestamp string)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="database-noesisdb">16.2 Database noesisDB</h3>
+<table>
+<thead>
+<tr>
+<th>Proprietà</th>
+<th>Valore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nome</td>
+<td><code>noesisDB</code></td>
+</tr>
+<tr>
+<td>Versione</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Object Store</td>
+<td><code>extractedChapters</code></td>
+</tr>
+<tr>
+<td>keyPath</td>
+<td><code>chapterId</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="localstorage">16.3 localStorage</h3>
+<table>
+<thead>
+<tr>
+<th>Chiave</th>
+<th>Tipo</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>'noesis-lib-theme'</code></td>
+<td><code>'dark'</code> / <code>'light'</code></td>
+<td>Tema corrente della Library</td>
+</tr>
+<tr>
+<td><code>'noesis-help-seen-library'</code></td>
+<td><code>'1'</code></td>
+<td>Flag: banner Library già mostrato</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="variabili-e-costanti-globali-rilevanti">17. Variabili e costanti globali rilevanti</h2>
+<pre><code>// EpubLibraryDB
+const DB_NAME    = 'EpubLibraryDB';
+const DB_VERSION = 1;
+const STORE_NAME = 'books';
+
+// noesisDB
+const NOESIS_DB_NAME    = 'noesisDB';
+const NOESIS_DB_VERSION = 1;
+const NOESIS_STORE      = 'extractedChapters';</code></pre>
+<h3 id="variabili-di-stato-globali-usate-dalla-library">17.2 Variabili di stato globali usate dalla Library</h3>
+<pre><code>// Riferimenti DOM
+const libraryView    = document.getElementById('library-view');
+const readerView     = document.getElementById('reader-view');
+const bookGrid       = document.getElementById('bookGrid');
+const loadingOverlay = document.getElementById('loading-overlay');
+
+// Stato Reader (resettati da showLibrary)
+let book = null;               // istanza epub.js
+let rendition = null;          // istanza rendition
+let currentBookId = null;      // id libro in EpubLibraryDB
+let currentBookTitle = '';     // titolo per estrazione capitoli
+
+// Highlights (resettati da showLibrary)
+let readerHighlights = [];
+let currentReaderHighlightColor = 'yellow';
+
+// Bookmarks (resettati da showLibrary)
+let userBookmarks = [];</code></pre>
+<hr />
+<h2 id="responsive-e-adattamento-mobile">18. Responsive e adattamento mobile</h2>
+<h3 id="breakpoint-mobile">18.1 Breakpoint mobile</h3>
+<pre><code>@media (max-width: 600px) {
+  .library-header    { padding: 14px 16px 12px; }
+  .library-grid      { padding: 16px 16px 40px; }
+  .book-header       { gap: 12px; }
+  .book-cover-thumb  { width: 52px; height: 72px; }
+  .chapters-section  { padding-left: 64px; }
+}</code></pre>
+<h3 id="compatibilita-android---import-snapshots">18.4 Compatibilità Android — Import Snapshots</h3>
+<p>Il sistema rileva automaticamente la disponibilità di <code>window.showDirectoryPicker</code> e fa fallback al file picker standard.</p>
+    <div style="margin-top:56px; padding-top:32px; border-top:1px solid var(--border); display:flex; gap:16px; flex-wrap:wrap;">
+      <a href="approfondimenti.html" class="doc-back" style="margin-bottom:0;">← Tutti gli approfondimenti</a>
+      <a href="index.html" class="doc-back" style="margin-bottom:0;">🏠 Home</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>MIT License · Vanilla JS · No Server · <strong>Noesis</strong> · v810</p>
+  <p style="margin-top:8px;"><a href="index.html">Home</a> · <a href="guida.html">Guida</a> · <a href="approfondimenti.html">Approfondimenti</a> · <a href="faq.html">FAQ</a> · <a href="note.html">Note</a></p>
+</footer>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="site.js"></script>
+<script>
+// Highlight TOC item on scroll
+(function(){
+  const links = document.querySelectorAll('.doc-toc a');
+  if (!links.length) return;
+  const headings = Array.from(document.querySelectorAll('.doc-content h2, .doc-content h3'));
+  function onScroll() {
+    const scrollY = window.scrollY + 100;
+    let active = null;
+    headings.forEach(h => { if (h.offsetTop <= scrollY) active = h; });
+    links.forEach(l => l.style.color = '');
+    if (active) {
+      const id = active.getAttribute('id');
+      const link = document.querySelector('.doc-toc a[href="#' + id + '"]');
+      if (link) link.style.color = 'var(--violet)';
+    }
+  }
+  window.addEventListener('scroll', onScroll, {passive: true});
+})();
+</script>
+
+<hr />
+<h2 id="doc-full-embedding">Versione Full — Sistema di Embedding</h2>
+<a href="approfondimenti.html" class="doc-back">← Tutti gli approfondimenti</a>
+    <h1 id="versione-full-embedding">📦 Versione Full — Sistema di Embedding</h1>
+<blockquote>
+<p>Come tutte le dipendenze di Noesis vengono incorporate in un unico file HTML completamente autosufficiente, eliminando qualsiasi dipendenza da CDN o rete.</p>
+</blockquote>
+<hr />
+
+<h2 id="panoramica">Panoramica</h2>
+<p>Noesis esiste in due varianti di distribuzione che condividono esattamente lo stesso codice applicativo, differendo <strong>solo nella modalità di caricamento delle dipendenze esterne</strong>:</p>
+<ul>
+<li><strong>Regular</strong> (<code>noesis810.html</code>, 313 KB) — le librerie JS/CSS vengono caricate da CDN jsdelivr al momento dell'apertura</li>
+<li><strong>Full</strong> (<code>noesis810-full.html</code>, 1,7 MB) — tutte le stesse librerie sono <em>incorporate</em> direttamente nel file HTML tramite tre tecniche complementari</li>
+</ul>
+<p>Il risultato è un file HTML che non contiene nessun riferimento a URL esterni: può essere aperto da un filesystem locale, da una chiavetta USB, da un server intranet isolato, o da qualsiasi ambiente <em>air-gapped</em> senza alcuna riduzione di funzionalità (esclusa la traduzione browser, che dipende da servizi del browser stesso).</p>
+<hr />
+
+<h2 id="versione-regular-vs-full">Regular vs Full — Confronto</h2>
+<table>
+<thead>
+<tr>
+<th>Caratteristica</th>
+<th>Regular</th>
+<th>Full</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dimensione file HTML</td>
+<td>313 KB</td>
+<td>1,7 MB</td>
+</tr>
+<tr>
+<td>Dimensione zip scaricabile</td>
+<td>64 KB</td>
+<td>591 KB</td>
+</tr>
+<tr>
+<td>Dipendenze CDN al primo avvio</td>
+<td>Sì (5 librerie)</td>
+<td>No — zero richieste esterne</td>
+</tr>
+<tr>
+<td>Funzionamento offline</td>
+<td>Parziale (dopo cache browser)</td>
+<td>Totale</td>
+</tr>
+<tr>
+<td>Traduzione browser (Google/DeepL)</td>
+<td>Sì (richiede connessione)</td>
+<td>Sì (richiede connessione)</td>
+</tr>
+<tr>
+<td>Aggiornamento dipendenze</td>
+<td>Automatico via CDN</td>
+<td>Manuale — ricostruire il file</td>
+</tr>
+<tr>
+<td>Codice applicativo</td>
+<td colspan="2" style="text-align:center;"><em>Identico in entrambe le versioni</em></td>
+</tr>
+</tbody>
+</table>
+<hr />
+
+<h2 id="struttura-del-file-full">Struttura del file Full</h2>
+<p>Il file <code>noesis810-full.html</code> è organizzato in 6520 righe secondo questo schema (confrontato con la versione Regular):</p>
+<pre><code>noesis810-full.html
+├── &lt;head&gt;
+│     ├── [righe 8–14]   &lt;style&gt; Bootstrap Icons CSS
+│     │                  └── @font-face con woff2 come data:font/woff2;base64,...
+│     │                      [~260 KB di base64 — INCORPORATO]
+│     │
+│     └── [righe 15–2359] &lt;style&gt; CSS applicativo principale
+│                          (identico alla versione Regular)
+│
+├── &lt;body&gt; [righe 2360–2928]
+│     └── HTML markup identico alla versione Regular
+│
+└── [righe 2929–6520] Script e payload
+      ├── [riga 2930]    &lt;script type="application/json" id="sn56Source"&gt;
+      │                  └── Editor popup completo come stringa JSON
+      │                      con tutte le sue dipendenze incorporate
+      │                      [~916 KB — INCORPORATO]
+      │
+      ├── [righe 2933–2947] &lt;script&gt; JSZip v3.10.1 sorgente minificato
+      │                     [~98 KB — INCORPORATO]
+      │
+      ├── [righe 2948–2951] &lt;script&gt; epub.js (ePub.js) sorgente minificato
+      │                     [~224 KB — INCORPORATO]
+      │
+      └── [righe 2952–6520] &lt;script&gt; Codice applicativo Noesis
+                            (identico alla versione Regular)
+</code></pre>
+
+<hr />
+
+<h2 id="tecnica-1-font-data-uri">Tecnica 1 — Font come data URI</h2>
+<p>Bootstrap Icons utilizza un webfont (<code>.woff2</code>) che nella versione Regular viene scaricato da CDN. Nella versione Full il font viene convertito in <strong>Base64</strong> e incorporato direttamente nella regola <code>@font-face</code> del CSS:</p>
+<pre><code>/* Versione Regular — carica il font dalla rete */
+@font-face {
+  font-family: "bootstrap-icons";
+  src: url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/fonts/bootstrap-icons.woff2")
+       format("woff2");
+}
+
+/* Versione Full — font incorporato come data URI */
+@font-face {
+  font-family: "bootstrap-icons";
+  src: url("data:font/woff2;base64,d09GMgABAAAAAf1cAA...")
+       format("woff2");
+}
+</code></pre>
+<p>Il file <code>.woff2</code> viene codificato in Base64 e incollato direttamente nel valore <code>url()</code>. Il browser lo decodifica in memoria al momento del parsing del CSS, senza nessuna richiesta HTTP. Il CSS Bootstrap Icons è composto da due parti: la regola <code>@font-face</code> e le classi <code>.bi-*</code> che mappano i code point Unicode — entrambe sono incluse nello stesso blocco <code>&lt;style&gt;</code> inline.</p>
+<hr />
+
+<h2 id="tecnica-2-js-inline">Tecnica 2 — Librerie JS inline</h2>
+<p>Nella versione Regular, JSZip ed epub.js vengono caricati tramite tag <code>&lt;script src="..."&gt;</code>:</p>
+<pre><code>&lt;!-- Regular: caricamento da CDN --&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"&gt;&lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"&gt;&lt;/script&gt;
+</code></pre>
+<p>Nella versione Full, il contenuto minificato di ciascuna libreria viene incollato direttamente dentro un tag <code>&lt;script&gt;</code> senza attributo <code>src</code>:</p>
+<pre><code>&lt;!-- Full: sorgente JS direttamente inline --&gt;
+&lt;script&gt;
+/*!
+ * JSZip v3.10.1
+ * ...
+ */
+!function(e,t){"object"==typeof exports&amp;&amp;"object"==typeof module
+?module.exports=t():"function"==typeof define&amp;&amp;define.amd
+?define([],t):...
+&lt;/script&gt;
+
+&lt;script&gt;
+!function(t,e){"object"==typeof exports&amp;&amp;"object"==typeof module
+?module.exports=e(require("JSZip")):"function"==typeof define
+&amp;&amp;define.amd?define(["JSZip"],e):...
+&lt;/script&gt;
+</code></pre>
+<p>Il browser esegue questi blocchi esattamente come se avesse scaricato i file, ma senza nessuna richiesta di rete. L'ordine di inserimento è importante: JSZip deve precedere epub.js perché quest'ultimo lo usa come dipendenza (<code>require("JSZip")</code> nella versione UMD).</p>
+<hr />
+
+<h2 id="tecnica-3-sn56source-blob">Tecnica 3 — sn56Source blob (editor popup)</h2>
+<p>L'editor WYSIWYG di Noesis funziona come una <strong>finestra popup separata</strong>: quando l'utente apre l'editor, JavaScript costruisce dinamicamente un documento HTML completo e lo apre in un nuovo contesto di navigazione (<code>window.open()</code> + <code>document.write()</code>).</p>
+<p>Il sorgente di questo documento popup è memorizzato nel DOM principale come stringa JSON all'interno di un tag non-eseguibile:</p>
+<pre><code>&lt;script type="application/json" id="sn56Source"&gt;
+  "...stringa JSON con l'intero HTML dell'editor..."
+&lt;/script&gt;
+</code></pre>
+<p>L'attributo <code>type="application/json"</code> impedisce al browser di eseguire il contenuto come JavaScript — viene trattato come dati puri, leggibili da <code>document.getElementById('sn56Source').textContent</code>.</p>
+<h3 id="sn56source-regular">Versione Regular — sn56Source con CDN</h3>
+<p>Nella versione Regular, l'HTML dell'editor referenzia le proprie dipendenze via CDN:</p>
+<pre><code>&lt;link href="https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.css"
+      rel="stylesheet"&gt;
+&lt;link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+      rel="stylesheet"&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/jszip@latest/dist/jszip.min.js"&gt;&lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/turndown/dist/turndown.min.js"&gt;&lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/html-docx-js/dist/html-docx.min.js"&gt;&lt;/script&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-lite.min.js"&gt;&lt;/script&gt;
+</code></pre>
+<h3 id="sn56source-full">Versione Full — sn56Source con dipendenze incorporate</h3>
+<p>Nella versione Full, l'HTML dell'editor contenuto nel blob sn56Source ha <strong>tutte e sei le dipendenze incorporate</strong> con le stesse tecniche descritte sopra: i font come <code>data:font/woff2;base64,...</code> nel CSS, i sorgenti JS minificati direttamente in <code>&lt;script&gt;</code> inline. Il blob è una stringa JSON (con escape dei caratteri speciali) che racchiude un file HTML completo e autosufficiente.</p>
+<p>Questo è il blocco più pesante del file: circa <strong>916 KB</strong>, che diventano ~580 KB nello zip grazie alla compressione deflate applicata ai dati base64.</p>
+<hr />
+
+<h2 id="dipendenze-incorporate">Mappa delle dipendenze incorporate</h2>
+<table>
+<thead>
+<tr>
+<th>Libreria</th>
+<th>Versione</th>
+<th>Tecnica di embedding</th>
+<th>Contesto d'uso</th>
+<th>Peso (appr.)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Bootstrap Icons</strong> (CSS + font woff2)</td>
+<td>1.11.3</td>
+<td>CSS inline + <code>data:font/woff2;base64</code></td>
+<td>App principale</td>
+<td>~260 KB</td>
+</tr>
+<tr>
+<td><strong>JSZip</strong></td>
+<td>3.10.1</td>
+<td>JS inline (<code>&lt;script&gt;</code> senza <code>src</code>)</td>
+<td>App principale (EPUB unzip)</td>
+<td>~98 KB</td>
+</tr>
+<tr>
+<td><strong>epub.js</strong></td>
+<td>0.3.93</td>
+<td>JS inline (<code>&lt;script&gt;</code> senza <code>src</code>)</td>
+<td>App principale (rendering EPUB)</td>
+<td>~224 KB</td>
+</tr>
+<tr>
+<td><strong>Summernote CSS + font</strong></td>
+<td>0.9.1</td>
+<td>CSS inline + <code>data:font/woff2;base64</code> nel blob sn56Source</td>
+<td>Editor popup</td>
+<td>~150 KB</td>
+</tr>
+<tr>
+<td><strong>Bootstrap Icons</strong> (solo CSS, per editor)</td>
+<td>1.11.3</td>
+<td>CSS inline nel blob sn56Source</td>
+<td>Editor popup</td>
+<td>~260 KB</td>
+</tr>
+<tr>
+<td><strong>Summernote JS</strong></td>
+<td>0.9.1</td>
+<td>JS inline nel blob sn56Source</td>
+<td>Editor popup (WYSIWYG)</td>
+<td>~120 KB</td>
+</tr>
+<tr>
+<td><strong>Turndown</strong></td>
+<td>latest</td>
+<td>JS inline nel blob sn56Source</td>
+<td>Editor popup (export Markdown)</td>
+<td>~25 KB</td>
+</tr>
+<tr>
+<td><strong>JSZip</strong></td>
+<td>latest</td>
+<td>JS inline nel blob sn56Source</td>
+<td>Editor popup (export DOCX)</td>
+<td>~98 KB</td>
+</tr>
+<tr>
+<td><strong>html-docx-js</strong></td>
+<td>latest</td>
+<td>JS inline nel blob sn56Source</td>
+<td>Editor popup (export DOCX)</td>
+<td>~40 KB</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Nota:</strong> Bootstrap Icons e JSZip compaiono due volte perché servono sia nel contesto dell'app principale che in quello dell'editor popup, che è un documento separato con il proprio scope JavaScript.</p>
+<hr />
+
+<h2 id="dimensioni-e-compressione">Dimensioni e compressione</h2>
+<p>La dimensione del file HTML non compresso è 1,7 MB — circa 5× la versione Regular (313 KB). Tuttavia il file si comprime molto bene:</p>
+<table>
+<thead>
+<tr>
+<th>Formato</th>
+<th>Regular</th>
+<th>Full</th>
+<th>Rapporto compressione Full</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HTML non compresso</td>
+<td>313 KB</td>
+<td>1.700 KB</td>
+<td>—</td>
+</tr>
+<tr>
+<td>ZIP (deflate)</td>
+<td>64 KB</td>
+<td>591 KB</td>
+<td>~65% riduzione</td>
+</tr>
+</tbody>
+</table>
+<p>La buona compressibilità del file Full è dovuta alla natura stessa del Base64: i dati binari codificati in Base64 hanno un alfabeto limitato a 64 caratteri, il che produce pattern altamente ripetitivi che gli algoritmi deflate comprimono in modo efficiente. I sorgenti JS minificati si comprimono bene per la stessa ragione (keyword ripetute, strutture sintattiche simili).</p>
+<hr />
+
+<h2 id="cosa-non-e-offline">Cosa non è offline</h2>
+<p>Anche nella versione Full esistono funzionalità che richiedono connessione per definizione:</p>
+<ul>
+<li><strong>Traduzione browser</strong> — La traduzione automatica si basa sul servizio integrato del browser (Google Translate, DeepL, ecc.), che contatta server remoti. Questa funzione non è emulabile offline e resta non disponibile senza rete in entrambe le versioni.</li>
+<li><strong>Link aperti dall'app</strong> — I link a risorse esterne presenti nei documenti EPUB (immagini remote, riferimenti bibliografici online) dipendono dalla rete, ma sono contenuti dell'utente, non dipendenze dell'applicazione.</li>
+</ul>
+<p>Tutte le funzionalità core — lettura EPUB, highlighting, estrazione capitoli, snapshot, editor WYSIWYG, export PDF/DOCX, libreria, collezioni — funzionano completamente offline.</p>
+<hr />
+
+<h2 id="come-aggiornare-le-dipendenze">Come aggiornare le dipendenze</h2>
+<p>Poiché le dipendenze sono incorporate staticamente, non ricevono aggiornamenti automatici come nella versione Regular. Il processo per aggiornare una dipendenza nella versione Full richiede:</p>
+<ol>
+<li>Scaricare il nuovo file minificato (<code>.min.js</code> o <code>.min.css</code>) dalla sorgente ufficiale</li>
+<li>Se contiene font: convertire i file <code>.woff2</code> in Base64 (<code>base64 -w0 file.woff2</code>) e sostituire le stringhe <code>data:font/woff2;base64,...</code> nel CSS</li>
+<li>Sostituire il corpo dello <code>&lt;script&gt;</code> o del <code>&lt;style&gt;</code> corrispondente nel file HTML</li>
+<li>Per le dipendenze dell'editor: aggiornare le occorrenze corrispondenti nel blob <code>sn56Source</code>, avendo cura del corretto escaping JSON (backslash, virgolette, newline)</li>
+</ol>
+<p>Per questo motivo la versione Regular è raccomandata per l'uso quotidiano, mentre la versione Full è destinata a scenari che richiedono autonomia dalla rete o archiviazione a lungo termine.</p>
+<hr />
+
+<h2 id="noesis-full-deps-zip">noesis-full-Deps.zip</h2>
+<p>Il file <code>noesis-full-Deps.zip</code> distribuito insieme alla versione Full contiene i <strong>sorgenti originali delle dipendenze incorporate</strong>, nelle stesse versioni usate per costruire <code>noesis810-full.html</code>:</p>
+<ul>
+<li>I file <code>.min.js</code> delle librerie JS (JSZip, epub.js, Summernote, Turndown, html-docx-js)</li>
+<li>I file <code>.min.css</code> e i font <code>.woff2</code> di Bootstrap Icons e Summernote</li>
+</ul>
+<p>Questo pacchetto ha due utilità principali:</p>
+<ul>
+<li><strong>Verifica</strong>: permette di confrontare le versioni incorporate con quelle ufficiali per auditing di sicurezza</li>
+<li><strong>Ricostruzione</strong>: fornisce il materiale di partenza per ricostruire o aggiornare il file Full senza dover ri-scaricare le dipendenze dalla rete</li>
+</ul>
+<p>Le dipendenze nel pacchetto sono distribuite sotto le rispettive licenze originali (MIT per tutte). Le licenze sono riportate nei commenti all'interno dei file minificati incorporati nel file Full.</p>
+
+  </div>
+</div>
+
+<footer>
+  <p data-i18n="footer.license">MIT License · Vanilla JS · No Server · <strong>Noesis — Reading-to-Knowledge System</strong> · v810</p>
+  <p style="margin-top:8px;">
+    <a href="index.html" data-i18n="footer.home">Home</a> · <a href="guida.html" data-i18n="footer.guide">Guide</a> · <a href="faq.html" data-i18n="footer.faq">FAQ</a> · <a href="note.html" data-i18n="footer.notes">Notes</a>
+  </p>
+</footer>
+
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="translations.js"></script>
+<script src="site.js"></script>
+<script>
+(function(){
+  const links = document.querySelectorAll('.doc-toc a');
+  if (!links.length) return;
+  const headings = Array.from(document.querySelectorAll('.doc-content h2, .doc-content h3'));
+  function onScroll() {
+    const scrollY = window.scrollY + 100;
+    let active = null;
+    headings.forEach(h => { if (h.offsetTop <= scrollY) active = h; });
+    links.forEach(l => l.style.color = '');
+    if (active) {
+      const id = active.getAttribute('id');
+      const link = document.querySelector('.doc-toc a[href="#' + id + '"]');
+      if (link) link.style.color = 'var(--violet)';
+    }
+  }
+  window.addEventListener('scroll', onScroll, {passive: true});
+})();
+</script>
+
 </body>
 </html>
