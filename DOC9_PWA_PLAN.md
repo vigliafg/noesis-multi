@@ -10,7 +10,88 @@ Rendere le 3 versioni CDN di Noesis v816 installabili come Progressive Web App:
 | Reader | `noesis816-reader.html` |
 | Editor | `noesis816-editor.html` |
 
-## Approccio scelto: Opzione A — File separati
+## Dove posizionare i file PWA nel repository
+
+Tre opzioni valutate:
+
+### Opzione A — Sottocartella `pwa/` (copie indipendenti)
+
+```
+/
+├── noesis816.html              ← standard (senza PWA)
+├── noesis816-reader.html
+├── noesis816-editor.html
+│
+└── pwa/
+    ├── sw.js
+    ├── manifest-complete.json
+    ├── manifest-reader.json
+    ├── manifest-editor.json
+    ├── icon-192.png / icon-512.png
+    ├── noesis816.html           ← copia + tag PWA
+    ├── noesis816-reader.html    ← copia + tag PWA
+    └── noesis816-editor.html    ← copia + tag PWA
+```
+
+| ✅ Pro | ❌ Contro |
+|--------|----------|
+| Separazione netta standard ↔ PWA | 3 file HTML duplicati (~4.5 MB) |
+| La PWA può evolvere separatamente | Ogni modifica va fatta due volte |
+| Servibile come entry point separato | Rischio desync tra le copie |
+| IndexedDB condiviso (stesso origin) | |
+
+### Opzione B — Tag PWA direttamente nei file root (scelta per il rollout iniziale)
+
+```
+/
+├── sw.js
+├── manifest-complete.json
+├── manifest-reader.json
+├── manifest-editor.json
+├── icon-192.png / icon-512.png
+├── noesis816.html               ← già con tag PWA
+├── noesis816-reader.html        ← già con tag PWA
+├── noesis816-editor.html        ← già con tag PWA
+```
+
+| ✅ Pro | ❌ Contro |
+|--------|----------|
+| Zero duplicazione — una sola copia | I tag PWA stanno nei file "standard" |
+| 6 file totali (vs 9 dell'Opzione A) | Nessuna separazione visiva |
+| I tag PWA sono innocui in contesto non-PWA | |
+
+I tag `<link rel="manifest">`, `<meta name="theme-color">` e la registrazione
+del Service Worker sono totalmente inerti se aperti come semplice pagina web.
+
+### Opzione C — Build script (via di mezzo, per il futuro)
+
+Script `_build_pwa.py` che prende i 3 HTML CDN senza tag PWA, inietta i tag
+e li scrive in `pwa/`:
+
+```bash
+python3 _build_pwa.py   # rigenera pwa/ dai file root
+```
+
+| ✅ Pro | ❌ Contro |
+|--------|----------|
+| Una fonte di verità (file root) | Build step prima del deploy |
+| `pwa/` pulito e automatico | Script da mantenere |
+| Nessun rischio desync | |
+
+### Impatto su IndexedDB
+
+In tutti e 3 gli scenari: **nessuna differenza**. Le app PWA e non-PWA
+condividono lo stesso origin → stesso IndexedDB. I libri importati da
+una versione sono visibili all'altra.
+
+### Decisione
+
+**Opzione B** per il rollout iniziale. Se in futuro la PWA evolve funzionalità
+che il reader standard non deve avere, si migra all'Opzione C senza perdere dati.
+
+---
+
+## Approccio tecnico: file separati (non inline)
 
 File esterni condivisi (service worker, icone) + manifest dedicati per ogni app.
 Più robusto del SW inline via Blob, pieno supporto browser.
