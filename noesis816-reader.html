@@ -4674,52 +4674,41 @@ ${htmlContent}
     }
 
     // Extract multiple sections and combine into a single HTML document
-    async function extractMultipleSections(tocEntries, overallTitle) {
-      if (!book) {
-        alert('Please load an EPUB first');
-        return;
-      }
-
-      setStatus('Extracting sections...');
-
+    async function findAndLoadImage(srcPath, sectionPath) {
       const zip = book.archive.zip;
       const archiveFiles = zip ? Object.keys(zip.files) : [];
+      const sectionDir = sectionPath.substring(0, sectionPath.lastIndexOf('/') + 1);
+      let imgPath = sectionDir + srcPath;
 
-      let combinedHTML = '';
-      let allStyles = '';
-      const processedHrefs = new Set();
-
-      // Helper: find and load image from zip
-      async function findAndLoadImage(srcPath, sectionPath) {
-        const sectionDir = sectionPath.substring(0, sectionPath.lastIndexOf('/') + 1);
-        let imgPath = sectionDir + srcPath;
-
-        const parts = imgPath.split('/');
-        const resolved = [];
-        for (const part of parts) {
-          if (part === '..') {
-            resolved.pop();
-          } else if (part !== '.' && part !== '') {
-            resolved.push(part);
-          }
+      const parts = imgPath.split('/');
+      const resolved = [];
+      for (const part of parts) {
+        if (part === '..') {
+          resolved.pop();
+        } else if (part !== '.' && part !== '') {
+          resolved.push(part);
         }
-        imgPath = resolved.join('/');
+      }
+      imgPath = resolved.join('/');
 
-        const pathsToTry = [
-          imgPath,
-          imgPath.replace(/^\//, ''),
-          '/' + imgPath,
-          srcPath,
-          srcPath.replace(/^\.\.\//, ''),
-        ];
+      const pathsToTry = [
+        imgPath,
+        imgPath.replace(/^\//, ''),
+        '/' + imgPath,
+        srcPath,
+        srcPath.replace(/^\.\.\//, ''),
+      ];
 
-        const filename = srcPath.split('/').pop();
-        const matchingFiles = archiveFiles.filter(f => f.endsWith('/' + filename) || f === filename);
-        pathsToTry.push(...matchingFiles);
+      const filename = srcPath.split('/').pop();
+      const matchingFiles = archiveFiles.filter(f => f.endsWith('/' + filename) || f === filename);
+      pathsToTry.push(...matchingFiles);
 
-        for (const tryPath of pathsToTry) {
-          if (!tryPath) continue;
-          const normalizedPath = tryPath.replace(/^\//, '');
+      for (const tryPath of pathsToTry) {
+        if (!tryPath) continue;
+        const normalizedPath = tryPath.replace(/^\//, '');
+
+        // Try JSZip first (embedded version)
+        if (zip) {
           const zipFile = zip.files[normalizedPath];
           if (zipFile && !zipFile.dir) {
             try {
@@ -4730,8 +4719,35 @@ ${htmlContent}
             }
           }
         }
-        return null;
+
+        // Fallback: use book.archive.request() (CDN version only)
+        if (!zip) {
+          try {
+            var archivePath = normalizedPath.startsWith('/') ? normalizedPath : '/' + normalizedPath;
+            var imgData = await book.archive.request(archivePath);
+            if (imgData) {
+              var arrayBuffer = imgData instanceof ArrayBuffer ? imgData : new TextEncoder().encode(imgData).buffer;
+              return { data: arrayBuffer, path: normalizedPath };
+            }
+          } catch (e) {
+            // CDN request failed, continue trying other paths
+          }
+        }
       }
+      return null;
+    }
+
+    async function extractMultipleSections(tocEntries, overallTitle) {
+      if (!book) {
+        alert('Please load an EPUB first');
+        return;
+      }
+
+      setStatus('Extracting sections...');
+
+      let combinedHTML = '';
+      let allStyles = '';
+      const processedHrefs = new Set();
 
       // Process each TOC entry
       for (const tocEntry of tocEntries) {
@@ -4757,15 +4773,23 @@ ${htmlContent}
           const imgElements = clonedDoc.querySelectorAll('img');
           for (const imgEl of imgElements) {
             const src = imgEl.getAttribute('src');
-            if (!src || src.startsWith('data:') || src.startsWith('http://') || src.startsWith('https://')) {
+            if (!src || src.startsWith('data:')) {
               continue;
             }
 
             try {
-              const result = await findAndLoadImage(src, spineItem.href);
-              if (result && result.data) {
-                const imgData = result.data;
-                let mimeType = 'image/jpeg';
+              let imgData, mimeType;
+
+              if (src.startsWith('blob:') || src.startsWith('http://') || src.startsWith('https://')) {
+                const response = await fetch(src);
+                const blob = await response.blob();
+                imgData = await blob.arrayBuffer();
+                mimeType = blob.type || 'image/jpeg';
+              } else {
+                const result = await findAndLoadImage(src, spineItem.href);
+                if (!result || !result.data) continue;
+                imgData = result.data;
+                mimeType = 'image/jpeg';
                 const view = new Uint8Array(imgData);
 
                 if (view.length >= 4) {
@@ -4784,6 +4808,7 @@ ${htmlContent}
                     }
                   }
                 }
+              }
 
                 const bytes = new Uint8Array(imgData);
                 const chunkSize = 0x8000;
@@ -4795,7 +4820,6 @@ ${htmlContent}
                 const base64 = btoa(binary);
                 const dataUrl = `data:${mimeType};base64,${base64}`;
                 imgEl.setAttribute('src', dataUrl);
-              }
             } catch (e) {
               console.warn('Error loading image:', src, e);
             }
@@ -4912,6 +4936,19 @@ ${htmlContent}
       setStatus('✅ Sections extracted! Check new tab');
     }
 
+    function findTocEntry(items, targetHref) {
+      for (const item of items) {
+        if (item.href && targetHref.includes(item.href.split('#')[0])) {
+          return item;
+        }
+        if (item.subitems) {
+          const found = findTocEntry(item.subitems, targetHref);
+          if (found) return found;
+        }
+      }
+      return null;
+    }
+
     async function extractCurrentChapter() {
       if (!book || !rendition) {
         alert('Please load an EPUB first');
@@ -4943,19 +4980,6 @@ ${htmlContent}
         const nav = await book.loaded.navigation;
         let chapterTitle = 'Chapter';
 
-        function findTocEntry(items, targetHref) {
-          for (const item of items) {
-            if (item.href && targetHref.includes(item.href.split('#')[0])) {
-              return item;
-            }
-            if (item.subitems) {
-              const found = findTocEntry(item.subitems, targetHref);
-              if (found) return found;
-            }
-          }
-          return null;
-        }
-
         const tocEntry = findTocEntry(nav.toc, currentSpineItem.href);
         if (tocEntry) {
           chapterTitle = tocEntry.label;
@@ -4975,12 +4999,6 @@ ${htmlContent}
 
         setStatus('Processing images...');
 
-        // Get access to the underlying JSZip archive
-        const zip = book.archive.zip;
-
-        // Find image files in the zip to help mapping
-        const archiveFiles = zip ? Object.keys(zip.files) : [];
-
         // Clone the document to modify it
         const clonedDoc = doc.cloneNode(true);
 
@@ -4991,19 +5009,23 @@ ${htmlContent}
           const src = imgEl.getAttribute('src');
 
           // Skip if already base64 or external URL
-          if (!src || src.startsWith('data:') || src.startsWith('http://') || src.startsWith('https://')) {
+          if (!src || src.startsWith('data:')) {
             continue;
           }
 
           try {
-            const result = await findAndLoadImage(src, currentSpineItem.href);
+            let imgData, mimeType;
 
-            if (result && result.data) {
-              const imgData = result.data;
-              const imgPath = result.path;
-
-              // Detect MIME type from actual file content (magic numbers)
-              let mimeType = 'image/jpeg'; // default
+            if (src.startsWith('blob:') || src.startsWith('http://') || src.startsWith('https://')) {
+              const response = await fetch(src);
+              const blob = await response.blob();
+              imgData = await blob.arrayBuffer();
+              mimeType = blob.type || 'image/jpeg';
+            } else {
+              const result = await findAndLoadImage(src, currentSpineItem.href);
+              if (!result || !result.data) continue;
+              imgData = result.data;
+              mimeType = 'image/jpeg'; // default
               const view = new Uint8Array(imgData);
 
               if (view.length >= 4) {
@@ -5026,20 +5048,20 @@ ${htmlContent}
                   }
                 }
               }
-
-              // Convert ArrayBuffer to base64 in chunks
-              const bytes = new Uint8Array(imgData);
-              const chunkSize = 0x8000; // 32KB chunks
-              let binary = '';
-              for (let i = 0; i < bytes.length; i += chunkSize) {
-                const chunk = bytes.subarray(i, i + chunkSize);
-                binary += String.fromCharCode.apply(null, chunk);
-              }
-              const base64 = btoa(binary);
-
-              const dataUrl = `data:${mimeType};base64,${base64}`;
-              imgEl.setAttribute('src', dataUrl);
             }
+
+            // Convert ArrayBuffer to base64 in chunks
+            const bytes = new Uint8Array(imgData);
+            const chunkSize = 0x8000; // 32KB chunks
+            let binary = '';
+            for (let i = 0; i < bytes.length; i += chunkSize) {
+              const chunk = bytes.subarray(i, i + chunkSize);
+              binary += String.fromCharCode.apply(null, chunk);
+            }
+            const base64 = btoa(binary);
+
+            const dataUrl = `data:${mimeType};base64,${base64}`;
+            imgEl.setAttribute('src', dataUrl);
           } catch (e) {
             console.warn('Error loading image:', src, e);
           }

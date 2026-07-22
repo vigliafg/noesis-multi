@@ -2915,6 +2915,7 @@
     <!-- Context-aware items: .hmb-lib = library only, .hmb-rdr = reader only, no class = both -->
     <div class="hamburger-item" id="hmbLibrary"><i class="bi bi-book"></i> Library</div>
     <div class="hamburger-item hmb-lib" id="hmbAddBooks" style="display:none"><i class="bi bi-plus-circle"></i> Add Books</div>
+    <div class="hamburger-item" id="hmbEditor"><i class="bi bi-pencil-square"></i> Editor</div>
     <div class="hamburger-item hmb-lib" id="hmbLibThemeLight" style="display:none"><i class="bi bi-sun-fill"></i> Theme: Light</div>
     <div class="hamburger-item hmb-lib" id="hmbLibThemeDark" style="display:none"><i class="bi bi-moon-fill"></i> Theme: Dark</div>
     <div class="hamburger-item hmb-lib" id="hmbLibTools" style="display:none"><i class="bi bi-tools"></i> Tools</div>
@@ -2925,7 +2926,6 @@
     <div class="hamburger-item hmb-rdr" id="hmbNavigate"><i class="bi bi-arrow-left-right"></i> Navigate</div>
     <div class="hamburger-item hmb-rdr" id="hmbAnnotate"><i class="bi bi-highlighter"></i> Annotate<span id="hmbAnnotateColor" class="rmb-annotate-color" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ffeb3b;margin-left:6px;vertical-align:middle;box-shadow:0 1px 3px rgba(0,0,0,0.2);"></span></div>
     <div class="hamburger-item hmb-rdr" id="hmbExtract"><i class="bi bi-box-arrow-up-right"></i> Extract</div>
-    <div class="hamburger-item hmb-rdr" id="hmbEditor" style="display:none"><i class="bi bi-pencil-square"></i> Editor</div>
     <div class="hamburger-item" id="hmbHelp"><i class="bi bi-question-circle"></i> Help</div>
   </div>
 
@@ -3222,6 +3222,10 @@
             <div class="extract-menu-item" data-mode="tree">
               <i class="bi bi-diagram-3"></i>
               <span>Current + all sublevels</span>
+            </div>
+            <div class="extract-menu-item" id="extractOpenEditor" data-mode="editor">
+              <i class="bi bi-pencil-square"></i>
+              <span>Open in Editor</span>
             </div>
           </div>
         </div>
@@ -3798,7 +3802,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
           var payloadJson = JSON.stringify(payload);
           var injectScript = '<script type="application/json" id="noesisPayload">' + payloadJson + '<\/script>';
           /* Boot script: reads payload and loads it into the editor */
-          var bootScript = '<script>window.addEventListener("DOMContentLoaded",function(){var p=document.getElementById("noesisPayload");if(p){try{var d=JSON.parse(p.textContent);var ed=document.querySelector(".note-editing-area .note-editable");if(!ed)ed=document.querySelector("[contenteditable=true]");if(!ed)ed=document.querySelector("#summernote");if(ed&&d.html){ed.innerHTML=d.html;var ti=document.getElementById("snTitle");if(ti&&d.title)ti.value=d.title;}}catch(e){console.warn(e)}}});<\/script>';
+          var bootScript = '<script>(function _pollEditor(n){n=n||0;var ed=document.querySelector(".note-editing-area .note-editable");if(!ed)ed=document.querySelector("[contenteditable=true]");if(!ed)ed=document.querySelector("#summernote");if(ed){var p=document.getElementById("noesisPayload");if(p){try{var d=JSON.parse(p.textContent);if(d.html){ed.innerHTML=d.html;var ti=document.getElementById("snTitle");if(ti&&d.title)ti.value=d.title;}}catch(e){console.warn(e)}}}else if(n<120){setTimeout(function(){_pollEditor(n+1)},80)}})();<\/script>';
           sourceHtml = sourceHtml.replace('<!-- SN56_PAYLOAD_SLOT -->', injectScript + bootScript);
         }
         w.document.write(sourceHtml);
@@ -4758,6 +4762,51 @@ ${htmlContent}
     }
 
     // Extract multiple sections and combine into a single HTML document
+    async function findAndLoadImage(srcPath, sectionPath) {
+      const zip = book.archive.zip;
+      const archiveFiles = zip ? Object.keys(zip.files) : [];
+      const sectionDir = sectionPath.substring(0, sectionPath.lastIndexOf('/') + 1);
+      let imgPath = sectionDir + srcPath;
+
+      const parts = imgPath.split('/');
+      const resolved = [];
+      for (const part of parts) {
+        if (part === '..') {
+          resolved.pop();
+        } else if (part !== '.' && part !== '') {
+          resolved.push(part);
+        }
+      }
+      imgPath = resolved.join('/');
+
+      const pathsToTry = [
+        imgPath,
+        imgPath.replace(/^\//, ''),
+        '/' + imgPath,
+        srcPath,
+        srcPath.replace(/^\.\.\//, ''),
+      ];
+
+      const filename = srcPath.split('/').pop();
+      const matchingFiles = archiveFiles.filter(f => f.endsWith('/' + filename) || f === filename);
+      pathsToTry.push(...matchingFiles);
+
+      for (const tryPath of pathsToTry) {
+        if (!tryPath) continue;
+        const normalizedPath = tryPath.replace(/^\//, '');
+        const zipFile = zip.files[normalizedPath];
+        if (zipFile && !zipFile.dir) {
+          try {
+            const arrayBuffer = await zipFile.async('arraybuffer');
+            return { data: arrayBuffer, path: normalizedPath };
+          } catch (e) {
+            console.warn('Error reading file:', normalizedPath, e);
+          }
+        }
+      }
+      return null;
+    }
+
     async function extractMultipleSections(tocEntries, overallTitle) {
       if (!book) {
         alert('Please load an EPUB first');
@@ -4766,56 +4815,9 @@ ${htmlContent}
 
       setStatus('Extracting sections...');
 
-      const zip = book.archive.zip;
-      const archiveFiles = zip ? Object.keys(zip.files) : [];
-
       let combinedHTML = '';
       let allStyles = '';
       const processedHrefs = new Set();
-
-      // Helper: find and load image from zip
-      async function findAndLoadImage(srcPath, sectionPath) {
-        const sectionDir = sectionPath.substring(0, sectionPath.lastIndexOf('/') + 1);
-        let imgPath = sectionDir + srcPath;
-
-        const parts = imgPath.split('/');
-        const resolved = [];
-        for (const part of parts) {
-          if (part === '..') {
-            resolved.pop();
-          } else if (part !== '.' && part !== '') {
-            resolved.push(part);
-          }
-        }
-        imgPath = resolved.join('/');
-
-        const pathsToTry = [
-          imgPath,
-          imgPath.replace(/^\//, ''),
-          '/' + imgPath,
-          srcPath,
-          srcPath.replace(/^\.\.\//, ''),
-        ];
-
-        const filename = srcPath.split('/').pop();
-        const matchingFiles = archiveFiles.filter(f => f.endsWith('/' + filename) || f === filename);
-        pathsToTry.push(...matchingFiles);
-
-        for (const tryPath of pathsToTry) {
-          if (!tryPath) continue;
-          const normalizedPath = tryPath.replace(/^\//, '');
-          const zipFile = zip.files[normalizedPath];
-          if (zipFile && !zipFile.dir) {
-            try {
-              const arrayBuffer = await zipFile.async('arraybuffer');
-              return { data: arrayBuffer, path: normalizedPath };
-            } catch (e) {
-              console.warn('Error reading file:', normalizedPath, e);
-            }
-          }
-        }
-        return null;
-      }
 
       // Process each TOC entry
       for (const tocEntry of tocEntries) {
@@ -4841,15 +4843,23 @@ ${htmlContent}
           const imgElements = clonedDoc.querySelectorAll('img');
           for (const imgEl of imgElements) {
             const src = imgEl.getAttribute('src');
-            if (!src || src.startsWith('data:') || src.startsWith('http://') || src.startsWith('https://')) {
+            if (!src || src.startsWith('data:')) {
               continue;
             }
 
             try {
-              const result = await findAndLoadImage(src, spineItem.href);
-              if (result && result.data) {
-                const imgData = result.data;
-                let mimeType = 'image/jpeg';
+              let imgData, mimeType;
+
+              if (src.startsWith('blob:') || src.startsWith('http://') || src.startsWith('https://')) {
+                const response = await fetch(src);
+                const blob = await response.blob();
+                imgData = await blob.arrayBuffer();
+                mimeType = blob.type || 'image/jpeg';
+              } else {
+                const result = await findAndLoadImage(src, spineItem.href);
+                if (!result || !result.data) continue;
+                imgData = result.data;
+                mimeType = 'image/jpeg';
                 const view = new Uint8Array(imgData);
 
                 if (view.length >= 4) {
@@ -4868,6 +4878,7 @@ ${htmlContent}
                     }
                   }
                 }
+              }
 
                 const bytes = new Uint8Array(imgData);
                 const chunkSize = 0x8000;
@@ -4879,7 +4890,6 @@ ${htmlContent}
                 const base64 = btoa(binary);
                 const dataUrl = `data:${mimeType};base64,${base64}`;
                 imgEl.setAttribute('src', dataUrl);
-              }
             } catch (e) {
               console.warn('Error loading image:', src, e);
             }
@@ -4996,6 +5006,19 @@ ${htmlContent}
       setStatus('✅ Sections extracted! Check new tab');
     }
 
+    function findTocEntry(items, targetHref) {
+      for (const item of items) {
+        if (item.href && targetHref.includes(item.href.split('#')[0])) {
+          return item;
+        }
+        if (item.subitems) {
+          const found = findTocEntry(item.subitems, targetHref);
+          if (found) return found;
+        }
+      }
+      return null;
+    }
+
     async function extractCurrentChapter() {
       if (!book || !rendition) {
         alert('Please load an EPUB first');
@@ -5027,19 +5050,6 @@ ${htmlContent}
         const nav = await book.loaded.navigation;
         let chapterTitle = 'Chapter';
 
-        function findTocEntry(items, targetHref) {
-          for (const item of items) {
-            if (item.href && targetHref.includes(item.href.split('#')[0])) {
-              return item;
-            }
-            if (item.subitems) {
-              const found = findTocEntry(item.subitems, targetHref);
-              if (found) return found;
-            }
-          }
-          return null;
-        }
-
         const tocEntry = findTocEntry(nav.toc, currentSpineItem.href);
         if (tocEntry) {
           chapterTitle = tocEntry.label;
@@ -5059,12 +5069,6 @@ ${htmlContent}
 
         setStatus('Processing images...');
 
-        // Get access to the underlying JSZip archive
-        const zip = book.archive.zip;
-
-        // Find image files in the zip to help mapping
-        const archiveFiles = zip ? Object.keys(zip.files) : [];
-
         // Clone the document to modify it
         const clonedDoc = doc.cloneNode(true);
 
@@ -5075,19 +5079,23 @@ ${htmlContent}
           const src = imgEl.getAttribute('src');
 
           // Skip if already base64 or external URL
-          if (!src || src.startsWith('data:') || src.startsWith('http://') || src.startsWith('https://')) {
+          if (!src || src.startsWith('data:')) {
             continue;
           }
 
           try {
-            const result = await findAndLoadImage(src, currentSpineItem.href);
+            let imgData, mimeType;
 
-            if (result && result.data) {
-              const imgData = result.data;
-              const imgPath = result.path;
-
-              // Detect MIME type from actual file content (magic numbers)
-              let mimeType = 'image/jpeg'; // default
+            if (src.startsWith('blob:') || src.startsWith('http://') || src.startsWith('https://')) {
+              const response = await fetch(src);
+              const blob = await response.blob();
+              imgData = await blob.arrayBuffer();
+              mimeType = blob.type || 'image/jpeg';
+            } else {
+              const result = await findAndLoadImage(src, currentSpineItem.href);
+              if (!result || !result.data) continue;
+              imgData = result.data;
+              mimeType = 'image/jpeg'; // default
               const view = new Uint8Array(imgData);
 
               if (view.length >= 4) {
@@ -5110,20 +5118,20 @@ ${htmlContent}
                   }
                 }
               }
-
-              // Convert ArrayBuffer to base64 in chunks
-              const bytes = new Uint8Array(imgData);
-              const chunkSize = 0x8000; // 32KB chunks
-              let binary = '';
-              for (let i = 0; i < bytes.length; i += chunkSize) {
-                const chunk = bytes.subarray(i, i + chunkSize);
-                binary += String.fromCharCode.apply(null, chunk);
-              }
-              const base64 = btoa(binary);
-
-              const dataUrl = `data:${mimeType};base64,${base64}`;
-              imgEl.setAttribute('src', dataUrl);
             }
+
+            // Convert ArrayBuffer to base64 in chunks
+            const bytes = new Uint8Array(imgData);
+            const chunkSize = 0x8000; // 32KB chunks
+            let binary = '';
+            for (let i = 0; i < bytes.length; i += chunkSize) {
+              const chunk = bytes.subarray(i, i + chunkSize);
+              binary += String.fromCharCode.apply(null, chunk);
+            }
+            const base64 = btoa(binary);
+
+            const dataUrl = `data:${mimeType};base64,${base64}`;
+            imgEl.setAttribute('src', dataUrl);
           } catch (e) {
             console.warn('Error loading image:', src, e);
           }
@@ -5247,7 +5255,7 @@ ${htmlContent}
         }, 1500);
 
         /* Return chapter data for Editor integration */
-        var _result = { title: chapterTitle || 'Extracted Chapter', chapterId: _chapterId, html: htmlContent, css: cssContent };
+        var _result = { title: chapterTitle || 'Extracted Chapter', chapterId: _chapterId, html: htmlContent, css: allStyles };
         /* Continue with existing behaviour */
         setStatus('✅ Chapter extracted! Check new tab');
         return _result;
@@ -6166,14 +6174,13 @@ ${htmlContent}
       if (libAddBooksBtn) {
         libAddBooksBtn.addEventListener('click', function() {
           document.getElementById('libraryInput').click();
-
+        });
+      }
 
       // Editor Button (launches standalone editor)
       var libEditorBtn = document.getElementById('libEditorBtn');
       if (libEditorBtn) {
         libEditorBtn.addEventListener('click', function() { _openSn56(null); });
-      }
-        });
       }
 
       // Back Button

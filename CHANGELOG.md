@@ -2,6 +2,43 @@
 
 ---
 
+## v0.16.3 — Image Embedding + Scope + CDN Fallback Fixes
+
+### Bug fix: immagini mancanti negli estratti HTML (tutti e 3 i file)
+
+- epub.js riscrive gli `src` in `http://localhost:8787/asset/...`; lo skip `src.startsWith('http://')` saltava tutto.
+- **Fix**: rimossi http/https dallo skip, aggiunto `fetch()`→base64 per blob:/http:/https:.
+- **Applies to**: `noesis816-full.html`, `noesis816-full-reader.html`, `noesis816-reader.html`.
+
+### Scope fix: `findAndLoadImage` e `findTocEntry`
+
+- Entrambe erano definite dentro `extractMultipleSections`/`extractCurrentChapter` ma chiamate da entrambe.
+- **Fix**: spostate in scope condiviso prima delle funzioni che le usano.
+
+### CDN fallback: `book.archive.request()` per `noesis816-reader.html`
+
+- La versione CDN non espone `book.archive.zip` (JSZip) → `findAndLoadImage` falliva.
+- **Fix**: se `zip` non disponibile, fallback a `book.archive.request()` (API pubblica epub.js).
+
+### Library Editor button fix
+
+- Il pulsante EDITOR in libreria era rotto: mancava `});` dopo `libAddBooksBtn.addEventListener`.
+- **Fix**: chiusura corretta del listener. Ora `_openSn56(null)` viene chiamato correttamente.
+
+### Mobile menu: voce Editor assente
+
+- `hmbEditor` aveva `style="display:none"` e classe `hmb-rdr` (reader-only).
+- **Fix**: rimosso `display:none` e `hmb-rdr`; Editor ora visibile in entrambi i contesti mobile.
+- Posizionato subito dopo "Add Books" nell'ordine del drawer.
+
+### File interessati
+
+- `noesis816-full.html` — fix immagini + scope + editor button + mobile editor
+- `noesis816-full-reader.html` — fix immagini + scope
+- `noesis816-reader.html` (CDN) — fix immagini + scope + CDN fallback `request()`
+
+---
+
 ## v0.16.1 — Reader: Contextual Annotate Popup
 
 ### Dropdown modali fix
@@ -42,6 +79,42 @@ Sostituito il vecchio menu a tendina "Annotate" con un **popup contestuale** che
 **File modificati:**
 - `noesis816-reader.html` (CDN) — redesign completo
 - `noesis816-full-reader.html` (Full) — stesso redesign
+
+---
+
+---
+
+## v0.16.2 — Unified: noesis816-full.html (Reader + Editor in unico file)
+
+### Architettura unificata
+
+Ricostruzione della versione unificata `noesis816-full.html` che include Reader + Editor
+in un unico file, unendo `noesis816-full-reader.html` (base) + `noesis816-full-editor.html`
+(JSON-encodato come `sn56Source`).
+
+**Componenti chiave:**
+- `sn56Source`: `<script type="application/json">` contenente l'intero editor embedded
+- `_openSn56(payload)`: apre l'editor in una nuova finestra, iniettando il payload
+- `extractOpenEditor`: nuova voce "Open in Editor" nel dropdown Extract del reader
+- `hmbEditor`: voce Editor nel menu hamburger del reader
+- `libEditorBtn`: pulsante EDITOR nella header della libreria
+- IDB bridge: postMessage per permettere alla finestra editor di accedere a IndexedDB
+
+**Flusso Extract → Editor:**
+1. User clicca Extract → "Open in Editor"
+2. `extractCurrentChapter()` estrae il capitolo corrente (HTML + CSS)
+3. `_openSn56({chapterId, html, title})` apre una nuova finestra con l'editor
+4. Il payload viene iniettato via `<!-- SN56_PAYLOAD_SLOT -->` nell'editor
+
+**Bug fix:**
+- `cssContent` → `allStyles` in `extractCurrentChapter()` (ReferenceError fix)
+- Aggiunto elemento HTML `id="extractOpenEditor"` nel menu Extract (mancante)
+- IDB bridge usa `NOESIS_DB_NAME`/`NOESIS_DB_VERSION`/`NOESIS_STORE` (no hardcoded)
+
+**File interessati:**
+- `noesis816-full.html` — file unificato (~1.79 MB, ~7764 righe)
+- `HANDOFF_noesis816-unified.md` — documentazione dell'architettura unificata
+- `doc-workflow.html` — aggiornato con flusso unificato
 
 ---
 
