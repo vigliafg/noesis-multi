@@ -137,7 +137,38 @@ if ('serviceWorker' in navigator) {
 
 ---
 
-## Fase 5 — Test
+## Fase 5 — Persistent Storage (da valutare)
+
+IndexedDB (`EpubLibraryDB`, `noesisDB`) in una tab browser normale è in modalità
+*"best-effort"*: il browser può cancellare i dati in caso di spazio disco insufficiente.
+
+Con la PWA installata, possiamo richiedere lo **storage persistente**:
+
+```javascript
+// Da chiamare dopo l'installazione o al primo avvio
+if (navigator.storage && navigator.storage.persist) {
+  const persisted = await navigator.storage.persist();
+  if (persisted) {
+    console.log('Storage persistente concesso — dati IndexedDB protetti');
+  }
+}
+```
+
+Se concesso, il browser **garantisce** di non cancellare automaticamente
+i dati IndexedDB. Su Chrome, le PWA installate ottengono questa autorizzazione
+automaticamente senza prompt all'utente.
+
+### Priorità differita
+
+- **Impatto**: basso (1 chiamata API, ~5 righe)
+- **Rischio**: nullo — se non supportata, semplicemente non fa nulla
+- **Da fare dopo**: aver verificato che il Service Worker e i manifest funzionano
+
+> ⚠️ **Da valutare in un secondo momento** — non bloccante per il rollout PWA iniziale.
+
+---
+
+## Fase 6 — Test
 
 | Test | Strumento |
 |------|-----------|
@@ -150,7 +181,7 @@ if ('serviceWorker' in navigator) {
 
 ---
 
-## Fase 6 — Sezione "Install as App" in index.html
+## Fase 7 — Sezione "Install as App" in index.html
 
 Aggiungere nella pagina download una breve sezione:
 
@@ -173,4 +204,4 @@ Aggiungere nella pagina download una breve sezione:
 | `noesis816-editor.html` | **Modificato** — tag PWA |
 | `index.html` | **Modificato** — sezione "Install as App" |
 
-**Totale: 6 nuovi file, 4 modificati. ~1 ora di lavoro.**
+**Totale: 6 nuovi file, 4 modificati. ~1 ora di lavoro (più persistent storage da valutare).**
