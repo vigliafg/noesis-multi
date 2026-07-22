@@ -53,7 +53,7 @@
     .user-card .emoji { font-size: 28px; display: block; margin-bottom: 10px; }
     .user-card h4 { font-size: 14px; font-weight: 700; color: #f0ece4; margin-bottom: 6px; }
     .user-card p { font-size: 13px; color: #9ca3af; line-height: 1.55; }
-    .install-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 28px; }
+    .install-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 28px; }
     .install-step { text-align: center; padding: 24px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius); }
     .install-num { width: 36px; height: 36px; border-radius: 50%; background: var(--violet); color: white; font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
     .install-step h4 { font-size: 14px; font-weight: 700; color: #f0ece4; margin-bottom: 8px; }
@@ -118,7 +118,7 @@
   <h1 data-i18n="index.hero.h1">Read in any language.<br><em>Turn books into knowledge.</em></h1>
   <p data-i18n="index.hero.p">A multilingual EPUB reader with highlights, chapter extraction, snapshot versioning and integrated WYSIWYG editor. All in the browser. Zero server. Zero account.</p>
   <div class="hero-ctas">
-    <a href="noesis816-reader.html" class="btn-live-demo" target="_blank" rel="noopener" data-i18n="index.hero.btn.demo">▶ Live Demo</a>
+    <a href="noesis816.html" class="btn-live-demo" target="_blank" rel="noopener" data-i18n="index.hero.btn.demo">▶ Live Demo</a>
     <a href="#download" class="btn-primary" data-i18n="index.hero.btn.download">⬇ Download free</a>
     <a href="guida.html" class="btn-secondary" data-i18n="index.hero.btn.guide">📖 Quick Guide →</a>
     <a href="#features" class="btn-secondary" data-i18n="index.hero.btn.features">Explore features ↓</a>
@@ -395,103 +395,8 @@
     <h3 data-i18n="index.download.h3">Download. Unzip. Open.</h3>
     <p data-i18n="index.download.p">No installation. No server. No account. Choose the version that best suits your needs.</p>
 
-    <!-- DOWNLOAD COMPARISON -->
+    <!-- AVAILABLE EDITIONS -->
     <div class="download-editions-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin:28px 0; text-align:left;">
-
-      <!-- Regular -->
-      <div style="border:2px solid rgba(124,58,237,0.5); border-radius:12px; padding:24px; background:rgba(124,58,237,0.04); position:relative;">
-        <div class="badge badge-violet" style="margin-bottom:12px;" data-i18n="index.dl.regular.badge">Recommended</div>
-        <h4 style="font-size:18px; font-weight:800; margin-bottom:6px;" data-i18n="index.dl.regular.h">Regular Version</h4>
-        <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;" data-i18n="index.dl.regular.p">App snella: le librerie JS sono caricate da CDN all'apertura. Ideale per uso quotidiano — sempre aggiornata, file più piccolo e facile da mantenere.</p>
-        <ul style="font-size:13px; color:var(--text-muted); list-style:none; margin:0 0 20px; padding:0; line-height:2;">
-          <li><span style="color:#10b981; font-weight:700;">✓</span> <span data-i18n="index.dl.regular.li1">File leggero (&lt; 200 KB)</span></li>
-          <li><span style="color:#10b981; font-weight:700;">✓</span> <span data-i18n="index.dl.regular.li2">Dipendenze sempre aggiornate via CDN</span></li>
-          <li><span style="color:#10b981; font-weight:700;">✓</span> <span data-i18n="index.dl.regular.li3">Facile da aggiornare all'ultima versione</span></li>
-          <li><span style="color:#ef4444; font-weight:700;">✗</span> <span data-i18n="index.dl.regular.li4">Richiede connessione internet al primo avvio</span></li>
-          <li><span style="color:#ef4444; font-weight:700;">✗</span> <span data-i18n="index.dl.regular.li5">Traduzione browser (non funziona offline)</span></li>
-        </ul>
-        <a href="noesis812.zip" class="btn-download" style="display:block; text-align:center;">⬇ noesis812.zip</a>
-      </div>
-
-      <!-- Full / Serverless -->
-      <div style="border:2px solid rgba(16,185,129,0.4); border-radius:12px; padding:24px; background:rgba(16,185,129,0.03); position:relative;">
-        <div class="badge" style="background:rgba(16,185,129,0.15); color:#059669; margin-bottom:12px;" data-i18n="index.dl.full.badge">Serverless / Offline</div>
-        <h4 style="font-size:18px; font-weight:800; margin-bottom:6px;" data-i18n="index.dl.full.h">Full Version</h4>
-        <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;" data-i18n="index.dl.full.p">Tutte le dipendenze embedded nel file HTML. Funziona completamente offline, senza CDN, senza connessione — ideale per ambienti isolati o archivio a lungo termine.</p>
-        <ul style="font-size:13px; color:var(--text-muted); list-style:none; margin:0 0 20px; padding:0; line-height:2;">
-          <li><span style="color:#10b981; font-weight:700;">✓</span> <span data-i18n="index.dl.full.li1">100% offline — zero dipendenze esterne</span></li>
-          <li><span style="color:#10b981; font-weight:700;">✓</span> <span data-i18n="index.dl.full.li2">File unico autosufficiente</span></li>
-          <li><span style="color:#10b981; font-weight:700;">✓</span> <span data-i18n="index.dl.full.li3">Ideale per archivio e ambienti air-gapped</span></li>
-          <li><span style="color:#ef4444; font-weight:700;">✗</span> <span data-i18n="index.dl.full.li4">File più pesante (~5–10 MB)</span></li>
-          <li><span style="color:#ef4444; font-weight:700;">✗</span> <span data-i18n="index.dl.full.li5">Traduzione browser non disponibile offline</span></li>
-        </ul>
-        <a href="noesis812-full.zip" class="btn-download" style="display:block; text-align:center; background:linear-gradient(135deg,#059669,#10b981);">⬇ noesis812-full.zip</a>
-        <p style="font-size:12px; color:var(--text-muted); margin-top:10px; text-align:center;"><span data-i18n="index.dl.full.deps">Isolated dependencies:</span> <a href="noesis812-full-Deps.zip" style="color:var(--violet);">noesis812-full-Deps.zip</a></p>
-      </div>
-
-      <!-- CDN Reader v816 -->
-      <div style="border:2px solid rgba(124,58,237,0.5); border-radius:12px; padding:24px; background:rgba(124,58,237,0.04); position:relative;">
-        <div class="badge badge-violet" style="margin-bottom:12px;">NEW · CDN</div>
-        <h4 style="font-size:18px; font-weight:800; margin-bottom:6px;">Reader v816 — CDN</h4>
-        <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">Reader + Library responsive con dipendenze da CDN jsDelivr. File leggero, sempre aggiornato. Interfaccia mobile-first con hamburger menu, chapter navigation statusbar e 15 temi di lettura.</p>
-        <ul style="font-size:13px; color:var(--text-muted); list-style:none; margin:0 0 20px; padding:0; line-height:2;">
-          <li><span style="color:#10b981; font-weight:700;">✓</span> File ultraleggero (~60 KB)</li>
-          <li><span style="color:#10b981; font-weight:700;">✓</span> Dipendenze CDN sempre aggiornate</li>
-          <li><span style="color:#10b981; font-weight:700;">✓</span> Responsive mobile + desktop</li>
-          <li><span style="color:#10b981; font-weight:700;">✓</span> Chapter nav statusbar, nav popover</li>
-          <li><span style="color:#ef4444; font-weight:700;">✗</span> Richiede internet al primo avvio</li>
-        </ul>
-        <a href="noesis816-reader.html" class="btn-download" style="display:block; text-align:center;">⬇ noesis816-reader.html</a>
-        <p style="font-size:11px; color:var(--text-muted); margin-top:8px; text-align:center;">Download diretto · Apri nel browser</p>
-      </div>
-
-      <!-- Full Reader v816 -->
-      <div style="border:2px solid rgba(16,185,129,0.3); border-radius:12px; padding:24px; background:rgba(16,185,129,0.02); position:relative;">
-        <div class="badge" style="background:rgba(59,130,246,0.15); color:#3b82f6; margin-bottom:12px;">Serverless READER v816</div>
-        <h4 style="font-size:18px; font-weight:800; margin-bottom:6px;">Full Reader v816</h4>
-        <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">Reader + Library responsive con tutte le dipendenze embedded. 100% offline. Mobile-first con hamburger menu, chapter navigation statusbar, nav mode popover e 15 temi.</p>
-        <ul style="font-size:13px; color:var(--text-muted); list-style:none; margin:0 0 20px; padding:0; line-height:2;">
-          <li><span style="color:#10b981; font-weight:700;">✓</span> 100% offline — zero dipendenze esterne</li>
-          <li><span style="color:#10b981; font-weight:700;">✓</span> File unico autosufficiente</li>
-          <li><span style="color:#10b981; font-weight:700;">✓</span> Responsive mobile + desktop</li>
-          <li><span style="color:#10b981; font-weight:700;">✓</span> Ideale per archivio e ambienti air-gapped</li>
-          <li><span style="color:#ef4444; font-weight:700;">✗</span> File più grande (~750 KB)</li>
-        </ul>
-        <a href="noesis816-full-reader.html" class="btn-download" style="display:block; text-align:center; background:linear-gradient(135deg,#3b82f6,#60a5fa);">⬇ noesis816-full-reader.html</a>
-        <p style="font-size:11px; color:var(--text-muted); margin-top:8px; text-align:center;">Download diretto · Apri nel browser</p>
-      </div>
-
-      <!-- Editor CDN v816 -->
-      <div style="border:2px solid rgba(124,58,237,0.5); border-radius:12px; padding:24px; background:rgba(124,58,237,0.04); position:relative;">
-        <div class="badge badge-violet" style="margin-bottom:12px;">NEW · EDITOR CDN</div>
-        <h4 style="font-size:18px; font-weight:800; margin-bottom:6px;">Editor v816 — CDN</h4>
-        <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">Noesis Editor responsive con dipendenze da CDN jsDelivr. Toolbar testuale, drawer hamburger su mobile, inspect panel, export universale. Tutte le funzionalità dell'editor full in un file leggero.</p>
-        <ul style="font-size:13px; color:var(--text-muted); list-style:none; margin:0 0 20px; padding:0; line-height:2;">
-          <li><span style="color:#10b981; font-weight:700;">✓</span> File leggero (~627 KB)</li>
-          <li><span style="color:#10b981; font-weight:700;">✓</span> Dipendenze CDN sempre aggiornate</li>
-          <li><span style="color:#10b981; font-weight:700;">✓</span> Responsive mobile + desktop</li>
-          <li><span style="color:#10b981; font-weight:700;">✓</span> Toolbar testuale, drawer hamburger</li>
-          <li><span style="color:#ef4444; font-weight:700;">✗</span> Richiede internet al primo avvio</li>
-        </ul>
-        <a href="noesis816-editor.html" class="btn-download" style="display:block; text-align:center;">⬇ noesis816-editor.html</a>
-        <p style="font-size:11px; color:var(--text-muted); margin-top:8px; text-align:center;">Download diretto · Apri nel browser</p>
-      </div>
-
-      <!-- Full Editor v816 -->
-      <div style="border:2px solid rgba(16,185,129,0.3); border-radius:12px; padding:24px; background:rgba(16,185,129,0.02); position:relative;">
-        <div class="badge" style="background:rgba(245,158,11,0.15); color:#d97706; margin-bottom:12px;">FULL EDITOR v816</div>
-        <h4 style="font-size:18px; font-weight:800; margin-bottom:6px;">Full Editor v816</h4>
-        <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">Noesis Editor responsive con tutte le dipendenze embedded. 100% offline. Toolbar testuale, drawer hamburger su mobile, inspect panel, export universale (TXT, MD, PDF, DOCX, JSON).</p>
-        <ul style="font-size:13px; color:var(--text-muted); list-style:none; margin:0 0 20px; padding:0; line-height:2;">
-          <li><span style="color:#10b981; font-weight:700;">✓</span> 100% offline — zero dipendenze</li>
-          <li><span style="color:#10b981; font-weight:700;">✓</span> File unico autosufficiente (~904 KB)</li>
-          <li><span style="color:#10b981; font-weight:700;">✓</span> Responsive mobile + desktop</li>
-          <li><span style="color:#10b981; font-weight:700;">✓</span> Ideale per archivio e ambienti air-gapped</li>
-          <li><span style="color:#ef4444; font-weight:700;">✗</span> File più pesante della versione CDN</li>
-        </ul>
-        <a href="noesis816-full-editor.html" class="btn-download" style="display:block; text-align:center; background:linear-gradient(135deg,#d97706,#fbbf24);">⬇ noesis816-full-editor.html</a>
-        <p style="font-size:11px; color:var(--text-muted); margin-top:8px; text-align:center;">Download diretto · Apri nel browser</p>
-      </div>
 
       <!-- UNIFIED CDN v816 -->
       <div style="border:2px solid rgba(124,58,237,0.5); border-radius:12px; padding:24px; background:rgba(124,58,237,0.04); position:relative;">
@@ -531,18 +436,82 @@
         <p style="font-size:11px; color:var(--text-muted); margin-top:8px; text-align:center;">Download diretto · Apri nel browser · ~1.8 MB</p>
       </div>
 
+      <!-- CDN Reader v816 -->
+      <div style="border:2px solid rgba(124,58,237,0.5); border-radius:12px; padding:24px; background:rgba(124,58,237,0.04); position:relative;">
+        <div class="badge badge-violet" style="margin-bottom:12px;">CDN</div>
+        <h4 style="font-size:18px; font-weight:800; margin-bottom:6px;">Reader v816 — CDN</h4>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">Reader + Library responsive con dipendenze da CDN jsDelivr. File leggero, sempre aggiornato. Interfaccia mobile-first con hamburger menu, chapter navigation statusbar e 15 temi di lettura.</p>
+        <ul style="font-size:13px; color:var(--text-muted); list-style:none; margin:0 0 20px; padding:0; line-height:2;">
+          <li><span style="color:#10b981; font-weight:700;">✓</span> File ultraleggero (~60 KB)</li>
+          <li><span style="color:#10b981; font-weight:700;">✓</span> Dipendenze CDN sempre aggiornate</li>
+          <li><span style="color:#10b981; font-weight:700;">✓</span> Responsive mobile + desktop</li>
+          <li><span style="color:#10b981; font-weight:700;">✓</span> Chapter nav statusbar, nav popover</li>
+          <li><span style="color:#ef4444; font-weight:700;">✗</span> Richiede internet al primo avvio</li>
+        </ul>
+        <a href="noesis816-reader.html" class="btn-download" style="display:block; text-align:center;">⬇ noesis816-reader.html</a>
+        <p style="font-size:11px; color:var(--text-muted); margin-top:8px; text-align:center;">Download diretto · Apri nel browser</p>
+      </div>
+
+      <!-- Full Reader v816 -->
+      <div style="border:2px solid rgba(16,185,129,0.3); border-radius:12px; padding:24px; background:rgba(16,185,129,0.02); position:relative;">
+        <div class="badge" style="background:rgba(59,130,246,0.15); color:#3b82f6; margin-bottom:12px;">Serverless READER v816</div>
+        <h4 style="font-size:18px; font-weight:800; margin-bottom:6px;">Full Reader v816</h4>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">Reader + Library responsive con tutte le dipendenze embedded. 100% offline. Mobile-first con hamburger menu, chapter navigation statusbar, nav mode popover e 15 temi.</p>
+        <ul style="font-size:13px; color:var(--text-muted); list-style:none; margin:0 0 20px; padding:0; line-height:2;">
+          <li><span style="color:#10b981; font-weight:700;">✓</span> 100% offline — zero dipendenze esterne</li>
+          <li><span style="color:#10b981; font-weight:700;">✓</span> File unico autosufficiente</li>
+          <li><span style="color:#10b981; font-weight:700;">✓</span> Responsive mobile + desktop</li>
+          <li><span style="color:#10b981; font-weight:700;">✓</span> Ideale per archivio e ambienti air-gapped</li>
+          <li><span style="color:#ef4444; font-weight:700;">✗</span> File più grande (~750 KB)</li>
+        </ul>
+        <a href="noesis816-full-reader.html" class="btn-download" style="display:block; text-align:center; background:linear-gradient(135deg,#3b82f6,#60a5fa);">⬇ noesis816-full-reader.html</a>
+        <p style="font-size:11px; color:var(--text-muted); margin-top:8px; text-align:center;">Download diretto · Apri nel browser</p>
+      </div>
+
+      <!-- Editor CDN v816 -->
+      <div style="border:2px solid rgba(124,58,237,0.5); border-radius:12px; padding:24px; background:rgba(124,58,237,0.04); position:relative;">
+        <div class="badge badge-violet" style="margin-bottom:12px;">EDITOR CDN</div>
+        <h4 style="font-size:18px; font-weight:800; margin-bottom:6px;">Editor v816 — CDN</h4>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">Noesis Editor responsive con dipendenze da CDN jsDelivr. Toolbar testuale, drawer hamburger su mobile, inspect panel, export universale. Tutte le funzionalità dell'editor full in un file leggero.</p>
+        <ul style="font-size:13px; color:var(--text-muted); list-style:none; margin:0 0 20px; padding:0; line-height:2;">
+          <li><span style="color:#10b981; font-weight:700;">✓</span> File leggero (~627 KB)</li>
+          <li><span style="color:#10b981; font-weight:700;">✓</span> Dipendenze CDN sempre aggiornate</li>
+          <li><span style="color:#10b981; font-weight:700;">✓</span> Responsive mobile + desktop</li>
+          <li><span style="color:#10b981; font-weight:700;">✓</span> Toolbar testuale, drawer hamburger</li>
+          <li><span style="color:#ef4444; font-weight:700;">✗</span> Richiede internet al primo avvio</li>
+        </ul>
+        <a href="noesis816-editor.html" class="btn-download" style="display:block; text-align:center;">⬇ noesis816-editor.html</a>
+        <p style="font-size:11px; color:var(--text-muted); margin-top:8px; text-align:center;">Download diretto · Apri nel browser</p>
+      </div>
+
+      <!-- Full Editor v816 -->
+      <div style="border:2px solid rgba(16,185,129,0.3); border-radius:12px; padding:24px; background:rgba(16,185,129,0.02); position:relative;">
+        <div class="badge" style="background:rgba(245,158,11,0.15); color:#d97706; margin-bottom:12px;">FULL EDITOR v816</div>
+        <h4 style="font-size:18px; font-weight:800; margin-bottom:6px;">Full Editor v816</h4>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">Noesis Editor responsive con tutte le dipendenze embedded. 100% offline. Toolbar testuale, drawer hamburger su mobile, inspect panel, export universale (TXT, MD, PDF, DOCX, JSON).</p>
+        <ul style="font-size:13px; color:var(--text-muted); list-style:none; margin:0 0 20px; padding:0; line-height:2;">
+          <li><span style="color:#10b981; font-weight:700;">✓</span> 100% offline — zero dipendenze</li>
+          <li><span style="color:#10b981; font-weight:700;">✓</span> File unico autosufficiente (~904 KB)</li>
+          <li><span style="color:#10b981; font-weight:700;">✓</span> Responsive mobile + desktop</li>
+          <li><span style="color:#10b981; font-weight:700;">✓</span> Ideale per archivio e ambienti air-gapped</li>
+          <li><span style="color:#ef4444; font-weight:700;">✗</span> File più pesante della versione CDN</li>
+        </ul>
+        <a href="noesis816-full-editor.html" class="btn-download" style="display:block; text-align:center; background:linear-gradient(135deg,#d97706,#fbbf24);">⬇ noesis816-full-editor.html</a>
+        <p style="font-size:11px; color:var(--text-muted); margin-top:8px; text-align:center;">Download diretto · Apri nel browser</p>
+      </div>
+
     </div>
 
     <div style="margin-top: 24px;">
       <div class="install-steps">
-        <div class="install-step"><div class="install-num">1</div><h4 data-i18n="index.install.step1.h">Download the zip</h4><p data-i18n="index.install.step1.p">Salva <code>noesis812.zip</code> nella cartella Download.</p></div>
-        <div class="install-step"><div class="install-num">2</div><h4 data-i18n="index.install.step2.h">Unzip</h4><p data-i18n="index.install.step2.p"><strong>Win:</strong> tasto destro → Estrai<br><strong>Mac:</strong> doppio click<br><strong>Linux:</strong> <code>unzip noesis812.zip</code></p></div>
-        <div class="install-step"><div class="install-num">3</div><h4 data-i18n="index.install.step3.h">Open in browser</h4><p data-i18n="index.install.step3.p">Doppio click su <code>noesis812.html</code> oppure trascinalo in Chrome, Firefox o Edge.</p></div>
+        <div class="install-step"><div class="install-num">1</div><h4 data-i18n="index.install.step1.h">Download the file</h4><p data-i18n="index.install.step1.p">Scegli il file HTML che preferisci dalla lista sopra e salvalo sul tuo computer.</p></div>
+        <div class="install-step"><div class="install-num">2</div><h4 data-i18n="index.install.step2.h">Open in browser</h4><p data-i18n="index.install.step2.p">Doppio click sul file <code>.html</code> scaricato oppure trascinalo in Chrome, Firefox o Edge.</p></div>
+        <div class="install-step"><div class="install-num">3</div><h4 data-i18n="index.install.step3.h">Import a book</h4><p data-i18n="index.install.step3.p">Clicca <strong>+ Add Book</strong>, seleziona un file <code>.epub</code> e inizia a leggere.</p></div>
         <div class="install-step"><div class="install-num">4</div><h4 data-i18n="index.install.step4.h">Import a book</h4><p data-i18n="index.install.step4.p">Clicca <strong>+ Add Book</strong>, seleziona un file <code>.epub</code> e inizia a leggere.</p></div>
       </div>
       <div class="callout callout-tip" style="margin-top:20px; text-align:left; color:#1e3a5f;">
         <span class="callout-icon">💡</span>
-        <div><strong data-i18n="common.localserver">Local server recommended</strong> — <span data-i18n="common.localserver.body">Per la migliore esperienza con file EPUB complessi, avvia un server locale: <code>python -m http.server 8000</code> nella cartella decompressa e apri <code>http://localhost:8000/noesis812.html</code></span></div>
+        <div><strong data-i18n="common.localserver">Local server recommended</strong> — <span data-i18n="common.localserver.body">Per la migliore esperienza con file EPUB complessi, avvia un server locale: <code>python -m http.server 8000</code> nella cartella decompressa e apri <code>http://localhost:8000/noesis816.html</code></span></div>
       </div>
     </div>
   </div>
