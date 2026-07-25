@@ -176,7 +176,7 @@
       border: none;
       border-radius: 0;
       cursor: pointer;
-      font-size: 13px;
+      font-size: 15px;
       font-weight: 600;
       font-family: 'system-ui', sans-serif;
       letter-spacing: 0.04em;
@@ -197,6 +197,7 @@
     .lib-header-btn:active {
       background: transparent;
     }
+    #libAddBooksBtn { font-size: 15px; }
 
     .lib-header-btn i {
       font-size: 10px;
@@ -2673,7 +2674,7 @@
     }
 
     /* ── Hamburger menu button (hidden on desktop, visible <768px) ── */
-    #hamburgerBtn {
+    #hamburgerBtn, #hamburgerBtnLib {
       display: none;
       background: none;
       border: none;
@@ -5946,10 +5947,12 @@ ${htmlContent}
           }
         }
         applyLibraryTheme();
-        // Toggle dropdown
+        // Toggle dropdown (close tools if open)
         if (themesBtn) {
           themesBtn.addEventListener('click', function(e) {
             e.stopPropagation();
+            var toolsMenu = document.getElementById('libToolsMenu');
+            if (toolsMenu) toolsMenu.classList.add('hidden');
             themesMenu.classList.toggle('hidden');
             themesMenu.classList.toggle('show');
           });
@@ -5974,13 +5977,6 @@ ${htmlContent}
             themesMenu.classList.remove('show');
           });
         }
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-          if (themesMenu && !themesMenu.contains(e.target) && !themesBtn.contains(e.target)) {
-            themesMenu.classList.add('hidden');
-            themesMenu.classList.remove('show');
-          }
-        });
       })();
       // ── END Library theme toggle ──────────────────────────────────────
 
@@ -6797,10 +6793,20 @@ ${htmlContent}
       if (!toolsBtn || !toolsMenu) return;
       toolsBtn.addEventListener('click', function(e) {
         e.stopPropagation();
+        var themesMenu = document.getElementById('libThemesMenu');
+        if (themesMenu) { themesMenu.classList.add('hidden'); themesMenu.classList.remove('show'); }
         toolsMenu.classList.toggle('hidden');
       });
-      document.addEventListener('click', function() {
-        toolsMenu.classList.add('hidden');
+      document.addEventListener('click', function(e) {
+        var themesMenu = document.getElementById('libThemesMenu');
+        var themesBtn = document.getElementById('libThemesBtn');
+        if (toolsMenu && !toolsMenu.contains(e.target) && !toolsBtn.contains(e.target)) {
+          toolsMenu.classList.add('hidden');
+        }
+        if (themesMenu && !themesMenu.contains(e.target) && themesBtn && !themesBtn.contains(e.target)) {
+          themesMenu.classList.add('hidden');
+          themesMenu.classList.remove('show');
+        }
       });
     })();
 
