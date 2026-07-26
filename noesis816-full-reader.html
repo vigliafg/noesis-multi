@@ -3756,6 +3756,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     function openNoesisDB() {
       return new Promise((resolve, reject) => {
         const request = indexedDB.open(NOESIS_DB_NAME, NOESIS_DB_VERSION);
+        var blockedTimer = null;
         request.onupgradeneeded = (event) => {
           const db = event.target.result;
           if (!db.objectStoreNames.contains(NOESIS_STORE)) {
@@ -3764,8 +3765,51 @@ https://github.com/nodeca/pako/blob/main/LICENSE
             store.createIndex('chapterName', 'chapterName', { unique: false });
           }
         };
-        request.onsuccess = (event) => resolve(event.target.result);
-        request.onerror = (event) => reject(event.target.error);
+        request.onsuccess = (event) => {
+          if (blockedTimer) clearTimeout(blockedTimer);
+          const db = event.target.result;
+          db.onversionchange = () => { db.close(); console.warn('NoesisDB: version changed externally, connection closed.'); };
+          resolve(db);
+        };
+        request.onerror = (event) => {
+          if (blockedTimer) clearTimeout(blockedTimer);
+          const error = event.target.error;
+          if (error.name === 'VersionError') {
+            console.warn('NoesisDB VersionError, deleting old database...');
+            const deleteRequest = indexedDB.deleteDatabase(NOESIS_DB_NAME);
+            deleteRequest.onsuccess = () => {
+              const retryRequest = indexedDB.open(NOESIS_DB_NAME, NOESIS_DB_VERSION);
+              retryRequest.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                if (!db.objectStoreNames.contains(NOESIS_STORE)) {
+                  const store = db.createObjectStore(NOESIS_STORE, { keyPath: 'chapterId' });
+                  store.createIndex('bookName', 'bookName', { unique: false });
+                  store.createIndex('chapterName', 'chapterName', { unique: false });
+                }
+              };
+              retryRequest.onsuccess = (event) => {
+                const db = event.target.result;
+                db.onversionchange = () => { db.close(); };
+                resolve(db);
+              };
+              retryRequest.onerror = (event) => reject(event.target.error);
+              retryRequest.onblocked = () => {
+                blockedTimer = setTimeout(() => {
+                  reject(new Error('Database upgrade blocked by another connection. Close other tabs using the app and reload.'));
+                }, 5000);
+              };
+            };
+            deleteRequest.onerror = () => reject(error);
+          } else {
+            reject(error);
+          }
+        };
+        request.onblocked = () => {
+          console.warn('NoesisDB: upgrade blocked by another connection, waiting...');
+          blockedTimer = setTimeout(() => {
+            reject(new Error('Database upgrade blocked by another connection. Close other tabs using the app and reload.'));
+          }, 5000);
+        };
       });
     }
 
@@ -3777,6 +3821,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         const request = store.put(chapterRecord);
         request.onsuccess = () => resolve(chapterRecord);
         request.onerror = (e) => reject(e);
+          tx.onabort = () => { console.warn('Transaction aborted:', tx.error); reject(tx.error || new Error('Transaction was aborted')); };
       });
     }
 
@@ -3788,6 +3833,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         const request = store.delete(chapterId);
         request.onsuccess = () => resolve();
         request.onerror = (e) => reject(e);
+          tx.onabort = () => { console.warn('Transaction aborted:', tx.error); reject(tx.error || new Error('Transaction was aborted')); };
       });
     }
 
@@ -3806,6 +3852,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         const request = store.get(chapterId);
         request.onsuccess = () => resolve(request.result || null);
         request.onerror = (e) => reject(e);
+          tx.onabort = () => { console.warn('Transaction aborted:', tx.error); reject(tx.error || new Error('Transaction was aborted')); };
       });
     }
     // --- END NOESIS DB ---
@@ -3984,6 +4031,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
         request.onsuccess = () => resolve(bookRecord);
         request.onerror = (e) => reject(e);
+          tx.onabort = () => { console.warn('Transaction aborted:', tx.error); reject(tx.error || new Error('Transaction was aborted')); };
       });
     }
 
@@ -3996,6 +4044,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
         request.onsuccess = () => resolve(request.result);
         request.onerror = (e) => reject(e);
+          tx.onabort = () => { console.warn('Transaction aborted:', tx.error); reject(tx.error || new Error('Transaction was aborted')); };
       });
     }
 
@@ -4008,6 +4057,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         const request = store.delete(id);
         request.onsuccess = () => resolve();
         request.onerror = (e) => reject(e);
+          tx.onabort = () => { console.warn('Transaction aborted:', tx.error); reject(tx.error || new Error('Transaction was aborted')); };
       });
       // If this was the currently open book, reset tracking
       if (currentBookId === id) {
@@ -4441,6 +4491,7 @@ ${htmlContent}
           const req = store.get(currentBookId);
           req.onsuccess = () => resolve(req.result);
           req.onerror = () => reject(req.error);
+          tx.onabort = () => { console.warn('Transaction aborted:', tx.error); reject(tx.error || new Error('Transaction was aborted')); };
         });
         if (!bookData) return;
         const existingState = bookData.savedState || {};
@@ -4457,6 +4508,7 @@ ${htmlContent}
           const req = store.put(updatedBook);
           req.onsuccess = () => resolve();
           req.onerror = () => reject(req.error);
+          tx.onabort = () => { console.warn('Transaction aborted:', tx.error); reject(tx.error || new Error('Transaction was aborted')); };
         });
         _lastAutoSavedCfi = cfi;
       } catch (e) {
@@ -4475,6 +4527,7 @@ ${htmlContent}
           const req = store.get(currentBookId);
           req.onsuccess = () => resolve(req.result);
           req.onerror = () => reject(req.error);
+          tx.onabort = () => { console.warn('Transaction aborted:', tx.error); reject(tx.error || new Error('Transaction was aborted')); };
         });
         if (!bookData) return;
         const existingState = bookData.savedState || {};
@@ -4495,6 +4548,7 @@ ${htmlContent}
           const req = store.put(updatedBook);
           req.onsuccess = () => resolve();
           req.onerror = () => reject(req.error);
+          tx.onabort = () => { console.warn('Transaction aborted:', tx.error); reject(tx.error || new Error('Transaction was aborted')); };
         });
         _lastSavedVisualState = _snapshotVisualState();
       } catch (e) {
@@ -4587,6 +4641,7 @@ ${htmlContent}
           const req = store.get(bookId);
           req.onsuccess = () => resolve(req.result);
           req.onerror = () => reject(req.error);
+          tx.onabort = () => { console.warn('Transaction aborted:', tx.error); reject(tx.error || new Error('Transaction was aborted')); };
         });
 
         if (!bookData || !bookData.savedState) {
@@ -5858,6 +5913,7 @@ ${htmlContent}
           const req = store.get(currentBookId);
           req.onsuccess = () => resolve(req.result);
           req.onerror = () => reject(req.error);
+          tx.onabort = () => { console.warn('Transaction aborted:', tx.error); reject(tx.error || new Error('Transaction was aborted')); };
         });
         if (!bookData) return;
 
@@ -5869,6 +5925,7 @@ ${htmlContent}
           const req = store.put(updatedBook);
           req.onsuccess = () => resolve();
           req.onerror = () => reject(req.error);
+          tx.onabort = () => { console.warn('Transaction aborted:', tx.error); reject(tx.error || new Error('Transaction was aborted')); };
         });
       } catch (e) {
         console.error('Error saving user bookmarks:', e);
@@ -5885,6 +5942,7 @@ ${htmlContent}
           const req = store.get(bookId);
           req.onsuccess = () => resolve(req.result);
           req.onerror = () => reject(req.error);
+          tx.onabort = () => { console.warn('Transaction aborted:', tx.error); reject(tx.error || new Error('Transaction was aborted')); };
         });
         if (bookData && Array.isArray(bookData.userBookmarks)) {
           userBookmarks = bookData.userBookmarks;
