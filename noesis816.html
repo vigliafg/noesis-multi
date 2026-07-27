@@ -4327,7 +4327,7 @@ ${htmlContent}
     }
 
     // ── Generate standalone EPUB ─────────────────────────────────────────
-    async function _generateEpub(htmlContent, title, author, filename) {
+    async function _generateEpub(htmlContent, title, author, filename, styles) {
       const zip = new JSZip();
       zip.file('mimetype', 'application/epub+zip', { compression: 'STORE' });
       zip.file('META-INF/container.xml',
@@ -4362,7 +4362,9 @@ ${htmlContent}
         '<?xml version="1.0" encoding="UTF-8"?>\n' +
         '<!DOCTYPE html>\n' +
         '<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">\n' +
-        '<head><title>' + (title || 'Chapter') + '</title><meta charset="UTF-8"/></head>\n' +
+        '<head><title>' + (title || 'Chapter') + '</title><meta charset="UTF-8"/>' +
+        (styles ? '\n<style>\n' + styles + '\n</style>' : '') +
+        '</head>\n' +
         '<body>' + processedHTML + '</body>\n' +
         '</html>');
 
@@ -4426,7 +4428,7 @@ ${htmlContent}
     }
 
     // ── Dispatch extract download based on selected format ────────────────
-    function _dispatchExtractDownload(bookName, chapterName, chapterId, htmlContent, timestamp) {
+    function _dispatchExtractDownload(bookName, chapterName, chapterId, htmlContent, timestamp, styles) {
       const sBook = bookName.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 40);
       const sCh = chapterName.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 40);
 
@@ -4446,7 +4448,7 @@ ${htmlContent}
           _downloadAsMarkdown(htmlContent, `noesis-extract-${sBook}__${sCh}__${timestamp}.md`);
           break;
         case 'epub':
-          _generateEpub(htmlContent, bookName, bookName, `noesis-extract-${sBook}__${sCh}__${timestamp}.epub`)
+          _generateEpub(htmlContent, bookName, bookName, `noesis-extract-${sBook}__${sCh}__${timestamp}.epub`, styles || '')
             .catch(e => { console.error('EPUB generation failed:', e); alert('EPUB generation failed: ' + e.message); });
           break;
         case 'pdf':
@@ -5474,7 +5476,7 @@ ${htmlContent}
 
       // ── Salva nel formato selezionato ──
       const _ts2 = _buildExtractionTimestamp();
-      _dispatchExtractDownload(currentBookTitle || '', overallTitle || '', _msChapterId, combinedHTML, _ts2);
+      _dispatchExtractDownload(currentBookTitle || '', overallTitle || '', _msChapterId, combinedHTML, _ts2, allStyles);
 
       setStatus('✅ Sections extracted! Check new tab');
     }
@@ -5710,7 +5712,7 @@ ${htmlContent}
 
         // ── Salva nel formato selezionato ──
         const _ts = _buildExtractionTimestamp();
-        _dispatchExtractDownload(currentBookTitle || '', chapterTitle || '', _chapterId, htmlContent, _ts);
+        _dispatchExtractDownload(currentBookTitle || '', chapterTitle || '', _chapterId, htmlContent, _ts, allStyles);
 
         /* Return chapter data for Editor integration */
         var _result = { title: chapterTitle || 'Extracted Chapter', chapterId: _chapterId, html: htmlContent, css: allStyles };
