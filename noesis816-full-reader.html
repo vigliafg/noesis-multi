@@ -1566,7 +1566,7 @@
     }
 
     .extract-menu-item {
-      padding: 12px 16px;
+      padding: 14px 16px;
       display: flex;
       align-items: center;
       gap: 12px;
@@ -1606,8 +1606,8 @@
     }
     .extract-fmt-btn {
       flex: 1 1 auto;
-      min-width: 55px;
-      padding: 6px 3px;
+      min-width: 56px;
+      padding: 8px 5px;
       border: 1px solid #e5e7eb;
       background: white;
       color: #6b7280;
@@ -3031,8 +3031,6 @@
     /* ═══════════════════════════════════════════════════════
        DISPLAY MENU — accordion, popup content inline
        ═══════════════════════════════════════════════════════ */
-    .display-dropdown { position: relative; display: inline-block; }
-
     .display-menu {
       display: none;
       position: absolute;
@@ -3117,9 +3115,9 @@
 
     /* Compact row layout */
     .display-section-body .typography-row label {
-      font-size: 11px !important;
+      font-size: 13px !important;
       min-width: 0 !important;
-      width: 72px !important;
+      width: 80px !important;
       flex-shrink: 0;
     }
     .display-section-body .typography-controls {
@@ -3129,9 +3127,9 @@
     /* Smaller buttons */
     .display-section-body .typography-controls button,
     .display-section-body button.reset-btn {
-      width: 28px !important;
-      height: 28px !important;
-      font-size: 13px !important;
+      width: 32px !important;
+      height: 32px !important;
+      font-size: 15px !important;
       padding: 0 !important;
       background: white !important;
       color: #374151 !important;
@@ -3144,8 +3142,8 @@
     }
     /* Compact value badge */
     .display-section-body .typography-value {
-      min-width: 36px !important;
-      font-size: 11px !important;
+      min-width: 42px !important;
+      font-size: 13px !important;
       background: rgba(0,0,0,0.05) !important;
       border-color: rgba(0,0,0,0.1) !important;
       padding: 2px 4px !important;
@@ -3153,17 +3151,74 @@
     }
     /* Color picker compact */
     .display-section-body input[type="color"] {
-      width: 36px !important;
-      height: 24px !important;
+      width: 42px !important;
+      height: 30px !important;
     }
     /* Range slider compact */
     .display-section-body input[type="range"] {
-      max-width: 64px !important;
+      max-width: 80px !important;
       margin: 0 4px !important;
     }
     /* Theme grid: tighter columns inside narrow menu */
     .display-section-body .theme-grid {
       grid-template-columns: repeat(3, 1fr) !important;
+    }
+    .display-section-body .theme-swatch {
+      width: 50px !important;
+      height: 36px !important;
+    }
+
+    /* ── Mobile: larger touch targets ── */
+    @media (max-width: 768px) {
+      /* ── Navigate menu items ── */
+      .rmb-nav-item {
+        min-height: 44px;
+        font-size: 14px;
+      }
+      /* ── Extract format buttons ── */
+      .extract-fmt-btn {
+        padding: 10px 6px !important;
+        font-size: 12px !important;
+        min-width: 48px;
+        min-height: 44px;
+      }
+      /* ── Display menu ── */
+      #displayMenu {
+        min-width: 300px;
+        max-width: calc(100vw - 20px);
+      }
+      .display-section-body .typography-controls button {
+        width: 44px !important;
+        height: 44px !important;
+        font-size: 20px !important;
+        margin: 2px !important;
+      }
+      .display-section-body .typography-row label {
+        font-size: 14px !important;
+        width: 80px !important;
+      }
+      .display-section-body .typography-value {
+        min-width: 44px !important;
+        font-size: 14px !important;
+      }
+      .display-section-body input[type="range"] {
+        max-width: 120px !important;
+      }
+      .display-section-body input[type="color"] {
+        width: 44px !important;
+        height: 36px !important;
+      }
+      .display-section-body .theme-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 6px !important;
+      }
+      .display-section-body .theme-swatch {
+        width: 80px !important;
+        height: 52px !important;
+      }
+      .display-section-body .typography-row {
+        padding: 8px 0;
+      }
     }
 
     /* Separator between sections */
@@ -3294,8 +3349,8 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 9px 16px;
-      font-size: 13px;
+      padding: 10px 16px;
+      font-size: 14px;
       color: #374151;
       cursor: pointer;
       transition: background 0.12s;
@@ -4060,12 +4115,6 @@
             <i class="bi bi-highlighter"></i>
           </button>
           <!-- readerHighlightMenu è ora nel menubar -->
-        </div>
-        <div class="display-dropdown">
-          <button class="btn btn-icon" id="displayBtn" title="Display Settings">
-            <i class="bi bi-eye"></i>
-          </button>
-          <!-- displayMenu è ora nel menubar -->
         </div>
         <button class="btn btn-icon" id="typographyBtn" title="Typography" style="display:none"><i class="bi bi-type"></i></button>
         <button class="btn btn-icon" id="themeBtn" title="Themes" style="display:none"><i class="bi bi-palette"></i></button>
@@ -9244,7 +9293,6 @@ ${htmlContent}
       var nm = document.getElementById('rmbNavigateMenu');
       var nw = document.getElementById('rmbNavigateWrap');
       var xb = document.getElementById('extractChapterBtn');
-      var db = document.getElementById('displayBtn');
       var dw = document.getElementById('displayDropdownWrap');
       var rd = document.getElementById('rmbDisplay');
       var re = document.getElementById('rmbExtract');
@@ -9258,7 +9306,7 @@ ${htmlContent}
       if (!anyOpen) return;
 
       var inside = false;
-      if ((dm && dm.contains(target)) || (db && db.contains(target)) || target === rd || (dw && dw.contains(target))) inside = true;
+      if ((dm && dm.contains(target)) || target === rd || (dw && dw.contains(target))) inside = true;
       if ((em && em.contains(target)) || (xb && xb.contains(target)) || target === re || (rw && rw.contains(target))) inside = true;
       if ((nm && nm.contains(target)) || (nw && nw.contains(target))) inside = true;
       if (typeof navModePopover !== 'undefined' && navModePopover && navModePopover.contains(target)) inside = true;
@@ -9271,9 +9319,9 @@ ${htmlContent}
        ═══════════════════════════════════════════════════════ */
     (function initDisplayMenu() {
 
-      var displayBtn  = document.getElementById('displayBtn');
       var displayMenu = document.getElementById('displayMenu');
-      if (!displayBtn || !displayMenu) return;
+      var rmbDisplay  = document.getElementById('rmbDisplay');
+      if (!displayMenu || !rmbDisplay) return;
 
       var SECTIONS = [
         { headerId: 'displaySecTypo',      bodyId: 'displayBodyTypo',      popupId: 'typographyPopupMain' },
@@ -9324,18 +9372,6 @@ ${htmlContent}
       }
 
       /* Open / close the whole Display menu */
-      displayBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        var wasOpen = displayMenu.classList.contains('open');
-        _closeAllReaderMenus(true); // suppress: handled below
-        if (!wasOpen) {
-          displayMenu.classList.add('open');
-        } else {
-          _showDisplaySavePrompt();
-        }
-      });
-
-
 
       /* Section header clicks */
       SECTIONS.forEach(function(sec) {
@@ -9459,7 +9495,7 @@ ${htmlContent}
       }
 
       // ── Display ──
-      // rmbDisplay trigger: replica la logica di displayBtn.click()
+      // rmbDisplay trigger: apre/chiude il menu Display
       if (rmbDisplay) {
         rmbDisplay.addEventListener('click', function(e) {
           e.stopPropagation();
