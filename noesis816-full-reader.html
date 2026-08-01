@@ -8163,6 +8163,36 @@ ${htmlContent}
         })();
       }
 
+      // ── Test hooks (expose internals for Puppeteer tests) ─────────
+      window.__test = {
+        get rendition() { return rendition; },
+        get book() { return book; },
+        get _collection() { return _collection; },
+        _saveCollectionToDB: _saveCollectionToDB,
+        _loadCollectionFromDB: _loadCollectionFromDB,
+        _openCollectionDrawer: _openCollectionDrawer,
+        _closeCollectionDrawer: _closeCollectionDrawer,
+        _renderCollectionList: _renderCollectionList,
+        _clearCollection: _clearCollection,
+        _saveChunk: _saveChunk,
+        _importCollectionFromJSON: _importCollectionFromJSON,
+        _exportCollectionJSON: _exportCollectionJSON,
+        _updateCollectionBadge: _updateCollectionBadge,
+        _openChapterInEditor: _openChapterInEditor,
+        _dispatchExtractDownload: _dispatchExtractDownload,
+        get currentBookId() { return currentBookId; },
+        get currentBookTitle() { return currentBookTitle; },
+        get _checkedChunkIds() { return _checkedChunkIds; },
+        get _extractMode() { return _extractMode; },
+        set _extractMode(v) { _extractMode = v; },
+        get _extractFormat() { return _extractFormat; },
+        set _extractFormat(v) { _extractFormat = v; },
+        get _shouldOpenEditor() { return _shouldOpenEditor; },
+        set _shouldOpenEditor(v) { _shouldOpenEditor = v; },
+        extractCurrentChapter: extractCurrentChapter,
+        extractMultipleSections: extractMultipleSections,
+      };
+
       // Init elements
       const libraryInput = document.getElementById('libraryInput');
       const floatingPrevBtn = document.getElementById('floatingPrevBtn');

@@ -2167,6 +2167,19 @@ function initEditor() {
       $('.note-editable').css('height', h + 'px');
     }
     window.addEventListener('resize', _resizeEditor);
+
+    // ── Test hooks (expose internals for Puppeteer tests) ───────
+    window.__test = {
+      get _collection() { return _collection; },
+      get _bookName() { return _bookName; },
+      get _chapterName() { return _chapterName; },
+      get _chapterId() { return _chapterId; },
+      get _mode() { return _mode; },
+      _saveChunk: (typeof _saveChunk === 'function') ? _saveChunk : null,
+      _clearCollection: (typeof _clearCollection === 'function') ? _clearCollection : null,
+      _deleteChunkById: (typeof _deleteChunkById === 'function') ? _deleteChunkById : null,
+    };
+
     // Aspetta che Summernote abbia renderizzato toolbar e statusbar prima di misurare
     requestAnimationFrame(function() {
       requestAnimationFrame(_resizeEditor);
