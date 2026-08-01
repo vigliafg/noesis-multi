@@ -1,0 +1,11 @@
+--- index.html
++++ index.html
+@@ -3844,6 +3898,8 @@
+       <div class="library-header-left">
+         <!-- Hamburger button (mobile only) — positioned at extreme left -->
+         <button id="hamburgerBtnLib" class="lib-header-btn" aria-label="Menu" title="Menu" style="display:none;">☰</button>
++        <!-- Brand: animazione casuale ad ogni apertura -->
++        <span id="libBrand"><span class="lib-brand-noesis">Noesis</span><span class="lib-brand-reader">reader</span></span>
+       </div>
+       <div class="library-header-right">
+         <!-- ADD BOOKS -->

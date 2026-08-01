@@ -1,7 +1,7 @@
 # NOESIS-MAP — Mappa Completa della Basecodice
 
-> **Ultimo aggiornamento:** 2026-07-21 (bug fix SyntaxError + scope issue)
-> **Versione di riferimento:** noesis816-full-reader / noesis816-full-editor (v0.16.1)
+> **Ultimo aggiornamento:** 2026-07-22 (aggiunta documentazione noesis816-full.html unificato)
+> **Versione di riferimento:** noesis816-full-reader / noesis816-full-editor / noesis816-full.html (v0.16.2)
 > **Scopo:** Documento di riferimento completo per qualsiasi futura implementazione di codice sul repository noesis-multi.
 >
 > **Cronologia versioni responsive:**
@@ -66,6 +66,13 @@ noesis-multi/
 │   ├── noesis812-full-reader-responsive.html   reader responsive derivato
 │   ├── noesis812-full-editor.html              editor standalone (v0.12, pre-responsive)
 │   └── noesis812-full-reader.zip               archivio compresso
+│
+├── noesis816-full.html                    ★⭐ UNIFIED v0.16.2 — Reader+Editor (~1.79 MB, 7764 righe)
+│                           Singolo file che unisce Reader (noesis816-full-reader.html)
+│                           e Editor (noesis816-full-editor.html JSON-encodato come sn56Source).
+│                           Flusso Extract → Open in Editor integrato. IDB bridge per
+│                           comunicazione finestra editor ↔ reader. Hamburger menu con
+│                           voce Editor. Pulsante EDITOR nella header della libreria.
 │
 ├── noesis816-reader.html                  ★ READER v0.16.1 — CDN
 │                           Versione con dipendenze CDN jsDelivr (Bootstrap Icons,

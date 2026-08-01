@@ -27,7 +27,8 @@ Prima di scrivere, modificare o anche solo proporre una modifica a un file del r
    `noesis816-full-reader.html` (Reader Full),
    `noesis816-reader.html` (Reader CDN, v0.16.1 con popup contestuale),
    `noesis816-full-editor.html` (Editor Full responsive),
-   `noesis816-editor.html` (Editor CDN).
+   `noesis816-editor.html` (Editor CDN),
+   `noesis816-full.html` (⭐ Unified Reader+Editor — singolo file con sn56Source embedded e flusso Extract→Editor).
    La funzione Annotate usa ora un popup contestuale (ctxAnnotatePopup) anziché
    un menu dropdown. Vedi CHANGELOG.md § v0.16.1. Tutte derivano l'una dall'altra tramite `split_noesis.py`
    o modifiche manuali. Le versioni intermedie (813-815), i reader-only 812
@@ -60,6 +61,17 @@ Prima di scrivere, modificare o anche solo proporre una modifica a un file del r
 > ⚠️ Se ritieni che `noesis-map.md` sia obsoleto rispetto al codice reale, **ferma il lavoro**,
 > apri un'issue o chiedi conferma prima di procedere. Non sovrascrivere la mappa di tua
 > iniziativa se non puoi verificare la tua modifica riga-per-riga.
+>
+> **Nota su `noesis816-full.html` (Unified):** Questa è la versione unificata che include
+> Reader + Editor in un unico file, generata unendo `noesis816-full-reader.html` (base) +
+> `noesis816-full-editor.html` (JSON-encodato come `sn56Source`). L'architettura è documentata
+> nel file `HANDOFF_noesis816-unified.md`. I componenti chiave sono:
+> - `sn56Source`: `<script type="application/json">` contenente l'editor embedded
+> - `_openSn56(payload)`: apre l'editor in una nuova finestra
+> - `extractOpenEditor`: voce "Open in Editor" nel dropdown Extract
+> - `hmbEditor`: voce Editor nel menu hamburger del reader
+> - `libEditorBtn`: pulsante EDITOR nella header della libreria
+> - IDB bridge: postMessage per permettere all'editor di accedere a IndexedDB
 
 ---
 

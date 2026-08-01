@@ -947,6 +947,24 @@ header {
   .note-editable { padding: 6px !important; font-size: 14px; }
   #inspectPanel { height: 60vh; }
 }
+
+/* ── Tablet: 481-768px ── */
+@media screen and (min-width: 481px) and (max-width: 768px) {
+  #appHeader { padding: 6px 12px; }
+  #appHeaderTitle { font-size: 14px; }
+  #bottom-toolbar { padding: 4px 6px; gap: 3px; flex-wrap: wrap; }
+  .btn-editor { padding: 7px 10px; font-size: 14px; min-width: 38px; }
+  #editor-container { padding: 8px; }
+  .note-editable { padding: 8px !important; font-size: 15px; }
+  .note-toolbar { flex-wrap: wrap; }
+  .note-btn-group { margin-bottom: 4px; }
+}
+
+/* ── Desktop: wrap toolbar on narrow windows ── */
+@media screen and (max-width: 1100px) {
+  .note-toolbar { flex-wrap: wrap; }
+  .note-btn-group { margin-bottom: 3px; }
+}
 </style>
 </head>
 <body>
@@ -1281,6 +1299,35 @@ var _chapterName = '';
 var _chapterId   = '';
 var _mode        = 'standalone'; // 'chapter' | 'standalone'
 var _toastShown  = false;     // one-time session toast for chapter mode
+
+
+/* ════════════════════════════════════════════════
+   Load reader collections from shared IndexedDB
+════════════════════════════════════════════════ */
+function _loadReaderCollections(bookId) {
+  if (!bookId) return;
+  var DB_NAME = 'noesisDB';
+  var request = indexedDB.open(DB_NAME, 1);
+  request.onsuccess = function(e) {
+    var db = e.target.result;
+    try {
+      var tx = db.transaction(['books'], 'readonly');
+      var store = tx.objectStore('books');
+      var req = store.get(bookId);
+      req.onsuccess = function() {
+        var bookData = req.result;
+        if (bookData && bookData.collections && Array.isArray(bookData.collections)) {
+          _collection = bookData.collections;
+          _updateCounter();
+          snToast('Loaded ' + _collection.length + ' collection items from library');
+        }
+      };
+      req.onerror = function() { console.warn('Failed to load reader collections'); };
+    } catch(e) { console.warn('Cannot access reader IndexedDB:', e); }
+    db.close();
+  };
+  request.onerror = function() { console.warn('Cannot open noesisDB for collections'); };
+}
 
 
 /* ════════════════════════════════════════════════
@@ -2060,20 +2107,32 @@ function initEditor() {
     /* ── Boot: legge data island se iniettato da noesis720 ── */
     (function _bootPayload() {
       var payloadEl = document.getElementById('noesisPayload');
-      if (!payloadEl) return; // standalone fallback: editor vuoto, input file manuale
+      var raw;
+      if (payloadEl) {
+        raw = payloadEl.textContent;
+      } else {
+        // Fallback: sessionStorage (payload iniettato da noesis-reader)
+        raw = sessionStorage.getItem('noesisEditorPayload');
+        if (raw) sessionStorage.removeItem('noesisEditorPayload');
+      }
+      if (!raw) return; // standalone fallback: editor vuoto
       var payload;
-      try { payload = JSON.parse(payloadEl.textContent); } catch(e) { return; }
+      try { payload = JSON.parse(raw); } catch(e) { return; }
       if (!payload) return;
 
       _mode        = payload.mode        || 'standalone';
       _bookName    = payload.bookName    || '';
       _chapterName = payload.chapterName || '';
       _chapterId   = payload.chapterId   || '';
+      var _bookId  = payload.bookId      || '';
 
       // Carica contenuto in Summernote
       if (payload.htmlContent) {
         $('#editor').summernote('code', payload.htmlContent);
       }
+
+      // Carica collezioni dal reader (IndexedDB bridge)
+      if (_bookId) _loadReaderCollections(_bookId);
 
       // Aggiorna titolo header con contesto
       var headerEl = document.getElementById('appHeaderTitle');
