@@ -5538,6 +5538,7 @@ ${htmlContent}
     // --- CURRENT BOOK TRACKING ---
     let currentBookId = null;
     let currentBookTitle = '';
+    let _currentChapterName = ''; // tracked separately from DOM to avoid status-message pollution
 
     // --- COLLECTIONS ---
     let _collection = []; // [{id, type, src, alt, content, color, book, chapter, date}]
@@ -5613,9 +5614,19 @@ ${htmlContent}
     }
 
     function _saveChunk(chunk) {
+      // Detect type (like editor's _enrichChunk)
+      var c = chunk.content || '';
+      var type = chunk.type || 'text';
+      if (!chunk.type) {
+        if (/<table[\s>]/i.test(c)) type = 'table';
+        else if (/<img[\s>]/i.test(c)) type = 'img';
+      }
+
       var toStore = Object.assign({}, chunk, {
         id: Date.now(),
+        type: type,
         book: currentBookTitle || 'Unknown Book',
+        chapter: _currentChapterName || '',
         date: new Date().toISOString()
       });
       _collection.push(toStore);
@@ -5670,8 +5681,10 @@ ${htmlContent}
       if (collName === null) return; // user cancelled
       collName = collName.trim() || (currentBookTitle || 'Collection');
       var json = JSON.stringify({
+        version: 1,
         name: collName,
-        book: currentBookTitle || 'Collection',
+        bookName: currentBookTitle || 'Collection',
+        chapterName: _currentChapterName || '',
         exportedAt: new Date().toISOString(),
         count: chunks.length,
         chunks: chunks
@@ -6073,10 +6086,11 @@ ${htmlContent}
       const nameEl = document.getElementById('statusChapterName');
       if (!fullPath) {
         nameEl.textContent = '';
+        _currentChapterName = '';
         return;
       }
       const parts = fullPath.split(' › ');
-      // Show parent context when available: "Part I → Chapter 1" instead of just "Chapter 1"
+      _currentChapterName = parts[parts.length - 1] || '';
       if (parts.length > 1) {
         nameEl.textContent = parts[parts.length - 2] + ' → ' + parts[parts.length - 1];
       } else {
@@ -7555,6 +7569,7 @@ ${htmlContent}
       _collFilterType = 'all';
       _collFilterChapter = 'all';
       _checkedChunkIds = {};
+      _populateChapterFilter();
       var activeBtn = document.querySelector('.coll-ft-btn.active');
       if (activeBtn) activeBtn.classList.remove('active');
       var allBtn = document.querySelector('.coll-ft-btn[data-type="all"]');
@@ -7936,8 +7951,7 @@ ${htmlContent}
 
       async function _addToCollection() {
         if (!_savedMedia) return;
-        var chapterEl = document.getElementById('statusChapterName');
-        var chapterName = chapterEl ? chapterEl.textContent : '';
+        var chapterName = _currentChapterName || '';
         var chunk = { type: _savedMedia.type, chapter: chapterName };
         if (_savedMedia.type === 'img') {
           var rawSrc = _savedMedia.data.src;
@@ -8208,6 +8222,14 @@ ${htmlContent}
         get rendition() { return rendition; },
         get book() { return book; },
         get _collection() { return _collection; },
+        // ── User Bookmarks hooks ──
+        get userBookmarks() { return userBookmarks; },
+        renderUbmList: renderUbmList,
+        createUserBookmark: createUserBookmark,
+        openUbmDrawer: openUbmDrawer,
+        closeUbmDrawer: closeUbmDrawer,
+        saveUserBookmarksToDB: saveUserBookmarksToDB,
+        loadUserBookmarksFromDB: loadUserBookmarksFromDB,
         _saveCollectionToDB: _saveCollectionToDB,
         _loadCollectionFromDB: _loadCollectionFromDB,
         _openCollectionDrawer: _openCollectionDrawer,
@@ -8222,6 +8244,7 @@ ${htmlContent}
         _dispatchExtractDownload: _dispatchExtractDownload,
         get currentBookId() { return currentBookId; },
         get currentBookTitle() { return currentBookTitle; },
+        get _currentChapterName() { return _currentChapterName; },
         get _checkedChunkIds() { return _checkedChunkIds; },
         get _extractMode() { return _extractMode; },
         set _extractMode(v) { _extractMode = v; },
@@ -9108,13 +9131,20 @@ ${htmlContent}
             var iframeOff = _getIframeOffset();
             var top = rect.bottom + iframeOff.top + 8;
             /* Center popup under the selected text line */
-            var left = rect.left + iframeOff.left + (rect.width / 2) - 76; /* half of ~152px popup width */
+            var popupW = popup.offsetWidth || 210; /* fallback ~width */
+            var left = rect.left + iframeOff.left + (rect.width / 2) - (popupW / 2);
             if (left < 8) left = 8;
-            if (left + 160 > window.innerWidth - 8) left = window.innerWidth - 168;
+            /* If popup would overflow right edge, flip to right-aligned */
+            if (left + popupW > window.innerWidth - 8) {
+              popup.style.left = 'auto';
+              popup.style.right = '8px';
+            } else {
+              popup.style.left = left + 'px';
+              popup.style.right = 'auto';
+            }
             /* If too close to bottom, show above the selection */
             if (top + 52 > window.innerHeight) top = rect.top + iframeOff.top - 52;
             popup.style.top = top + 'px';
-            popup.style.left = left + 'px';
             popup.style.display = 'flex';
             popup.classList.add('visible');
             _updateActiveState(currentReaderHighlightColor);
@@ -9181,7 +9211,7 @@ ${htmlContent}
         e.stopPropagation();
         extractMenu.classList.toggle('show');
         if (extractMenu.classList.contains('show')) {
-          extractMenu.querySelectorAll('.extract-menu-item').forEach(function(mi) { mi.style.background = ''; });
+          extractMenu.querySelectorAll('.extract-menu-item').forEach(function(mi) { mi.style.background = ''; mi.style.color = ''; mi.style.fontWeight = ''; });
           _extractMode = null;
           var actions = document.getElementById('extractActions');
           if (actions) {
@@ -9510,7 +9540,7 @@ ${htmlContent}
         if (iframe._noesisSelHandler) {
           idoc.removeEventListener('selectionchange', iframe._noesisSelHandler);
         }
-        iframe._noesisCloseHandler = function() { _closeAllReaderMenus(); /* Hide contextual popup only if no text is selected (otherwise user just finished selecting and popup should stay) */ if (typeof _hideCtxAnnotatePopup === 'function' && !_readerHlHasSelection && !_readerPendingCfi) { _hideCtxAnnotatePopup(); } if (window.innerWidth > 768 && typeof sidebarVisible !== 'undefined' && sidebarVisible) { var tsb = document.getElementById('toggleSidebarBtn'); if (tsb) tsb.click(); } };
+        iframe._noesisCloseHandler = function() { _closeAllReaderMenus(); /* Hide contextual popup only if no text is selected (otherwise user just finished selecting and popup should stay) */ if (typeof _hideCtxAnnotatePopup === 'function' && !_readerHlHasSelection && !_readerPendingCfi) { _hideCtxAnnotatePopup(); } /* Close collection drawer when tapping book content */ if (typeof _closeCollectionDrawer === 'function') { _closeCollectionDrawer(); } if (window.innerWidth > 768 && typeof sidebarVisible !== 'undefined' && sidebarVisible) { var tsb = document.getElementById('toggleSidebarBtn'); if (tsb) tsb.click(); } };
         idoc.addEventListener('click', iframe._noesisCloseHandler);
         /* Also listen for selection clearing inside iframe to hide contextual popup */
         iframe._noesisSelHandler = function() {
