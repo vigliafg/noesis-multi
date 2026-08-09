@@ -3796,6 +3796,14 @@
         font-size: 11px;
         gap: 3px;
       }
+      /* Tools dropdown: mobile positioning via .mobile-pos class — anchored below header, right-aligned */
+      .lib-tools-menu.mobile-pos {
+        position: fixed !important;
+        right: 8px !important;
+        left: auto !important;
+        z-index: 1001 !important;
+      }
+
       /* Hide buttons that are in the hamburger menu on mobile — target buttons only, not dropdown containers */
       #libThemesBtn, #libToolsBtn, #libHelpBtn { display: none !important; }
 
@@ -8513,7 +8521,7 @@ ${htmlContent}
           themesBtn.addEventListener('click', function(e) {
             e.stopPropagation();
             var toolsMenu = document.getElementById('libToolsMenu');
-            if (toolsMenu) toolsMenu.classList.add('hidden');
+            if (toolsMenu) { toolsMenu.classList.add('hidden'); toolsMenu.classList.remove('mobile-pos'); toolsMenu.style.top = ''; }
             themesMenu.classList.toggle('hidden');
             themesMenu.classList.toggle('show');
           });
@@ -9589,12 +9597,19 @@ ${htmlContent}
         var themesMenu = document.getElementById('libThemesMenu');
         if (themesMenu) { themesMenu.classList.add('hidden'); themesMenu.classList.remove('show'); }
         toolsMenu.classList.toggle('hidden');
+        // Clean up mobile-positioning class in case it was left over
+        if (toolsMenu.classList.contains('hidden')) {
+          toolsMenu.classList.remove('mobile-pos');
+          toolsMenu.style.top = '';
+        }
       });
       document.addEventListener('click', function(e) {
         var themesMenu = document.getElementById('libThemesMenu');
         var themesBtn = document.getElementById('libThemesBtn');
         if (toolsMenu && !toolsMenu.contains(e.target) && !toolsBtn.contains(e.target)) {
           toolsMenu.classList.add('hidden');
+          toolsMenu.classList.remove('mobile-pos');
+          toolsMenu.style.top = '';
         }
         if (themesMenu && !themesMenu.contains(e.target) && themesBtn && !themesBtn.contains(e.target)) {
           themesMenu.classList.add('hidden');
@@ -10177,7 +10192,27 @@ ${htmlContent}
       hmbAddBooks: function() { var b = document.getElementById('libAddBooksBtn'); if (b) b.click(); },
       hmbLibThemeLight: function() { var b = document.getElementById('libThemeLight'); if (b) b.click(); },
       hmbLibThemeDark: function() { var b = document.getElementById('libThemeDark'); if (b) b.click(); },
-      hmbLibTools: function() { var b = document.getElementById('libToolsBtn'); if (b) b.click(); },
+      hmbLibTools: function() {
+        var menu = document.getElementById('libToolsMenu');
+        if (!menu) return;
+        var opening = menu.classList.contains('hidden');
+        if (opening) {
+          // Close themes menu if open
+          var themesMenu = document.getElementById('libThemesMenu');
+          if (themesMenu) { themesMenu.classList.add('hidden'); themesMenu.classList.remove('show'); }
+          menu.classList.remove('hidden');
+          menu.classList.add('mobile-pos');
+          // Set top to just below the library header
+          var headerEl = document.querySelector('.library-header');
+          if (headerEl) {
+            menu.style.top = (headerEl.getBoundingClientRect().bottom + 8) + 'px';
+          }
+        } else {
+          menu.classList.add('hidden');
+          menu.classList.remove('mobile-pos');
+          menu.style.top = '';
+        }
+      },
       hmbLibRefresh: function() { if (typeof loadLibraryBooks === 'function') loadLibraryBooks(); }
     };
     // Items with dropdown menus need wrapper-visibility workaround on mobile
