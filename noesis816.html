@@ -3796,8 +3796,9 @@
         font-size: 11px;
         gap: 3px;
       }
-      /* Tools dropdown: mobile positioning via .mobile-pos class — anchored below header, right-aligned */
-      .lib-tools-menu.mobile-pos {
+      /* Library dropdowns: mobile positioning via .mobile-pos class — anchored below header, right-aligned */
+      .lib-tools-menu.mobile-pos,
+      .lib-themes-menu.mobile-pos {
         position: fixed !important;
         right: 8px !important;
         left: auto !important;
@@ -8534,6 +8535,8 @@ ${htmlContent}
             applyLibraryTheme();
             themesMenu.classList.add('hidden');
             themesMenu.classList.remove('show');
+            themesMenu.classList.remove('mobile-pos');
+            themesMenu.style.top = '';
           });
         }
         // Dark theme option
@@ -8544,6 +8547,8 @@ ${htmlContent}
             applyLibraryTheme();
             themesMenu.classList.add('hidden');
             themesMenu.classList.remove('show');
+            themesMenu.classList.remove('mobile-pos');
+            themesMenu.style.top = '';
           });
         }
       })();
@@ -9602,6 +9607,10 @@ ${htmlContent}
           toolsMenu.classList.remove('mobile-pos');
           toolsMenu.style.top = '';
         }
+        if (themesMenu.classList.contains('hidden')) {
+          themesMenu.classList.remove('mobile-pos');
+          themesMenu.style.top = '';
+        }
       });
       document.addEventListener('click', function(e) {
         var themesMenu = document.getElementById('libThemesMenu');
@@ -9614,6 +9623,8 @@ ${htmlContent}
         if (themesMenu && !themesMenu.contains(e.target) && themesBtn && !themesBtn.contains(e.target)) {
           themesMenu.classList.add('hidden');
           themesMenu.classList.remove('show');
+          themesMenu.classList.remove('mobile-pos');
+          themesMenu.style.top = '';
         }
       });
     })();
@@ -10190,8 +10201,20 @@ ${htmlContent}
     };
     const hamburgerLibHandlers = {
       hmbAddBooks: function() { var b = document.getElementById('libAddBooksBtn'); if (b) b.click(); },
-      hmbLibThemeLight: function() { var b = document.getElementById('libThemeLight'); if (b) b.click(); },
-      hmbLibThemeDark: function() { var b = document.getElementById('libThemeDark'); if (b) b.click(); },
+      hmbLibThemeLight: function() {
+        localStorage.setItem('noesis-lib-theme', 'light');
+        var libView = document.getElementById('library-view');
+        if (libView) libView.classList.remove('lib-dark');
+        var menu = document.getElementById('libThemesMenu');
+        if (menu) { menu.classList.add('hidden'); menu.classList.remove('show'); menu.classList.remove('mobile-pos'); menu.style.top = ''; }
+      },
+      hmbLibThemeDark: function() {
+        localStorage.setItem('noesis-lib-theme', 'dark');
+        var libView = document.getElementById('library-view');
+        if (libView) libView.classList.add('lib-dark');
+        var menu = document.getElementById('libThemesMenu');
+        if (menu) { menu.classList.add('hidden'); menu.classList.remove('show'); menu.classList.remove('mobile-pos'); menu.style.top = ''; }
+      },
       hmbLibTools: function() {
         var menu = document.getElementById('libToolsMenu');
         if (!menu) return;
@@ -10199,7 +10222,7 @@ ${htmlContent}
         if (opening) {
           // Close themes menu if open
           var themesMenu = document.getElementById('libThemesMenu');
-          if (themesMenu) { themesMenu.classList.add('hidden'); themesMenu.classList.remove('show'); }
+          if (themesMenu) { themesMenu.classList.add('hidden'); themesMenu.classList.remove('show'); themesMenu.classList.remove('mobile-pos'); themesMenu.style.top = ''; }
           menu.classList.remove('hidden');
           menu.classList.add('mobile-pos');
           // Set top to just below the library header
